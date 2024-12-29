@@ -1,4 +1,4 @@
-package com.noisevisionsoftware.fitapplication
+package com.noisevisionsoftware.szytadieta
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

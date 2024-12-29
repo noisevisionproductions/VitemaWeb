@@ -1,4 +1,4 @@
-package com.noisevisionsoftware.fitapplication
+package com.noisevisionsoftware.szytadieta
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.noisevisionsoftware.fitapplication.ui.MainScreen
-import com.noisevisionsoftware.fitapplication.ui.theme.FitApplicationTheme
+import com.noisevisionsoftware.szytadieta.ui.MainScreen
+import com.noisevisionsoftware.szytadieta.ui.theme.FitApplicationTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

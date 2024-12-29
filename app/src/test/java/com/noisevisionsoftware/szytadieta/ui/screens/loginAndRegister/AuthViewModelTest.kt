@@ -1,15 +1,15 @@
-package com.noisevisionsoftware.fitapplication.ui.screens.loginAndRegister
+package com.noisevisionsoftware.szytadieta.ui.screens.loginAndRegister
 
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
-import com.noisevisionsoftware.fitapplication.HiltTestApplication_Application
-import com.noisevisionsoftware.fitapplication.MainDispatcherRule
-import com.noisevisionsoftware.fitapplication.domain.auth.AuthRepository
-import com.noisevisionsoftware.fitapplication.domain.auth.SessionManager
-import com.noisevisionsoftware.fitapplication.domain.exceptions.AppException
-import com.noisevisionsoftware.fitapplication.domain.model.User
-import com.noisevisionsoftware.fitapplication.domain.network.NetworkConnectivityManager
-import com.noisevisionsoftware.fitapplication.ui.common.UiEvent
+import com.noisevisionsoftware.szytadieta.HiltTestApplication_Application
+import com.noisevisionsoftware.szytadieta.MainDispatcherRule
+import com.noisevisionsoftware.szytadieta.domain.auth.AuthRepository
+import com.noisevisionsoftware.szytadieta.domain.auth.SessionManager
+import com.noisevisionsoftware.szytadieta.domain.exceptions.AppException
+import com.noisevisionsoftware.szytadieta.domain.model.User
+import com.noisevisionsoftware.szytadieta.domain.network.NetworkConnectivityManager
+import com.noisevisionsoftware.szytadieta.ui.common.UiEvent
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.mockk.coEvery

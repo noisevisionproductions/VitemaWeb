@@ -1,4 +1,4 @@
-package com.noisevisionsoftware.fitapplication.ui.common
+package com.noisevisionsoftware.szytadieta.ui.common
 
 sealed class UiEvent {
     data class ShowError(val message: String) : UiEvent()

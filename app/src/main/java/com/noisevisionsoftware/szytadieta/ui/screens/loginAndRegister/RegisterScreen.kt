@@ -1,4 +1,4 @@
-package com.noisevisionsoftware.fitapplication.ui.screens.loginAndRegister
+package com.noisevisionsoftware.szytadieta.ui.screens.loginAndRegister
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -41,7 +41,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.noisevisionsoftware.fitapplication.ui.common.UiEventHandler
+import com.noisevisionsoftware.szytadieta.ui.common.UiEventHandler
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable

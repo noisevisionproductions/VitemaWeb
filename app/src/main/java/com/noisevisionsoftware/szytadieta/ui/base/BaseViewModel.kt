@@ -1,10 +1,10 @@
-package com.noisevisionsoftware.fitapplication.ui.base
+package com.noisevisionsoftware.szytadieta.ui.base
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.noisevisionsoftware.fitapplication.domain.exceptions.AppException
-import com.noisevisionsoftware.fitapplication.domain.network.NetworkConnectivityManager
-import com.noisevisionsoftware.fitapplication.ui.common.UiEvent
+import com.noisevisionsoftware.szytadieta.domain.exceptions.AppException
+import com.noisevisionsoftware.szytadieta.domain.network.NetworkConnectivityManager
+import com.noisevisionsoftware.szytadieta.ui.common.UiEvent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -53,7 +53,7 @@ abstract class BaseViewModel(
         }
     }
 
-    protected fun showSuccess(message: String) {
+    fun showSuccess(message: String) {
         viewModelScope.launch {
             if (_isNetworkAvailable.value) {
                 if (_uiEvent.value is UiEvent.ShowSuccess &&
@@ -67,6 +67,10 @@ abstract class BaseViewModel(
                 showNetworkError()
             }
         }
+    }
+
+    fun resetUiEvent() {
+        _uiEvent.value = null
     }
 
     protected suspend fun <T> safeApiCall(

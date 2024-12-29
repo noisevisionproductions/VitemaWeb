@@ -1,4 +1,4 @@
-package com.noisevisionsoftware.fitapplication.domain.auth
+package com.noisevisionsoftware.szytadieta.domain.auth
 
 /*
 class PasswordManager {

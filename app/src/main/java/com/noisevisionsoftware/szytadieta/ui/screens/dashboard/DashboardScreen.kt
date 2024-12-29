@@ -1,8 +1,9 @@
-package com.noisevisionsoftware.fitapplication.ui.screens.dashboard
+package com.noisevisionsoftware.szytadieta.ui.screens.dashboard
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -15,30 +16,38 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.MonitorWeight
-import androidx.compose.material.icons.filled.RestaurantMenu
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.noisevisionsoftware.szytadieta.ui.common.UiEventHandler
+import com.noisevisionsoftware.szytadieta.ui.screens.profile.ProfileViewModel
 
 @Composable
 fun DashboardScreen(
+    profileViewModel: ProfileViewModel = hiltViewModel(),
     onLogoutClick: () -> Unit = {},
     onMealPlanClick: () -> Unit = {},
     onCaloriesTrackerClick: () -> Unit = {},
@@ -47,71 +56,80 @@ fun DashboardScreen(
     onProgressClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {}
 ) {
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp)
     ) {
-        TopBar(onLogoutClick = onLogoutClick)
-
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp)
+                .fillMaxSize()
+                .padding(16.dp)
         ) {
-            item {
-                DashboardCard(
-                    title = "Plan posiłków",
-                    icon = Icons.Default.RestaurantMenu,
-                    backgroundColor = MaterialTheme.colorScheme.primary,
-                    onClick = onMealPlanClick
-                )
-            }
-            item {
-                DashboardCard(
-                    title = "Licznik kalorii",
-                    icon = Icons.Default.MonitorWeight,
-                    backgroundColor = MaterialTheme.colorScheme.secondary,
-                    onClick = onCaloriesTrackerClick
-                )
-            }
-            item {
-                DashboardCard(
-                    title = "Nawodnienie",
-                    icon = Icons.Default.WaterDrop,
-                    backgroundColor = MaterialTheme.colorScheme.tertiary,
-                    onClick = onWaterTrackerClick
-                )
-            }
-            item {
-                DashboardCard(
-                    title = "Przepisy",
-                    icon = Icons.AutoMirrored.Filled.MenuBook,
-                    backgroundColor = MaterialTheme.colorScheme.primary,
-                    onClick = onRecipesClick
-                )
-            }
-            item {
-                DashboardCard(
-                    title = "Postępy",
-                    icon = Icons.AutoMirrored.Filled.ShowChart,
-                    backgroundColor = MaterialTheme.colorScheme.secondary,
-                    onClick = onProgressClick
-                )
-            }
-            item {
-                DashboardCard(
-                    title = "Ustawienia",
-                    icon = Icons.Default.Settings,
-                    backgroundColor = MaterialTheme.colorScheme.tertiary,
-                    onClick = onSettingsClick
-                )
+            TopBar(onLogoutClick = onLogoutClick)
+
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp)
+            ) {
+                /*   item {
+                   DashboardCard(
+                       title = "Plan posiłków",
+                       icon = Icons.Default.RestaurantMenu,
+                       backgroundColor = MaterialTheme.colorScheme.primary,
+                       onClick = onMealPlanClick
+                   )
+               }
+               item {
+                   DashboardCard(
+                       title = "Licznik kalorii",
+                       icon = Icons.Default.MonitorWeight,
+                       backgroundColor = MaterialTheme.colorScheme.secondary,
+                       onClick = onCaloriesTrackerClick
+                   )
+               }
+               item {
+                   DashboardCard(
+                       title = "Nawodnienie",
+                       icon = Icons.Default.WaterDrop,
+                       backgroundColor = MaterialTheme.colorScheme.tertiary,
+                       onClick = onWaterTrackerClick
+                   )
+               }
+               item {
+                   DashboardCard(
+                       title = "Przepisy",
+                       icon = Icons.AutoMirrored.Filled.MenuBook,
+                       backgroundColor = MaterialTheme.colorScheme.primary,
+                       onClick = onRecipesClick
+                   )
+               }*/
+                item {
+                    DashboardCard(
+                        title = "Postępy",
+                        icon = Icons.AutoMirrored.Filled.ShowChart,
+                        backgroundColor = MaterialTheme.colorScheme.primary,
+                        onClick = onProgressClick
+                    )
+                }
+                item {
+                    DashboardCard(
+                        title = "Ustawienia",
+                        icon = Icons.Default.Settings,
+                        backgroundColor = MaterialTheme.colorScheme.tertiary,
+                        onClick = onSettingsClick
+                    )
+                }
             }
         }
+        UiEventHandler(
+            uiEvent = profileViewModel.uiEvent,
+            modifier = Modifier.align(Alignment.TopCenter),
+        )
     }
 }
 
@@ -120,6 +138,8 @@ fun TopBar(
     onLogoutClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showLogoutDialog by remember { mutableStateOf(false) }
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -127,7 +147,9 @@ fun TopBar(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column {
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
             Text(
                 text = "Witaj!",
                 style = MaterialTheme.typography.headlineMedium,
@@ -140,27 +162,39 @@ fun TopBar(
             )
         }
 
-        IconButton(
-            onClick = onLogoutClick
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.Logout,
-                contentDescription = "Wyloguj",
-                modifier = Modifier.size(40.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-        }
+            IconButton(onClick = { showLogoutDialog = true }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Logout,
+                    contentDescription = "Wyloguj",
+                    modifier = Modifier.size(40.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
 
-        IconButton(
-            onClick = {}
-        ) {
-            Icon(
-                imageVector = Icons.Default.AccountCircle,
-                contentDescription = "Profil",
-                modifier = Modifier.size(40.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
+            IconButton(onClick = { }) {
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = "Profil",
+                    modifier = Modifier.size(40.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
         }
+    }
+
+    if (showLogoutDialog) {
+        LogoutConfirmationDialog(
+            onConfirm = {
+                showLogoutDialog = false
+                onLogoutClick()
+            },
+            onDismiss = {
+                showLogoutDialog = false
+            }
+        )
     }
 }
 
@@ -203,6 +237,72 @@ fun DashboardCard(
                 color = MaterialTheme.colorScheme.onPrimary,
                 textAlign = TextAlign.Center
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun LogoutConfirmationDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    BasicAlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = modifier
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            shape = MaterialTheme.shapes.medium,
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 8.dp
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = "Wylogowywanie",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "Czy na pewno chcesz się wylogować?",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(
+                        onClick = onDismiss,
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        )
+                    ) {
+                        Text("Anuluj")
+                    }
+
+                    TextButton(
+                        onClick = onConfirm,
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Text("Wyloguj")
+                    }
+                }
+            }
         }
     }
 }

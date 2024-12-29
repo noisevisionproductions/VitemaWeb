@@ -1,9 +1,9 @@
-package com.noisevisionsoftware.fitapplication.domain.auth
+package com.noisevisionsoftware.szytadieta.domain.auth
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
-import com.noisevisionsoftware.fitapplication.domain.model.User
+import com.noisevisionsoftware.szytadieta.domain.model.User
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 

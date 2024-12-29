@@ -1,15 +1,16 @@
-package com.noisevisionsoftware.fitapplication.ui.screens.loginAndRegister
+package com.noisevisionsoftware.szytadieta.ui.screens.loginAndRegister
 
 import androidx.lifecycle.viewModelScope
-import com.noisevisionsoftware.fitapplication.domain.auth.AuthRepository
-import com.noisevisionsoftware.fitapplication.domain.auth.SessionManager
-import com.noisevisionsoftware.fitapplication.domain.exceptions.AppException
-import com.noisevisionsoftware.fitapplication.domain.exceptions.ErrorMapper
-import com.noisevisionsoftware.fitapplication.domain.model.User
-import com.noisevisionsoftware.fitapplication.domain.network.NetworkConnectivityManager
-import com.noisevisionsoftware.fitapplication.domain.auth.ValidationManager
-import com.noisevisionsoftware.fitapplication.ui.base.BaseViewModel
+import com.noisevisionsoftware.szytadieta.domain.auth.AuthRepository
+import com.noisevisionsoftware.szytadieta.domain.auth.SessionManager
+import com.noisevisionsoftware.szytadieta.domain.auth.ValidationManager
+import com.noisevisionsoftware.szytadieta.domain.exceptions.AppException
+import com.noisevisionsoftware.szytadieta.domain.exceptions.ErrorMapper
+import com.noisevisionsoftware.szytadieta.domain.model.User
+import com.noisevisionsoftware.szytadieta.domain.network.NetworkConnectivityManager
+import com.noisevisionsoftware.szytadieta.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -41,11 +42,14 @@ class AuthViewModel @Inject constructor(
 
     private fun checkAuthState() {
         viewModelScope.launch {
+            delay(1500)
             safeApiCall { authRepository.getCurrentUserData() }
                 .onSuccess { user ->
                     user?.let {
                         sessionManager.saveUserSession(it)
                         _authState.value = AuthState.Success(it)
+                    } ?: run {
+                        _authState.value = AuthState.LoggedOut
                     }
                 }
                 .onFailure { throwable ->
@@ -149,7 +153,6 @@ class AuthViewModel @Inject constructor(
             }
                 .onSuccess {
                     _authState.value = AuthState.LoggedOut
-                    showSuccess("Wylogowano pomyślnie")
                 }
                 .onFailure {
                     showError("Błąd podczas wylogowywania")

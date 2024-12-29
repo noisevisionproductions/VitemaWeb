@@ -1,6 +1,7 @@
-package com.noisevisionsoftware.fitapplication.domain.auth
+package com.noisevisionsoftware.szytadieta.domain.auth
 
-import com.noisevisionsoftware.fitapplication.domain.exceptions.AppException
+import android.icu.util.Calendar
+import com.noisevisionsoftware.szytadieta.domain.exceptions.AppException
 
 object ValidationManager {
 
@@ -42,7 +43,7 @@ object ValidationManager {
             nickname.isBlank() ->
                 Result.failure(AppException.ValidationException("Nazwa użytkownika nie może być pusta"))
 
-            nickname.length <= 3 ->
+            nickname.length <= 2 ->
                 Result.failure(AppException.ValidationException("Nazwa użytkownika musi mieć minimum 3 znaki"))
 
             nickname.length >= 20 ->
@@ -60,6 +61,28 @@ object ValidationManager {
             password != confirmPassword ->
                 Result.failure(AppException.ValidationException("Hasła nie są identyczne"))
 
+            else -> Result.success(Unit)
+        }
+    }
+
+    fun validateBirthDate(birthDate: Long): Result<Unit> {
+        val calendar = Calendar.getInstance()
+        val birthCalendar = Calendar.getInstance().apply {
+            timeInMillis = birthDate
+        }
+
+        val age = calendar.get(Calendar.YEAR) - birthCalendar.get(Calendar.YEAR)
+
+        return when {
+            birthDate > System.currentTimeMillis() -> {
+                Result.failure(AppException.ValidationException("Data urodzenia nie może być w przyszłości"))
+            }
+            age > 100 -> {
+                Result.failure(AppException.ValidationException("Nieprawidłowa data urodzenia"))
+            }
+            age < 13 -> {
+                Result.failure(AppException.ValidationException("Musisz mieć co najmniej 13 lat"))
+            }
             else -> Result.success(Unit)
         }
     }

@@ -1,11 +1,12 @@
-package com.noisevisionsoftware.fitapplication
+package com.noisevisionsoftware.szytadieta
 
 import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.noisevisionsoftware.fitapplication.domain.auth.AuthRepository
-import com.noisevisionsoftware.fitapplication.domain.auth.SessionManager
-import com.noisevisionsoftware.fitapplication.domain.network.NetworkConnectivityManager
+import com.noisevisionsoftware.szytadieta.domain.auth.AuthRepository
+import com.noisevisionsoftware.szytadieta.domain.auth.SessionManager
+import com.noisevisionsoftware.szytadieta.domain.network.NetworkConnectivityManager
+import com.noisevisionsoftware.szytadieta.domain.repository.WeightRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -36,6 +37,12 @@ class AppModule {
         firestore: FirebaseFirestore
     ): AuthRepository {
         return AuthRepository(auth, firestore)
+    }
+
+    @Provides
+    @Singleton
+    fun provideWeightRepository(firestore: FirebaseFirestore): WeightRepository {
+        return WeightRepository(firestore)
     }
 
     @Provides

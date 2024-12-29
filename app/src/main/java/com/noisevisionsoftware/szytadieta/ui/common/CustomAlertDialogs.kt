@@ -1,4 +1,4 @@
-package com.noisevisionsoftware.fitapplication.ui.common
+package com.noisevisionsoftware.szytadieta.ui.common
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -23,6 +23,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -195,6 +196,13 @@ fun UiEventHandler(
     val currentEvent by uiEvent.collectAsState()
     var lastEventKey by remember { mutableIntStateOf(0) }
 
+    DisposableEffect(Unit) {
+        onDispose {
+            localEvent = null
+            lastEventKey = 0
+        }
+    }
+
     LaunchedEffect(currentEvent, lastEventKey) {
         localEvent = currentEvent
         when (currentEvent) {
@@ -234,7 +242,6 @@ fun UiEventHandler(
             },
             onDismiss = {
                 localEvent = null
-                // Usuwamy czyszczenie eventu w ViewModel
             },
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )

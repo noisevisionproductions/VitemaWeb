@@ -1,4 +1,4 @@
-package com.noisevisionsoftware.fitapplication.domain.exceptions
+package com.noisevisionsoftware.szytadieta.domain.exceptions
 
 sealed class AppException(override val message: String) : Exception(message) {
     data class AuthException(override val message: String) : AppException(message)

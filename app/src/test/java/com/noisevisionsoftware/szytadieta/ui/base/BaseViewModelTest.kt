@@ -1,10 +1,10 @@
-package com.noisevisionsoftware.fitapplication.ui.base
+package com.noisevisionsoftware.szytadieta.ui.base
 
 import app.cash.turbine.test
-import com.noisevisionsoftware.fitapplication.MainDispatcherRule
-import com.noisevisionsoftware.fitapplication.domain.exceptions.AppException
-import com.noisevisionsoftware.fitapplication.domain.network.NetworkConnectivityManager
-import com.noisevisionsoftware.fitapplication.ui.common.UiEvent
+import com.noisevisionsoftware.szytadieta.MainDispatcherRule
+import com.noisevisionsoftware.szytadieta.domain.exceptions.AppException
+import com.noisevisionsoftware.szytadieta.domain.network.NetworkConnectivityManager
+import com.noisevisionsoftware.szytadieta.ui.common.UiEvent
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi

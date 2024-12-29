@@ -1,4 +1,4 @@
-package com.noisevisionsoftware.fitapplication.domain.network
+package com.noisevisionsoftware.szytadieta.domain.network
 
 import android.content.Context
 import android.net.ConnectivityManager
@@ -7,7 +7,7 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import app.cash.turbine.test
 import com.google.common.truth.Truth.assertThat
-import com.noisevisionsoftware.fitapplication.MainDispatcherRule
+import com.noisevisionsoftware.szytadieta.MainDispatcherRule
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import io.mockk.every

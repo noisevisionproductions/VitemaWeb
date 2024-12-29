@@ -1,4 +1,4 @@
-package com.noisevisionsoftware.fitapplication.domain.network
+package com.noisevisionsoftware.szytadieta.domain.network
 
 import android.content.Context
 import android.net.ConnectivityManager

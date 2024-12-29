@@ -1,4 +1,4 @@
-package com.noisevisionsoftware.fitapplication.domain.auth
+package com.noisevisionsoftware.szytadieta.domain.auth
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -7,8 +7,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import com.noisevisionsoftware.fitapplication.MainDispatcherRule
-import com.noisevisionsoftware.fitapplication.domain.model.User
+import com.noisevisionsoftware.szytadieta.MainDispatcherRule
+import com.noisevisionsoftware.szytadieta.domain.model.User
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi

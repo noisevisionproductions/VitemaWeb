@@ -1,7 +1,7 @@
-package com.noisevisionsoftware.fitapplication
+package com.noisevisionsoftware.szytadieta
 
-import com.noisevisionsoftware.fitapplication.domain.auth.AuthRepository
-import com.noisevisionsoftware.fitapplication.domain.network.NetworkConnectivityManager
+import com.noisevisionsoftware.szytadieta.domain.auth.AuthRepository
+import com.noisevisionsoftware.szytadieta.domain.network.NetworkConnectivityManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.components.SingletonComponent

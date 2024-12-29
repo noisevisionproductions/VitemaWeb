@@ -1,4 +1,4 @@
-package com.noisevisionsoftware.fitapplication
+package com.noisevisionsoftware.szytadieta
 
 import android.app.Application
 import com.google.firebase.FirebaseApp

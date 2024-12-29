@@ -1,4 +1,4 @@
-package com.noisevisionsoftware.fitapplication.domain.exceptions
+package com.noisevisionsoftware.szytadieta.domain.exceptions
 
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException

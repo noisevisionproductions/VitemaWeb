@@ -1,4 +1,4 @@
-package com.noisevisionsoftware.fitapplication.domain.auth
+package com.noisevisionsoftware.szytadieta.domain.auth
 
 import android.text.TextUtils
 import androidx.compose.runtime.ExperimentalComposeApi
@@ -12,7 +12,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import com.noisevisionsoftware.fitapplication.domain.model.User
+import com.noisevisionsoftware.szytadieta.domain.model.User
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
