@@ -1,17 +1,48 @@
+# IDE-specific files
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+.idea/
 .DS_Store
-/build
+
+# Gradle files (jeśli projekt używa Gradle, np. w Firebase Hosting)
+.gradle
+local.properties
 /captures
 .externalNativeBuild
 .cxx
-local.properties
-**/google-services.json
+/build
 key.properties
+
+# Firebase-specific files
+**/google-services.json
+.firebase/
+
+# Node.js-related files
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+/.vscode/
+
+# Production build
+/build/
+dist/
+
+# Logs
+logs
+*.log
+
+# System files
+*.swp
+*.swo
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Tailwind CSS JIT build cache (jeśli używasz Tailwind)
+.tailwindcss/
+
+# Others (np. pliki zależne od projektu)
+*.gz
