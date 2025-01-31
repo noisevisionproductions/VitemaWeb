@@ -1,8 +1,8 @@
 import React, {useState} from "react";
-import {User} from "../../types/user";
-import useUsers from "../../hooks/useUsers";
-import UserSelectorTable from "../users/UserSelectorTable";
-import SearchInput from "../common/SearchInput";
+import {User} from "../../../types/user";
+import useUsers from "../../../hooks/useUsers";
+import UserSelectorTable from "../../users/UserSelectorTable";
+import SearchInput from "../../common/SearchInput";
 
 interface UserSelectorProps {
     selectedUser: User | null,

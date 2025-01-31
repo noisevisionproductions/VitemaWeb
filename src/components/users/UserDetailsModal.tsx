@@ -1,6 +1,6 @@
 import React from 'react';
 import { User, Gender } from '../../types/user';
-import { formatDate, calculateAge } from '../../utils/dateFormatters';
+import {calculateAge, formatTimestamp} from '../../utils/dateFormatters';
 import { Dialog } from '@headlessui/react';
 import { X } from 'lucide-react';
 
@@ -63,7 +63,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({ user, onClose}) => 
                                     Data utworzenia
                                 </label>
                                 <div className="mt-1 text-sm text-gray-900">
-                                    {formatDate(user.createdAt)}
+                                    {formatTimestamp(user.createdAt)}
                                 </div>
                             </div>
                             <div>

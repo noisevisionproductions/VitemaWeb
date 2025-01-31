@@ -1,22 +1,23 @@
-import {defineConfig} from 'vite'
-import react from '@vitejs/plugin-react'
-import * as path from "node:path";
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import * as path from 'node:path';
 
 export default defineConfig({
     plugins: [react()],
     resolve: {
         alias: {
-            "@": path.resolve(__dirname, "./src")
-        }
+            '@': path.resolve(__dirname, 'src'),
+        },
     },
     build: {
-        outDir: 'dist',
+        chunkSizeWarningLimit: 1000, // Zwiększ limit ostrzeżeń
         rollupOptions: {
             output: {
-                manualChunks: {
-                    vendor: ['react', 'react-dom']
+                manualChunks(id) {
+                    if (id.includes('node_modules/xlsx')) return 'xlsx';
+                    if (id.includes('node_modules')) return 'vendor';
                 }
             }
-        }
-    }
-})
+        },
+    },
+});

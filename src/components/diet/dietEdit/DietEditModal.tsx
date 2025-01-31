@@ -3,7 +3,7 @@ import { Diet } from '../../../types/diet';
 import { toast } from 'sonner';
 import { X } from 'lucide-react';
 import {Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle} from "../../ui/sheet";
-import { doc, updateDoc } from 'firebase/firestore';
+import {doc, Timestamp, updateDoc} from 'firebase/firestore';
 import { db } from '../../../config/firebase';
 import LoadingSpinner from '../../common/LoadingSpinner';
 import { FirebaseService } from "../../../services/FirebaseService";
@@ -33,7 +33,7 @@ const DietEditModal: React.FC<DietEditModalProps> = ({
             const dietRef = doc(db, 'diets', diet.id);
             await updateDoc(dietRef, {
                 days: editedDiet.days,
-                updatedAt: new Date()
+                updatedAt: Timestamp.fromDate(new Date())
             });
             await onUpdate();
             toast.success('Dieta została zaktualizowana');
@@ -77,11 +77,12 @@ const DietEditModal: React.FC<DietEditModalProps> = ({
     const handleDateUpdate = (dayIndex: number, newDate: string) => {
         const updatedDiet = {...editedDiet};
         if (updatedDiet.days?.[dayIndex]) {
-            updatedDiet.days[dayIndex].date = newDate;
+            const [year, month, day] = newDate.split('-').map(Number);
+            const date = new Date(year, month - 1, day);
+            updatedDiet.days[dayIndex].date = Timestamp.fromDate(date);
             setEditedDiet(updatedDiet);
         }
     };
-
 
     const renderContent = () => {
         if (isLoadingRecipes) {

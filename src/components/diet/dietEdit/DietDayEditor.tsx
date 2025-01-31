@@ -1,6 +1,7 @@
 import React from 'react';
-import { Day, MealType, Recipe } from '../../../types/diet';
+import {Day, MealType, Recipe} from '../../../types/diet';
 import DietMealEditor from './DietMealEditor';
+import {Timestamp} from "firebase/firestore";
 
 interface DietDayEditorProps {
     day: Day;
@@ -17,15 +18,10 @@ const DietDayEditor: React.FC<DietDayEditorProps> = ({
                                                          onDateUpdate,
                                                          onMealTimeUpdate
                                                      }) => {
-    const formatDateForInput = (dateStr: string) => {
-        const [day, month, year] = dateStr.split('.');
-        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-    };
 
-    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const date = new Date(e.target.value);
-        const formattedDate = `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`;
-        onDateUpdate(dayIndex, formattedDate);
+    const dateToInputFormat = (timestamp: Timestamp) => {
+        const date = timestamp.toDate();
+        return date.toISOString().split('T')[0];
     };
 
     const sortedMeals = [...day.meals].sort((a, b) => {
@@ -50,11 +46,12 @@ const DietDayEditor: React.FC<DietDayEditorProps> = ({
                 <h3 className="text-lg font-medium">Dzień {dayIndex + 1}</h3>
                 <input
                     type="date"
-                    value={formatDateForInput(day.date)}
-                    onChange={handleDateChange}
+                    value={dateToInputFormat(day.date)}
+                    onChange={(e) => onDateUpdate(dayIndex, e.target.value)}
                     className="border rounded-md px-2 py-1"
                 />
             </div>
+
 
             <div className="space-y-4">
                 {sortedMeals.map((meal, mealIndex) => (

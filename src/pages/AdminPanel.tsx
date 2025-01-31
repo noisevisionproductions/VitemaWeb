@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import AdminLayout from '../components/layout/AdminLayout';
 import {TabName} from '../types/navigation';
-import ExcelUpload from "../components/upload/ExcelUpload";
+import ExcelUpload from "../components/diet/upload/ExcelUpload";
 import UsersManagement from "../components/users/UsersManagement";
 import DietManagement from "../components/diet/DietManagement";
 import StatsPanel from "../components/stats/StatsPanel";

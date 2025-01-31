@@ -1,54 +1,72 @@
-import {MealType} from "../types/diet";
+import {DietTemplate, MealType, ParsedDietData, ParsedMeal} from "../types/diet";
 import {read, utils, WorkBook} from 'xlsx';
-
-interface ParsedMeal {
-    time: string,
-    mealType: MealType,
-    name: string,
-    instructions: string,
-    nutritionalValues: {
-        calories: number;
-        protein: number;
-        fat: number;
-        carbs: number;
-    };
-}
+import {Timestamp} from "firebase/firestore";
 
 export interface ParsedDay {
-    date: string;
+    date: Timestamp;
     meals: ParsedMeal[];
 }
 
-export interface ParsedExcelResult {
-    days: ParsedDay[];
-    shoppingList: string[];
+interface ParsedExcelResult {
+    meals: ParsedMeal[];
+    totalMeals: number;
 }
 
 export class ExcelParserService {
-    private static getMealType(time: string): MealType {
-        const hour = parseInt(time.split(':')[0]);
+    private static parseNutritionalValues(value: string | undefined): ParsedMeal['nutritionalValues'] | undefined {
+        if (!value) return undefined;
 
-        if (hour >= 3 && hour < 9) return MealType.BREAKFAST;
-        if (hour >= 9 && hour < 12) return MealType.SECOND_BREAKFAST;
-        if (hour >= 12 && hour < 16) return MealType.LUNCH;
-        if (hour >= 16 && hour < 19) return MealType.SNACK;
-        return MealType.DINNER
-    }
-
-    private static parseNutritionalValues(value: string): {
-        calories: number;
-        protein: number;
-        fat: number;
-        carbs: number;
-    } {
-        // Format: "450 kcal, 30 g białka, 12 g tłuszczu, 50 g węglowodanów"
         const values = value.split(',').map(v => parseFloat(v));
+        if (values.length !== 4 || values.some(isNaN)) return undefined;
+
         return {
             calories: values[0] || 0,
             protein: values[1] || 0,
             fat: values[2] || 0,
             carbs: values[3] || 0
         };
+    }
+
+    private static parseIngredients(value: string): string[] {
+        // Usuń kropki z końca każdego składnika
+        const cleanValue = value.split(',')
+            .map(item => item.trim().replace(/\.$/, ''))
+            .join(',');
+
+        const ingredients: string[] = [];
+        const parts = cleanValue.split(',');
+        let currentIngredient = '';
+
+        for (const part of parts) {
+            const trimmedPart = part.trim();
+
+            // Jeśli obecny składnik jest pusty, zacznij nowy
+            if (!currentIngredient) {
+                currentIngredient = trimmedPart;
+                continue;
+            }
+
+            // Sprawdź, czy ostatnie 5 znaków obecnego składnika zawiera przecinek
+            const lastFiveChars = currentIngredient.slice(-5);
+            if (lastFiveChars.includes(',')) {
+                // Jeśli tak, dodaj kolejną część do obecnego składnika
+                currentIngredient += ', ' + trimmedPart;
+            } else {
+                // Jeśli nie, zapisz obecny składnik i zacznij nowy
+                ingredients.push(currentIngredient);
+                currentIngredient = trimmedPart;
+            }
+        }
+
+        // Dodaj ostatni składnik
+        if (currentIngredient) {
+            ingredients.push(currentIngredient);
+        }
+
+        // Filtruj puste składniki i usuń kropki z końca
+        return ingredients
+            .filter(item => item.length > 0)
+            .map(item => item.trim().replace(/\.$/, ''));
     }
 
     static async parseDietExcel(file: File): Promise<ParsedExcelResult> {
@@ -62,58 +80,69 @@ export class ExcelParserService {
                 defval: ''
             }) as string[][];
 
-            const days: ParsedDay[] = [];
-            let currentDay: ParsedDay | null = null;
-            let shoppingList: string[] = [];
-
-            const firstDataRow = jsonData[1];
-            if (firstDataRow && firstDataRow.length >= 5) {
-                const shoppingListText = firstDataRow[4];
-                if (shoppingListText) {
-                    shoppingList = shoppingListText
-                        .split(',')
-                        .map(item => item.trim())
-                        .filter(item => item.length > 0);
-                }
-            }
 
             // Pomijamy wiersz nagłówkowy
+            const meals: ParsedMeal[] = [];
             for (let i = 1; i < jsonData.length; i++) {
-                const row = jsonData[i] as any[];
-                if (!row[0]) continue;
+                const row = jsonData[i];
+                // Pomijamy puste wiersze lub te, które mają tylko notatkę
+                if (!row[1]) continue; // Sprawdzamy kolumnę B (nazwa), nie A (notatki)
 
-                const time = row[0];
-                const [datePart] = time.split(' ');
-                const date = datePart.replace(',', '').trim();
-
-                if (!currentDay || currentDay.date !== date) {
-                    if (currentDay) days.push(currentDay);
-                    currentDay = {
-                        date,
-                        meals: []
-                    };
-                }
-
-                if (currentDay) {
-                    currentDay.meals.push({
-                        time: time.split(' ')[1],
-                        mealType: this.getMealType(time.split(' ')[1]),
-                        name: row[1],
-                        instructions: row[2],
-                        nutritionalValues: this.parseNutritionalValues(row[3])
-                    });
-                }
+                meals.push({
+                    name: row[1].trim(),             // Kolumna B: Nazwa
+                    instructions: row[2].trim(),      // Kolumna C: Sposób przygotowania
+                    ingredients: this.parseIngredients(row[3]), // Kolumna D: Lista składników
+                    nutritionalValues: this.parseNutritionalValues(row[4]), // Kolumna E: Wartości odżywcze (opcjonalne)
+                    mealType: MealType.BREAKFAST,    // Tymczasowo, zostanie zaktualizowane przez szablon
+                    time: ''                         // Tymczasowo, zostanie zaktualizowane przez szablon
+                });
             }
 
-            if (currentDay) days.push(currentDay);
-
             return {
-                days,
-                shoppingList
+                meals,
+                totalMeals: meals.length
             };
         } catch (error) {
             console.error('Error parsing Excel file:', error);
             throw new Error('Błąd podczas parsowania pliku Excel');
         }
+    }
+
+    static applyTemplate(parsedExcel: ParsedExcelResult, template: DietTemplate): ParsedDietData {
+        const days: ParsedDay[] = [];
+        const startDate = template.startDate.toDate();
+        let mealIndex = 0;
+
+        for (let i = 0; i < template.duration; i++) {
+            const currentDate = new Date(startDate);
+            currentDate.setDate(startDate.getDate() + i);
+
+            const dayMeals = template.mealTypes.map((mealType, typeIndex) => {
+                const meal = parsedExcel.meals[mealIndex % parsedExcel.meals.length];
+                mealIndex++;
+
+                return {
+                    ...meal,
+                    mealType,
+                    time: template.mealTimes[`meal_${typeIndex}`]
+                };
+            });
+
+            const parsedDay: ParsedDay = {
+                date: Timestamp.fromDate(currentDate),
+                meals: dayMeals
+            };
+
+            days.push(parsedDay);
+        }
+
+        const shoppingList = Array.from(new Set(
+            parsedExcel.meals.flatMap(meal => meal.ingredients)
+        ));
+
+        return {
+            days,
+            shoppingList
+        };
     }
 }

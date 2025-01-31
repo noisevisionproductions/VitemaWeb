@@ -1,6 +1,6 @@
 import React from 'react';
 import {Diet} from '../../types/diet';
-import {Timestamp} from "firebase/firestore";
+import {formatTimestamp} from "../../utils/dateFormatters";
 
 interface DietCardProps {
     diet: Diet & { userEmail?: string };
@@ -9,21 +9,15 @@ interface DietCardProps {
 }
 
 const DietCard: React.FC<DietCardProps> = ({diet, onViewClick, onEditClick}) => {
-    const formatDate = (timestamp: Timestamp) => {
-        return timestamp.toDate().toLocaleDateString('pl-PL');
-    }
-
     const getDietPeriod = (days: Diet['days']) => {
         if (!days || days.length === 0) return 'Brak dni';
 
         const sortedDays = [...days].sort((a, b) => {
-            const dateA = a.date.split('.').reverse().join('-');
-            const dateB = b.date.split('.').reverse().join('-');
-            return dateA.localeCompare(dateB);
+            return a.date.seconds - b.date.seconds;
         });
 
-        const firstDay = sortedDays[0].date;
-        const lastDay = sortedDays[sortedDays.length - 1].date;
+        const firstDay = formatTimestamp(sortedDays[0].date);
+        const lastDay = formatTimestamp(sortedDays[sortedDays.length - 1].date);
 
         return `${firstDay} - ${lastDay}`;
     };
@@ -48,7 +42,7 @@ const DietCard: React.FC<DietCardProps> = ({diet, onViewClick, onEditClick}) => 
                 {diet.createdAt && (
                     <div className="mb-4">
                         <span className="font-medium">Data utworzenia:</span>{' '}
-                        {formatDate(diet.createdAt)}
+                        {formatTimestamp(diet.createdAt)}
                     </div>
                 )}
                 <div className="flex space-x-3">

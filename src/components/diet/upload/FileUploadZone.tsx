@@ -10,7 +10,7 @@ interface FileUploadZoneProps {
 const FileUploadZone: React.FC<FileUploadZoneProps> = ({
                                                            file,
                                                            onFileSelect,
-                                                           disabled = false
+                                                           disabled = false,
                                                        }) => {
     const [isDragging, setIsDragging] = useState<boolean>(false);
     const fileInputRef = React.useRef<HTMLInputElement>(null);

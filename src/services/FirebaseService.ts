@@ -1,18 +1,17 @@
 import {
-    doc,
-    deleteDoc,
     addDoc,
-    query,
     collection,
-    where,
+    doc,
     getDocs,
-    writeBatch,
+    query,
     Timestamp,
-    updateDoc
+    updateDoc,
+    where,
+    writeBatch
 } from 'firebase/firestore';
-import {ref, uploadBytes, getDownloadURL} from 'firebase/storage';
+import {getDownloadURL, ref, uploadBytes} from 'firebase/storage';
 import {db, storage} from '../config/firebase';
-import {Recipe, Diet, ShoppingList, MealType, ParsedDietData} from '../types/diet';
+import {ParsedDietData, ShoppingListItem} from '../types/diet';
 
 export class FirebaseService {
     static async uploadExcelFile(file: File, userId: string) {
@@ -21,55 +20,49 @@ export class FirebaseService {
         return await getDownloadURL(storageRef);
     }
 
-    static async saveShoppingList(shoppingList: Omit<ShoppingList, 'id'>) {
+    static async saveShoppingList(shoppingList: {
+        userId: string;
+        dietId: string;
+        items: string[];
+        createdAt: Timestamp;
+        startDate: string;
+        endDate: string
+    }) {
         const shoppingListRef = collection(db, 'shopping_lists');
         const docRef = await addDoc(shoppingListRef, shoppingList);
         return docRef.id;
     }
 
     static async deleteDietWithRelatedData(dietId: string) {
+        const batch = writeBatch(db);
+
+        // Usuń listę zakupów
         const shoppingListQuery = query(
             collection(db, 'shopping_lists'),
             where('dietId', '==', dietId)
         );
         const shoppingListSnapshot = await getDocs(shoppingListQuery);
-        await Promise.all(
-            shoppingListSnapshot.docs.map(doc => deleteDoc(doc.ref))
+        shoppingListSnapshot.docs.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+
+        // Usuń referencje przepisów
+        const recipeRefsQuery = query(
+            collection(db, 'recipe_references'),
+            where('dietId', '==', dietId)
         );
-
-        await deleteDoc(doc(db, 'diets', dietId));
-    }
-
-    static async saveRecipe(recipe: Omit<Recipe, 'id'>, dietId: string, userId: string, mealType: MealType) {
-        const batch = writeBatch(db);
-
-        const recipesRef = collection(db, 'recipes');
-        const recipeDoc = doc(recipesRef);
-
-        batch.set(recipeDoc, {
-            ...recipe,
-            createdAt: Timestamp.fromDate(new Date()),
-            photos: [],
-            parentRecipeId: null
+        const recipeRefsSnapshot = await getDocs(recipeRefsQuery);
+        recipeRefsSnapshot.docs.forEach(doc => {
+            batch.delete(doc.ref);
         });
 
-        const referencesRef = collection(db, 'recipe_references');
-        const referenceDoc = doc(referencesRef); // Stwórz referencję dokumentu
-
-        batch.set(referenceDoc, {
-            recipeId: recipeDoc.id,
-            dietId,
-            userId,
-            mealType,
-            addedAt: Timestamp.fromDate(new Date())
-        });
+        // Usuń dietę
+        batch.delete(doc(db, 'diets', dietId));
 
         await batch.commit();
-
-        return recipeDoc.id;
     }
 
-    static async saveDiet(
+    static async saveDietWithShoppingList(
         parsedData: ParsedDietData,
         userId: string,
         fileInfo: {
@@ -77,57 +70,113 @@ export class FirebaseService {
             fileUrl: string
         }
     ) {
-        const dietsRef = collection(db, 'diets');
+        try {
+            // 1. Najpierw tworzymy nowy dokument diety
+            const dietsRef = collection(db, 'diets');
+            const dietDocRef = await addDoc(dietsRef, {
+                userId,
+                createdAt: Timestamp.fromDate(new Date()),
+                updatedAt: Timestamp.fromDate(new Date()),
+                days: [],
+                metadata: {
+                    totalDays: parsedData.days.length,
+                    fileName: fileInfo.fileName,
+                    fileUrl: fileInfo.fileUrl
+                }
+            });
 
-        const diet: Omit<Diet, 'id'> = {
-            userId,
-            createdAt: Timestamp.fromDate(new Date()),
-            updatedAt: Timestamp.fromDate(new Date()),
-            days: [],
-            metadata: {
-                totalDays: parsedData.days.length,
-                fileName: fileInfo.fileName,
-                fileUrl: fileInfo.fileUrl
-            }
-        };
+            // 2. Zapisujemy przepisy i zbieramy ich ID
+            const savedRecipeIds: { [key: string]: string } = {};
 
-        const dietDoc = await addDoc(dietsRef, diet);
+            for (let dayIndex = 0; dayIndex < parsedData.days.length; dayIndex++) {
+                const day = parsedData.days[dayIndex];
 
-        const recipePromises = parsedData.days.flatMap(day =>
-            day.meals.map(async (parsedMeal) => {
-                const recipeId = await this.saveRecipe(
-                    {
-                        name: parsedMeal.name,
-                        instructions: parsedMeal.instructions,
-                        nutritionalValues: parsedMeal.nutritionalValues,
+                for (const meal of day.meals) {
+                    const recipe = {
+                        name: meal.name,
+                        instructions: meal.instructions,
+                        nutritionalValues: meal.nutritionalValues,
+                        ingredients: meal.ingredients,
                         createdAt: Timestamp.fromDate(new Date()),
                         photos: [],
                         parentRecipeId: null
-                    },
-                    dietDoc.id,
-                    userId,
-                    parsedMeal.mealType
-                );
+                    };
 
-                return {
-                    recipeId,
-                    mealType: parsedMeal.mealType,
-                    time: parsedMeal.time
-                };
-            })
-        );
+                    const recipesRef = collection(db, 'recipes');
+                    const recipeDocRef = await addDoc(recipesRef, recipe);
 
-        const mealPromises = Promise.all(recipePromises);
-        let mealIndex = 0;
-        const savedMeals = await mealPromises;
+                    // Dodajemy referencję przepisu
+                    await addDoc(collection(db, 'recipe_references'), {
+                        recipeId: recipeDocRef.id,
+                        dietId: dietDocRef.id,
+                        userId,
+                        mealType: meal.mealType,
+                        addedAt: Timestamp.fromDate(new Date())
+                    });
 
-        const updatedDays = parsedData.days.map(day => ({
-            date: day.date,
-            meals: day.meals.map(() => savedMeals[mealIndex++])
-        }));
+                    savedRecipeIds[`${dayIndex}_${meal.mealType}`] = recipeDocRef.id;
+                }
+            }
 
-        await updateDoc(doc(db, 'diets', dietDoc.id), {days: updatedDays});
+            // 3. Aktualizujemy dni w diecie
+            const updatedDays = parsedData.days.map((day, dayIndex) => ({
+                date: day.date,
+                meals: day.meals.map(meal => ({
+                    recipeId: savedRecipeIds[`${dayIndex}_${meal.mealType}`],
+                    mealType: meal.mealType,
+                    time: meal.time
+                }))
+            }));
 
-        return dietDoc.id;
+            // Aktualizujemy dokument diety z dniami
+            await updateDoc(dietDocRef, {days: updatedDays});
+
+            // 4. Zapisujemy listę zakupów
+            await addDoc(collection(db, 'shopping_lists'), {
+                dietId: dietDocRef.id,
+                userId,
+                items: this.organizeShoppingList(parsedData, savedRecipeIds),
+                createdAt: Timestamp.fromDate(new Date()),
+                startDate: parsedData.days[0].date,
+                endDate: parsedData.days[parsedData.days.length - 1].date
+            });
+
+            return dietDocRef.id;
+        } catch (error) {
+            console.error('Error saving diet:', error);
+            throw error;
+        }
+    }
+
+    private static organizeShoppingList(
+        parsedData: ParsedDietData,
+        savedRecipeIds: { [key: string]: string }
+    ): ShoppingListItem[] {
+        const itemsMap = new Map<string, ShoppingListItem>();
+
+        parsedData.days.forEach((day, dayIndex) => {
+            day.meals.forEach((meal) => {
+                const recipeId = savedRecipeIds[`${dayIndex}_${meal.mealType}`];
+
+                meal.ingredients.forEach((ingredient) => {
+                    const normalizedIngredient = ingredient.toLowerCase().trim();
+
+                    if (!itemsMap.has(normalizedIngredient)) {
+                        itemsMap.set(normalizedIngredient, {
+                            name: ingredient,
+                            recipes: []
+                        });
+                    }
+
+                    itemsMap.get(normalizedIngredient)!.recipes.push({
+                        recipeId,
+                        recipeName: meal.name,
+                        dayIndex
+                    });
+                });
+            });
+        });
+
+        return Array.from(itemsMap.values());
     }
 }

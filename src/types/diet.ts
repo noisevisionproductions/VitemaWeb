@@ -36,8 +36,24 @@ export interface Diet {
     }
 }
 
+export interface DietInfo {
+    hasDiet: boolean;
+    startDate: Timestamp | null;
+    endDate: Timestamp | null;
+}
+
+export interface DietTemplate {
+    mealsPerDay: number;
+    startDate: Timestamp;
+    duration: number;
+    mealTimes: {
+        [key: string]: string;
+    };
+    mealTypes: MealType[];
+}
+
 export interface Day {
-    date: string;
+    date: Timestamp;
     meals: DayMeal[];
 }
 
@@ -50,7 +66,8 @@ export interface DayMeal {
 export interface ParsedMeal {
     name: string;
     instructions: string;
-    nutritionalValues: {
+    ingredients: string[];
+    nutritionalValues?: {
         calories: number;
         protein: number;
         fat: number;
@@ -61,7 +78,7 @@ export interface ParsedMeal {
 }
 
 export interface ParsedDay {
-    date: string;
+    date: Timestamp;
     meals: ParsedMeal[];
 }
 
@@ -72,12 +89,21 @@ export interface ParsedDietData {
 
 export interface ShoppingList {
     id: string;
-    userId: string;
     dietId: string;
-    items: string[];
+    userId: string;
+    items: ShoppingListItem[];
     createdAt: Timestamp;
     startDate: string;
     endDate: string;
+}
+
+export interface ShoppingListItem {
+    name: string;
+    recipes: {
+        recipeId: string;
+        recipeName: string;
+        dayIndex: number;
+    }[];
 }
 
 export enum MealType {

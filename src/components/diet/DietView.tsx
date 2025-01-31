@@ -1,7 +1,5 @@
 import React, {useEffect, useState} from "react";
 import {Diet, MealType, Recipe} from "../../types/diet";
-import {doc, getDoc} from "firebase/firestore";
-import {db} from "../../config/firebase";
 import {toast} from "sonner";
 import {
     Sheet,
@@ -12,16 +10,20 @@ import {
 import {X} from "lucide-react";
 import LoadingSpinner from "../common/LoadingSpinner";
 import {useShoppingList} from "../../hooks/useShoppingList";
+import {doc, getDoc} from "firebase/firestore";
+import {db} from "../../config/firebase";
+import {formatDate, formatTimestamp} from "../../utils/dateFormatters";
 
 interface DietViewProps {
     diet: Diet;
     onClose: () => void;
 }
 
-const DietView: React.FC<DietViewProps> = ({diet, onClose}) => {
+const DietView: React.FC<DietViewProps> = ({ diet, onClose }) => {
     const [recipes, setRecipes] = useState<{ [key: string]: Recipe }>({});
     const [loading, setLoading] = useState(true);
-    const {shoppingList, loading: shoppingListLoading} = useShoppingList(diet.id);
+    const { shoppingList, loading: shoppingListLoading } =
+        useShoppingList(diet.id);
 
     useEffect(() => {
         const fetchRecipes = async () => {
@@ -32,27 +34,25 @@ const DietView: React.FC<DietViewProps> = ({diet, onClose}) => {
                 }
 
                 const recipeIds = new Set(
-                    diet.days.flatMap(day =>
-                        day.meals.map(meal => meal.recipeId)
-                    )
+                    diet.days.flatMap((day) => day.meals.map((meal) => meal.recipeId))
                 );
 
                 const recipesData: { [key: string]: Recipe } = {};
                 for (const recipeId of recipeIds) {
                     if (!recipeId) continue;
 
-                    const recipeDoc = await getDoc(doc(db, 'recipes', recipeId));
+                    const recipeDoc = await getDoc(doc(db, "recipes", recipeId));
                     if (recipeDoc.exists()) {
                         recipesData[recipeId] = {
                             id: recipeDoc.id,
-                            ...recipeDoc.data()
+                            ...recipeDoc.data(),
                         } as Recipe;
                     }
                 }
                 setRecipes(recipesData);
             } catch (error) {
-                console.error('Error fetching recipes:', error);
-                toast.error('Błąd podczas pobierania przepisów');
+                console.error("Error fetching recipes:", error);
+                toast.error("Błąd podczas pobierania przepisów");
             } finally {
                 setLoading(false);
             }
@@ -90,12 +90,12 @@ const DietView: React.FC<DietViewProps> = ({diet, onClose}) => {
                 <div className="flex justify-between items-center mb-3">
                     <h3 className="text-lg font-medium">Lista zakupów</h3>
                     <div className="text-sm text-gray-600">
-                        {shoppingList.startDate} - {shoppingList.endDate}
+                        {formatDate(shoppingList.startDate)} - {formatDate(shoppingList.endDate)}
                     </div>
                 </div>
                 <ul className="list-disc list-inside space-y-1">
                     {shoppingList.items.map((item, index) => (
-                        <li key={index} className="text-gray-700">{item}</li>
+                        <li key={index} className="text-gray-700">{item.name}</li>
                     ))}
                 </ul>
             </div>
@@ -129,7 +129,7 @@ const DietView: React.FC<DietViewProps> = ({diet, onClose}) => {
                             Data utworzenia:
                         </span>
                         {' '}
-                        {diet.createdAt.toDate().toLocaleDateString('pl-PL')}
+                        {formatTimestamp(diet.createdAt)}
                     </p>
                 )}
             </div>
@@ -156,7 +156,7 @@ const DietView: React.FC<DietViewProps> = ({diet, onClose}) => {
         return diet.days.map((day, index) => (
             <div key={index} className="border-b pb-6 last:border-b-0">
                 <h3 className="text-lg font-medium mb-4">
-                    Dzień {index + 1} - {day.date}
+                    Dzień {index + 1} - {formatDate(day.date)}
                 </h3>
                 <div className="space-y-4">
                     {day.meals?.map((meal, mealIndex) => {
@@ -203,7 +203,7 @@ const DietView: React.FC<DietViewProps> = ({diet, onClose}) => {
                             onClick={onClose}
                             className="text-gray-400 hover:text-gray-500"
                         >
-                            <X className="h-6 w-6"/>
+                            <X className="h-6 w-6" />
                         </button>
                     </div>
                 </SheetHeader>
@@ -217,5 +217,6 @@ const DietView: React.FC<DietViewProps> = ({diet, onClose}) => {
         </Sheet>
     );
 };
+
 
 export default DietView;

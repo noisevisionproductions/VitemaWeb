@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {collection, getDocs, query, where} from "firebase/firestore";
+import {collection, getDocs, query, Timestamp, where} from "firebase/firestore";
 import {db} from "../config/firebase";
 import {Diet} from "../types/diet";
 
@@ -12,6 +12,10 @@ interface DietInfo {
 export interface UserDietInfo {
     [userId: string]: DietInfo;
 }
+
+const compareDates = (dateA: Timestamp, dateB: Timestamp): number => {
+    return dateA.seconds - dateB.seconds;
+};
 
 export const useDietInfo = (userIds: string[]) => {
     const [dietInfo, setDietInfo] = useState<UserDietInfo>({});
@@ -34,18 +38,28 @@ export const useDietInfo = (userIds: string[]) => {
                     const querySnapshot = await getDocs(q);
 
                     if (!querySnapshot.empty) {
-                        let earliestDate: string | null = null;
-                        let latestDate: string | null = null;
+                        let earliestDate: Timestamp | null = null;
+                        let latestDate: Timestamp | null = null;
 
                         querySnapshot.docs.forEach((doc) => {
                             const diet = doc.data() as Diet;
                             if (diet.days && diet.days.length > 0) {
                                 const dates = diet.days.map(day => day.date);
-                                const minDate = dates.reduce((a, b) => a < b ? a : b);
-                                const maxDate = dates.reduce((a, b) => a > b ? a : b);
 
-                                if (!earliestDate || minDate < earliestDate) earliestDate = minDate;
-                                if (!latestDate || maxDate > latestDate) latestDate = maxDate;
+                                const minDate = dates.reduce((a, b) =>
+                                    compareDates(a, b) <= 0 ? a : b
+                                );
+
+                                const maxDate = dates.reduce((a, b) =>
+                                    compareDates(a, b) >= 0 ? a : b
+                                );
+
+                                if (!earliestDate || compareDates(minDate, earliestDate) < 0) {
+                                    earliestDate = minDate;
+                                }
+                                if (!latestDate || compareDates(maxDate, latestDate) > 0) {
+                                    latestDate = maxDate;
+                                }
                             }
                         });
 
