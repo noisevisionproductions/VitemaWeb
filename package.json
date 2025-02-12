@@ -8,7 +8,11 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "npm run build && firebase deploy --only hosting:admin-panel-firebase-hosting"
+    "deploy": "npm run build && firebase deploy --only hosting:admin-panel-firebase-hosting",
+    "test": "vitest watch",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.17",
@@ -20,31 +24,40 @@
     "@tanstack/react-query": "^4.36.1",
     "axios": "^1.7.9",
     "date-fns": "^2.30.0",
-    "firebase": "^10.7.1",
+    "firebase": "^11.2.0",
     "lodash": "^4.17.21",
     "lucide-react": "^0.294.0",
     "react": "^18.2.0",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.20.0",
     "recharts": "^2.10.3",
     "sonner": "^1.2.4",
     "tailwind-merge": "^2.6.0",
-    "xlsx": "^0.18.5",
     "xlsx-js-style": "^1.2.0",
     "zustand": "^5.0.3"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^14.3.1",
+    "@testing-library/user-event": "^14.6.1",
     "@types/lodash": "^4.17.15",
     "@types/node": "^20.10.4",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.17",
     "@vitejs/plugin-react": "^4.2.1",
+    "@vitest/coverage-v8": "^1.6.1",
+    "@vitest/spy": "^3.0.5",
     "autoprefixer": "^10.4.16",
+    "jsdom": "^23.2.0",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.3.6",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.3.3",
     "vite": "^5.0.7",
-    "worker-loader": "^3.0.8"
+    "vitest": "^1.6.1",
+    "worker-loader": "^3.0.8",
+    "xlsx": "^0.18.5"
   }
 }

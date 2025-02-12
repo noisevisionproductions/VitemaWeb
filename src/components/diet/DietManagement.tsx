@@ -1,71 +1,25 @@
-import React, {useState, useEffect} from 'react';
-import {collection, getDocs} from 'firebase/firestore';
-import {db} from '../../config/firebase';
-import {User} from '../../types/user';
-import DietView from './DietView';
-import {toast} from 'sonner';
+import React, {useState} from 'react';
+import DietView from './view/DietView';
 import DietEditModal from "./edit/DietEditModal";
 import LoadingSpinner from "../common/LoadingSpinner";
 import DietCard from "./DietCard";
 import useUsers from "../../hooks/useUsers";
 import DietFilter from "./DietFilter";
 import {Diet} from "../../types";
+import {useDiets} from "../../hooks/useDiets";
 
 interface DietWithUser extends Diet {
     userEmail?: string;
 }
 
-interface UsersMap {
-    [key: string]: User;
-}
-
 const DietManagement: React.FC = () => {
     const {users, loading: usersLoading} = useUsers();
-    const [diets, setDiets] = useState<DietWithUser[]>([]);
-    const [loading, setLoading] = useState(true);
+    const {diets, loading: dietsLoading} = useDiets(users, usersLoading);
+
     const [selectedDiet, setSelectedDiet] = useState<DietWithUser | null>(null);
     const [editingDiet, setEditingDiet] = useState<DietWithUser | null>(null);
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
-
-    const fetchDiets = async () => {
-        try {
-            const dietsCollection = collection(db, 'diets');
-            const dietsSnapshot = await getDocs(dietsCollection);
-            const dietsData = dietsSnapshot.docs.map(doc => {
-                const data = doc.data();
-                return {
-                    id: doc.id,
-                    ...data,
-                    metadata: data.metadata || {totalDays: data.days?.length || 0},
-                    days: data.days || []
-                } as Diet;
-            });
-
-            const usersMap = users.reduce<UsersMap>((acc, user) => ({
-                ...acc,
-                [user.id]: user
-            }), {});
-
-            const dietsWithUsers = dietsData.map(diet => ({
-                ...diet,
-                userEmail: usersMap[diet.userId]?.email || 'Nieznany użytkownik'
-            }));
-
-            setDiets(dietsWithUsers);
-        } catch (error) {
-            console.error('Error fetching diets:', error);
-            toast.error('Błąd podczas pobierania diet');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        if (!usersLoading) {
-            fetchDiets().catch();
-        }
-    }, [usersLoading, users]);
 
     const filteredDiets = diets.filter(diet => {
         const matchesUser = selectedUserId ? diet.userId === selectedUserId : true;
@@ -79,12 +33,22 @@ const DietManagement: React.FC = () => {
         setSearchQuery('');
     };
 
+
+    const handleDietUpdate = () => {
+        setEditingDiet(null);
+    };
+
+    const handleDietDelete = () => {
+        setSelectedDiet(null);
+        setEditingDiet(null);
+    };
+
     const activeUsers = React.useMemo(() => {
         const uniqueUserIds = new Set(diets.map(diet => diet.userId));
         return users.filter(user => uniqueUserIds.has(user.id));
     }, [diets, users]);
 
-    if (loading || usersLoading) {
+    if (dietsLoading || usersLoading) {
         return (
             <div className="flex justify-center items-center h-64">
                 <LoadingSpinner/>
@@ -124,6 +88,7 @@ const DietManagement: React.FC = () => {
                 <DietView
                     diet={selectedDiet}
                     onClose={() => setSelectedDiet(null)}
+                    onDelete={handleDietDelete}
                 />
             )}
 
@@ -131,7 +96,7 @@ const DietManagement: React.FC = () => {
                 <DietEditModal
                     diet={editingDiet}
                     onClose={() => setEditingDiet(null)}
-                    onUpdate={fetchDiets}
+                    onUpdate={handleDietUpdate}
                 />
             )}
         </div>

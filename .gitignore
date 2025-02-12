@@ -89,3 +89,4 @@ ui-debug.log*
 
 # Testy
 coverage
+.vitest/

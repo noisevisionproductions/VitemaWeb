@@ -5,18 +5,20 @@ import {
     SheetContent,
     SheetHeader,
     SheetTitle,
-} from "../ui/sheet"
-import {X} from "lucide-react";
-import LoadingSpinner from "../common/LoadingSpinner";
-import {useShoppingList} from "../../hooks/useShoppingList";
+} from "../../ui/sheet"
+import { X} from "lucide-react";
+import LoadingSpinner from "../../common/LoadingSpinner";
+import {useShoppingList} from "../../../hooks/useShoppingList";
 import {doc, getDoc} from "firebase/firestore";
-import {db} from "../../config/firebase";
-import {formatDate, formatTimestamp} from "../../utils/dateFormatters";
-import {Diet, MealType, Recipe} from  "../../types";
+import {db} from "../../../config/firebase";
+import {formatDate, formatTimestamp} from "../../../utils/dateFormatters";
+import {Diet, MealType, Recipe, ShoppingListV3} from "../../../types";
+import CategoryShoppingList from "./CategoryShoppingList";
 
 interface DietViewProps {
     diet: Diet;
     onClose: () => void;
+    onDelete: (dietId: string) => void;
 }
 
 const DietView: React.FC<DietViewProps> = ({diet, onClose}) => {
@@ -80,45 +82,17 @@ const DietView: React.FC<DietViewProps> = ({diet, onClose}) => {
             );
         }
 
-        if (!shoppingList) {
+        if (!shoppingList || shoppingList.version !== 3) {
             return null;
         }
 
         return (
-            <div className="bg-gray-50 p-4 rounded-lg">
-                <div className="flex justify-between items-center mb-3">
-                    <h3 className="text-lg font-medium">Lista zakupów</h3>
-                    <div className="text-sm text-gray-600">
-                        {formatDate(shoppingList.startDate)} - {formatDate(shoppingList.endDate)}
-                    </div>
-                </div>
-                <ul className="list-disc list-inside space-y-1">
-                    {shoppingList.version === 2 ? (
-                        // Nowy format (V2)
-                        shoppingList.items.map((item: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined, index: React.Key | null | undefined) => (
-                            <li key={index} className="text-gray-700">{item}</li>
-                        ))
-                    ) : (
-                        // Stary format (V1)
-                        shoppingList.items.map((item: { name: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined; recipes: any[]; }, index: React.Key | null | undefined) => (
-                            <li key={index} className="text-gray-700">
-                                <span>{item.name}</span>
-                                {item.recipes && item.recipes.length > 0 && (
-                                    <div className="ml-6 text-sm text-gray-500">
-                                        {item.recipes.map((recipe, recipeIndex) => (
-                                            <div key={recipeIndex}>
-                                                Dzień {recipe.dayIndex + 1}: {recipe.recipeName} ({getMealTypeLabel(recipe.mealType)}, {recipe.mealTime})
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </li>
-                        ))
-                    )}
-                </ul>
-            </div>
+            <CategoryShoppingList
+                shoppingList={shoppingList as ShoppingListV3}
+                loading={shoppingListLoading}
+            />
         );
-    }
+    };
 
     const renderMetadata = () => {
         if (!diet.metadata) return null;

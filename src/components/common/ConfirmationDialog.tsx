@@ -19,6 +19,7 @@ interface ConfirmationDialogProps {
     confirmLabel?: string;
     cancelLabel?: string;
     variant?: 'default' | 'warning' | 'destructive';
+    isLoading?: boolean;
 }
 
 const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
@@ -29,7 +30,8 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
                                                                    description,
                                                                    confirmLabel = 'Potwierdź',
                                                                    cancelLabel = 'Anuluj',
-                                                                   variant = 'default'
+                                                                   variant = 'default',
+                                                                   isLoading = false
                                                                }) => {
     const getVariantStyles = () => {
         switch (variant) {
@@ -61,7 +63,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
                         onClick={onConfirm}
                         className={`text-white ${getVariantStyles()}`}
                     >
-                        {confirmLabel}
+                        {isLoading ? 'Trwa usuwanie...' : confirmLabel}
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {doc, getDoc, Timestamp, updateDoc} from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { Diet, Recipe, ShoppingList } from '../types';
+import {Diet, Recipe, ShoppingListV3} from '../types';
 import { toast } from 'sonner';
 import { useRecipes } from './useRecipes';
 import { useShoppingList } from './useShoppingList';
@@ -9,7 +9,7 @@ import { useShoppingList } from './useShoppingList';
 interface UseDietEditorReturn {
     diet: Diet | null;
     recipes: { [key: string]: Recipe };
-    shoppingList: ShoppingList | null;
+    shoppingList: ShoppingListV3 | null;
     loading: boolean;
     error: Error | null;
     updateDiet: (updatedDiet: Partial<Diet>) => Promise<void>;

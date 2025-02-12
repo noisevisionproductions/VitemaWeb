@@ -8,7 +8,7 @@ import LoadingSpinner from "../../common/LoadingSpinner";
 interface DietEditModalProps {
     diet: Diet;
     onClose: () => void;
-    onUpdate: () => Promise<void>;
+    onUpdate: () => void;
 }
 
 const DietEditModal: React.FC<DietEditModalProps> = ({
@@ -28,7 +28,7 @@ const DietEditModal: React.FC<DietEditModalProps> = ({
         <Sheet open={true} onOpenChange={onClose}>
             <SheetContent className="w-full sm:max-w-4xl overflow-y-auto">
                 <SheetHeader>
-                    <div className="flex justify-between items-center border-b pb-4">
+                    <div className="flex justify-between items-center border-b pb-2">
                         <SheetTitle>Edycja Diety</SheetTitle>
 
                     </div>
@@ -39,14 +39,14 @@ const DietEditModal: React.FC<DietEditModalProps> = ({
                         <LoadingSpinner />
                     </div>
                 ) : editableDiet && (
-                    <div className="mt-6">
+                    <div className="mt-4">
                         <DietEditTabs
                             diet={editableDiet}
                             recipes={recipes}
                             shoppingList={shoppingList}
                             onUpdate={async (updatedData) => {
                                 await updateDiet(updatedData);
-                                await onUpdate();
+                                onUpdate();
                             }}
                         />
                     </div>

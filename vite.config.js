@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import {defineConfig} from 'vite';
 import react from '@vitejs/plugin-react';
 import * as path from 'node:path';
 
@@ -10,7 +10,7 @@ export default defineConfig({
         },
     },
     build: {
-        chunkSizeWarningLimit: 1000, // Zwiększ limit ostrzeżeń
+        chunkSizeWarningLimit: 1000,
         rollupOptions: {
             output: {
                 manualChunks(id) {
@@ -19,5 +19,5 @@ export default defineConfig({
                 }
             }
         },
-    },
+    }
 });

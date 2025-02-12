@@ -45,4 +45,23 @@ export interface ShoppingListV2 {
     version: 2;
 }
 
-export type ShoppingList = ShoppingListV1 | ShoppingListV2;
+export interface ShoppingListV3 {
+    id: string;
+    dietId: string;
+    userId: string;
+    items: Record<string, CategorizedShoppingListItem[]>;
+    createdAt: Timestamp;
+    startDate: Timestamp;
+    endDate: Timestamp;
+    version: 3;
+}
+
+export interface CategorizedShoppingListItem {
+    name: string;
+    quantity: number;
+    unit: string;
+    original: string;
+    recipes?: ShoppingListRecipeReference[];
+}
+
+export type ShoppingList = ShoppingListV1 | ShoppingListV2 | ShoppingListV3;

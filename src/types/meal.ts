@@ -1,4 +1,5 @@
 import {NutritionalValues} from "./recipe";
+import {ParsedProduct} from "./product";
 
 export enum MealType {
     BREAKFAST = 'BREAKFAST',
@@ -17,7 +18,7 @@ export interface DayMeal {
 export interface ParsedMeal {
     name: string;
     instructions: string;
-    ingredients: string[];
+    ingredients: ParsedProduct[];
     nutritionalValues?: NutritionalValues;
     mealType: MealType;
     time: string;

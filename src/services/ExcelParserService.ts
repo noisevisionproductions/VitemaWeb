@@ -1,6 +1,9 @@
 import {read, utils, WorkBook} from 'xlsx';
 import {Timestamp} from "firebase/firestore";
 import {DietTemplate, MealType, ParsedDietData, ParsedMeal} from "../types";
+import {ParsedProduct} from 'src/types/product';
+import {ProductParsingService} from "./categorization/ProductParsingService";
+import {createSafeProduct} from "../utils/productUtils";
 
 export interface ParsedDay {
     date: Timestamp;
@@ -10,10 +13,14 @@ export interface ParsedDay {
 interface ParsedExcelResult {
     meals: ParsedMeal[];
     totalMeals: number;
-    shoppingList: string[]
+    shoppingList: {
+        original: string;
+        parsed: ParsedProduct;
+    }[];
 }
 
 export class ExcelParserService {
+
     private static parseNutritionalValues(value: string | undefined): ParsedMeal['nutritionalValues'] | undefined {
         if (!value) return undefined;
 
@@ -28,22 +35,67 @@ export class ExcelParserService {
         };
     }
 
-    private static extractShoppingItems(jsonData: string[][]): string[] {
-        const allItems = new Set<string>;
+    private static extractShoppingItems(jsonData: string[][]): {
+        original: string;
+        parsed: ParsedProduct;
+    }[] {
+        const uniqueItems = new Map<string, {
+            original: string;
+            parsed: ParsedProduct;
+            occurrences: number;
+        }>();
 
-        for (const row of jsonData) {
-            if (row[3]?.trim()) {}
+        for (const row of jsonData.slice(1)) {
+            if (!row[3]?.trim()) continue;
+
             const items = row[3]
                 .split(',')
-                .map(item => item.trim().replace(/\.$/, ''))
+                .map(item => item.trim())
                 .filter(item => item.length > 0);
 
-            items.forEach(item => allItems.add(item));
+            for (const item of items) {
+                const parseResult = ProductParsingService.parseProduct(item);
+                const parsedProduct = parseResult.success && parseResult.product
+                    ? parseResult.product
+                    : createSafeProduct(item);
+
+                const key = parsedProduct.name.toLowerCase();
+
+                if (uniqueItems.has(key)) {
+                    const existingItem = uniqueItems.get(key)!;
+                    // Sumujemy, tylko jeśli jednostki są takie same
+                    if (existingItem.parsed.unit === parsedProduct.unit) {
+                        existingItem.parsed.quantity += parsedProduct.quantity;
+                        existingItem.occurrences += 1;
+                    } else {
+                        // Jeśli jednostki są różne, dodaj jako nowy produkt
+                        const newKey = `${key}_${parsedProduct.unit}`;
+                        uniqueItems.set(newKey, {
+                            original: item,
+                            parsed: parsedProduct,
+                            occurrences: 1
+                        });
+                    }
+                } else {
+                    uniqueItems.set(key, {
+                        original: item,
+                        parsed: parsedProduct,
+                        occurrences: 1
+                    });
+                }
+            }
         }
 
-        return Array.from(allItems);
+        // Konwertuj wartości mapy na końcową listę produktów
+        return Array.from(uniqueItems.values()).map(({ original, parsed }) => ({
+            original,
+            parsed: {
+                ...parsed,
+                // Zaokrąglamy quantity do 2 miejsc po przecinku
+                quantity: Math.round(parsed.quantity * 100) / 100
+            }
+        }));
     }
-
 
     static async parseDietExcel(file: File): Promise<ParsedExcelResult> {
         try {
@@ -63,10 +115,35 @@ export class ExcelParserService {
                 const row = jsonData[i];
                 if (!row[1]) continue;
 
+                const ingredients = row[3]
+                    .split(',')
+                    .map(item => item.trim())
+                    .filter(item => item.length > 0)
+                    .map(item => {
+                        const parseResult = ProductParsingService.parseProduct(item);
+                        if (parseResult.success && parseResult.product) {
+                            return {
+                                name: parseResult.product.name,
+                                quantity: parseResult.product.quantity,
+                                unit: parseResult.product.unit,
+                                original: parseResult.product.original,
+                                hasCustomUnit: parseResult.product.hasCustomUnit || false
+                            } as ParsedProduct;
+                        }
+                        // jeśli parsowanie się nie udało, zwracamy domyślny obiekt
+                        return {
+                            name: item,
+                            quantity: 1,
+                            unit: 'szt',
+                            original: item,
+                            hasCustomUnit: false
+                        } as ParsedProduct;
+                    });
+
                 meals.push({
                     name: row[1].trim(),             // Kolumna B: Nazwa
                     instructions: row[2].trim(),      // Kolumna C: Sposób przygotowania
-                    ingredients: [], // Kolumna D: Lista składników
+                    ingredients: ingredients, // Kolumna D: Lista składników
                     nutritionalValues: this.parseNutritionalValues(row[4]), // Kolumna E: Wartości odżywcze (opcjonalne)
                     mealType: MealType.BREAKFAST,    // Tymczasowo, zostanie zaktualizowane przez szablon
                     time: ''                         // Tymczasowo, zostanie zaktualizowane przez szablon
@@ -89,6 +166,19 @@ export class ExcelParserService {
         const startDate = template.startDate.toDate();
         let mealIndex = 0;
 
+        // Sumujemy ilości tych samych produktów
+        const aggregatedProducts = new Map<string, ParsedProduct>();
+
+        parsedExcel.shoppingList.forEach(({ parsed }) => {
+            const key = `${parsed.name}_${parsed.unit}`;
+            if (aggregatedProducts.has(key)) {
+                const existing = aggregatedProducts.get(key)!;
+                existing.quantity += parsed.quantity;
+            } else {
+                aggregatedProducts.set(key, { ...parsed });
+            }
+        });
+
         for (let i = 0; i < template.duration; i++) {
             const currentDate = new Date(startDate);
             currentDate.setDate(startDate.getDate() + i);
@@ -110,52 +200,14 @@ export class ExcelParserService {
             });
         }
 
+        // Konwertujemy zagregowane produkty z powrotem na listę
+        const formattedShoppingList = Array.from(aggregatedProducts.values()).map(product =>
+            `${product.quantity} ${product.unit} ${product.name}`
+        );
+
         return {
             days,
-            shoppingList: parsedExcel.shoppingList
+            shoppingList: formattedShoppingList
         };
     }
-
-
-    /*  private static parseIngredients(value: string): string[] {
-          // Usuń kropki z końca każdego składnika
-          const cleanValue = value.split(',')
-              .map(item => item.trim().replace(/\.$/, ''))
-              .join(',');
-
-          const ingredients: string[] = [];
-          const parts = cleanValue.split(',');
-          let currentIngredient = '';
-
-          for (const part of parts) {
-              const trimmedPart = part.trim();
-
-              // Jeśli obecny składnik jest pusty, zacznij nowy
-              if (!currentIngredient) {
-                  currentIngredient = trimmedPart;
-                  continue;
-              }
-
-              // Sprawdź, czy ostatnie 5 znaków obecnego składnika zawiera przecinek
-              const lastFiveChars = currentIngredient.slice(-5);
-              if (lastFiveChars.includes(',')) {
-                  // Jeśli tak, dodaj kolejną część do obecnego składnika
-                  currentIngredient += ', ' + trimmedPart;
-              } else {
-                  // Jeśli nie, zapisz obecny składnik i zacznij nowy
-                  ingredients.push(currentIngredient);
-                  currentIngredient = trimmedPart;
-              }
-          }
-
-          // Dodaj ostatni składnik
-          if (currentIngredient) {
-              ingredients.push(currentIngredient);
-          }
-
-          // Filtruj puste składniki i usuń kropki z końca
-          return ingredients
-              .filter(item => item.length > 0)
-              .map(item => item.trim().replace(/\.$/, ''));
-      }*/
 }

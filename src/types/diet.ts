@@ -40,4 +40,5 @@ export interface ParsedDay {
 export interface ParsedDietData {
     days: ParsedDay[];
     shoppingList: string[];
+    categorizedProducts?: Record<string, string[]>;
 }

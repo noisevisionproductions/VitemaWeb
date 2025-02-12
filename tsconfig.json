@@ -59,9 +59,11 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
+    "types": ["vitest/globals", "@testing-library/jest-dom"]
   },
   "include": [
-    "src"
+    "src",
+    "node_modules/date-fns/typings.d.ts"
   ],
   "references": [
     {
