@@ -1,40 +1,24 @@
-import {useEffect, useState} from "react";
-import {ChangelogEntry} from "../types/changeLog";
-import {useAuth} from "../contexts/AuthContext";
-import {addDoc, collection, doc, getDoc, getDocs, setDoc, orderBy, query, Timestamp} from "firebase/firestore";
-import {db} from "../config/firebase";
-import {toast} from "sonner";
+import { useEffect, useState } from "react";
+import { ChangelogEntry } from "../types/changeLog";
+import { useAuth } from "../contexts/AuthContext";
+import { toast } from "sonner";
+import { ChangelogService } from "../services/ChangelogService";
 
 export const useChangeLog = () => {
     const [entries, setEntries] = useState<ChangelogEntry[]>([]);
     const [loading, setLoading] = useState(true);
     const [hasUnread, setHasUnread] = useState(false);
-    const {currentUser} = useAuth();
+    const { currentUser } = useAuth();
 
     const fetchChangelog = async () => {
         try {
-            const q = query(
-                collection(db, 'changelog'),
-                orderBy('createdAt', 'desc')
-            );
-            const snapshot = await getDocs(q);
-            const changelogData = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            })) as ChangelogEntry[];
+            const [entries, hasUnread] = await Promise.all([
+                ChangelogService.getAllEntries(),
+                currentUser ? ChangelogService.hasUnreadEntries() : Promise.resolve(false)
+            ]);
 
-            setEntries(changelogData);
-
-            if (currentUser) {
-                const userSettingsRef = doc(db, 'userSettings', currentUser.uid);
-                const userSettings = await getDoc(userSettingsRef);
-                const lastRead = userSettings.data()?.lastChangelogRead?.toDate() || new Date(0);
-
-                const hasNew = changelogData.some(entry =>
-                    entry.createdAt.toDate() > lastRead
-                );
-                setHasUnread(hasNew);
-            }
+            setEntries(entries);
+            setHasUnread(hasUnread);
         } catch (error) {
             console.error('Error fetching changelog:', error);
             toast.error('Błąd podczas pobierania historii zmian');
@@ -47,29 +31,21 @@ export const useChangeLog = () => {
         if (!currentUser) return;
 
         try {
-            const userSettingsRef = doc(db, 'userSettings', currentUser.uid);
-            await setDoc(userSettingsRef, {
-                lastChangelogRead: Timestamp.now()
-            }, { merge: true });
+            await ChangelogService.markAsRead();
             setHasUnread(false);
         } catch (error) {
             console.error('Error marking changelog as read:', error);
         }
     };
 
-    const addEntry = async (entry: Omit<ChangelogEntry, 'id' | 'createdAt' | 'author'>) => {
+    const addEntry = async (data: Omit<ChangelogEntry, 'id' | 'createdAt' | 'author'>) => {
         try {
             if (!currentUser?.email) {
                 toast.error('Musisz być zalogowany, aby dodać wpis');
                 return;
             }
 
-            await addDoc(collection(db, 'changelog'), {
-                ...entry,
-                createdAt: Timestamp.now(),
-                author: currentUser.email
-            });
-
+            await ChangelogService.createEntry(data);
             toast.success('Dodano nowy wpis do historii zmian');
             await fetchChangelog();
         } catch (error) {
@@ -86,7 +62,7 @@ export const useChangeLog = () => {
         entries,
         loading,
         addEntry,
-        refresh: fetchChangelog(),
+        refresh: fetchChangelog,
         hasUnread,
         markAsRead
     };

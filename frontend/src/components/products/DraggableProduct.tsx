@@ -1,6 +1,6 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useDrag} from "react-dnd";
-import {Package, Pencil, X} from "lucide-react";
+import {Loader2, Package, Pencil, X} from "lucide-react";
 import {ParsedProduct} from "../../types/product";
 import CategorySuggestion from "./CategorySuggestion";
 
@@ -24,6 +24,18 @@ const DraggableProduct: React.FC<DraggableProductProps> = ({
                                                                onCategorize,
                                                                onEdit
                                                            }) => {
+    const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [isProcessing, setIsProcessing] = useState<boolean>(false);
+    const [editedQuantity, setEditedQuantity] = useState<number>(product.quantity);
+    const [editedUnit, setEditedUnit] = useState<string>(product.unit);
+    const [editedName, setEditedName] = useState<string>(product.name);
+
+    useEffect(() => {
+        setEditedQuantity(product.quantity);
+        setEditedUnit(product.unit);
+        setEditedName(product.name);
+    }, [product]);
+
     const [{isDragging}, drag] = useDrag<DragItem, unknown, { isDragging: boolean }>(() => ({
         type: 'PRODUCT',
         item: {product, fromCategory: inCategory},
@@ -32,24 +44,36 @@ const DraggableProduct: React.FC<DraggableProductProps> = ({
         })
     }));
 
-    const [isEditing, setIsEditing] = useState<boolean>(false);
-    const [editedQuantity, setEditedQuantity] = useState<number>(product.quantity);
-    const [editedUnit, setEditedUnit] = useState<string>(product.unit);
-    const [editedName, setEditedName] = useState<string>(product.name);
-
     const handleSuggestionAccept = (categoryId: string) => {
         onCategorize?.(product, categoryId);
     };
 
     const handleEditSave = () => {
+        if (!onEdit) return;
+
+        if (editedQuantity <= 0) {
+            alert('Ilość musi być większa od zera');
+            return;
+        }
+
+        if (!editedName.trim()) {
+            alert('Nazwa produktu nie może być pusta');
+            return;
+        }
+
+        setIsProcessing(true);
+
         const editedProduct: ParsedProduct = {
             ...product,
+            name: editedName.trim(),
             quantity: editedQuantity,
-            unit: editedUnit,
-            name: editedName
+            unit: editedUnit.trim(),
+            original: product.original
         };
 
-        onEdit?.(product, editedProduct);
+        onEdit(product, editedProduct);
+
+        setIsProcessing(false);
         setIsEditing(false);
     };
 
@@ -68,15 +92,19 @@ const DraggableProduct: React.FC<DraggableProductProps> = ({
                         <div className="flex gap-1 min-w-[120px]">
                             <input
                                 type="number"
+                                min="0.01"
+                                step="0.01"
                                 value={editedQuantity}
                                 onChange={(e) => setEditedQuantity(Number(e.target.value))}
                                 className="w-16 px-1 py-0.5 border rounded text-sm"
+                                disabled={isProcessing}
                             />
                             <input
                                 type="text"
                                 value={editedUnit}
                                 onChange={(e) => setEditedUnit(e.target.value)}
                                 className="w-12 px-1 py-0.5 border rounded text-sm"
+                                disabled={isProcessing}
                             />
                         </div>
                         <input
@@ -84,17 +112,21 @@ const DraggableProduct: React.FC<DraggableProductProps> = ({
                             value={editedName}
                             onChange={(e) => setEditedName(e.target.value)}
                             className="flex-1 px-1 py-0.5 border rounded text-sm"
+                            disabled={isProcessing}
                         />
                         <div className="flex gap-1">
                             <button
                                 onClick={handleEditSave}
-                                className="px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
+                                disabled={isProcessing}
+                                className="px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50 flex items-center gap-1"
                             >
-                                Zapisz
+                                {isProcessing && <Loader2 className="h-3 w-3 animate-spin" />}
+                                {isProcessing ? 'Zapisywanie...' : 'Zapisz'}
                             </button>
                             <button
                                 onClick={() => setIsEditing(false)}
-                                className="px-2 py-1 text-xs bg-gray-500 text-white rounded hover:bg-gray-600"
+                                disabled={isProcessing}
+                                className="px-2 py-1 text-xs bg-gray-500 text-white rounded hover:bg-gray-600 disabled:opacity-50"
                             >
                                 Anuluj
                             </button>
@@ -138,7 +170,6 @@ const DraggableProduct: React.FC<DraggableProductProps> = ({
                 />
             )}
         </div>
-
     );
 };
 

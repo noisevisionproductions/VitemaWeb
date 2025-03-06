@@ -1,5 +1,6 @@
 import api from "../config/axios";
 import {Diet} from "../types";
+import axios from "axios";
 
 export interface DietInfo {
     hasDiet: boolean;
@@ -24,8 +25,16 @@ export class DietService {
     }
 
     static async getDietById(id: string): Promise<Diet> {
-        const response = await api.get(`${this.BASE_URL}/${id}`);
-        return response.data;
+        try {
+            const response = await api.get(`${this.BASE_URL}/${id}`);
+            return response.data;
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response?.status === 404) {
+                console.log(`Dieta o ID ${id} nie istnieje`);
+                throw new Error(`Dieta o ID ${id} nie istnieje`);
+            }
+            throw error;
+        }
     }
 
     static async getDietsInfoForUsers(userIds: string[]): Promise<UserDietInfo> {
@@ -46,10 +55,8 @@ export class DietService {
     }
 
     static async deleteDiet(id: string): Promise<void> {
-        console.log('DietService: Sending delete request for diet:', id);
         try {
             const response = await api.delete(`/diets/${id}`);
-            console.log('DietService: Delete response:', response);
             return response.data;
         } catch (error) {
             console.error('DietService: Delete request failed:', error);

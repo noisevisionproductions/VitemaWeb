@@ -15,13 +15,14 @@ import {Redo2, Trash2, Undo2} from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {toast} from "sonner";
 import ConfirmationDialog from "../../common/ConfirmationDialog";
-import {DietService} from "../../../services/DietService";
 
 interface DietEditTabsProps {
     diet: Diet;
     recipes: { [key: string]: Recipe };
     shoppingList: ShoppingListV3 | null;
     onUpdate: (updatedDiet: Diet) => Promise<void>;
+    onDelete: (dietId: string) => Promise<void>;
+    onClose?: () => void;
 }
 
 const DietEditTabs: React.FC<DietEditTabsProps> = ({
@@ -29,6 +30,8 @@ const DietEditTabs: React.FC<DietEditTabsProps> = ({
                                                        recipes,
                                                        shoppingList,
                                                        onUpdate,
+                                                       onDelete,
+                                                       onClose
                                                    }) => {
     const navigate = useNavigate();
     const [isDeleting, setIsDeleting] = useState(false);
@@ -51,9 +54,16 @@ const DietEditTabs: React.FC<DietEditTabsProps> = ({
     const handleDelete = async () => {
         try {
             setIsDeleting(true);
-            await DietService.deleteDiet(diet.id);
+            await onDelete(diet.id);
             toast.success('Dieta została usunięta');
-            navigate('/dashboard');
+
+            if (onClose) {
+                onClose();
+            }
+
+            if (navigate) {
+                navigate('/dashboard');
+            }
         } catch (error) {
             console.error('Error deleting diet:', error);
             toast.error('Wystąpił błąd podczas usuwania diety');

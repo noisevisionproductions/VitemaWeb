@@ -1,32 +1,18 @@
-import {useCallback, useEffect, useState} from "react";
-import {collection, doc, getDoc, getDocs} from "firebase/firestore";
-import {db} from "../config/firebase";
-import {toast} from "sonner";
-import {User} from "../types/user";
-import {formatTimestamp} from "../utils/dateFormatters";
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
+import { User } from "../types/user";
+import { UserService } from "../services/UserService";
 
 export default function useUsers() {
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchUsers().catch();
-    }, []);
-
     const fetchUsers = async () => {
         try {
-            const usersCollection = collection(db, 'users');
-            const usersSnapshot = await getDocs(usersCollection);
-            const userData = usersSnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-                createdAt: doc.data().createdAt?.toMillis?.() || doc.data().createdAt,
-                birthDate: doc.data().birthDate?.toMillis?.() || doc.data().birthDate,
-                note: doc.data().note || ''
-            })) as User[];
+            const userData = await UserService.getAllUsers();
             setUsers(userData);
         } catch (error) {
-            console.error('Error fetchin users:', error);
+            console.error('Error fetching users:', error);
             toast.error('Błąd podczas pobierania użytkowników');
         } finally {
             setLoading(false);
@@ -35,18 +21,7 @@ export default function useUsers() {
 
     const getUserById = useCallback(async (userId: string): Promise<User | null> => {
         try {
-            const userDoc = await getDoc(doc(db, 'users', userId));
-            if (userDoc.exists()) {
-                const userData = userDoc.data();
-                return {
-                    id: userDoc.id,
-                    ...userData,
-                    createdAt: formatTimestamp(userData.createdAt),
-                    birthDate: formatTimestamp(userData.birthDate),
-                    note: userData.note || ''
-                } as unknown as User;
-            }
-            return null;
+            return await UserService.getUserById(userId);
         } catch (error) {
             console.error('Error fetching user:', error);
             toast.error('Błąd podczas pobierania użytkownika');
@@ -55,8 +30,8 @@ export default function useUsers() {
     }, []);
 
     useEffect(() => {
-        fetchUsers().catch();
+        fetchUsers().catch(console.error);
     }, []);
 
-    return {users, loading, fetchUsers, getUserById};
+    return { users, loading, fetchUsers, getUserById };
 }

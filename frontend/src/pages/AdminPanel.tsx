@@ -5,7 +5,7 @@ import ExcelUpload from "../components/diet/upload/ExcelUpload";
 import UsersManagement from "../components/users/UsersManagement";
 import DietManagement from "../components/diet/DietManagement";
 import StatsPanel from "../components/stats/StatsPanel";
-import DietGuide from "../components/guide/GuideSection";
+import DietGuide from "../components/guide/DietGuide";
 import Changelog from "../components/changelog/Changelog";
 
 const AdminPanel: React.FC = () => {
@@ -21,18 +21,18 @@ const AdminPanel: React.FC = () => {
                     </div>
                 );
             case 'data':
-                return (
-                    <div>
-                        <h2 className="text-2xl font-bold mb-4">Zarządzanie Dietami</h2>
-                        <DietManagement/>
-                    </div>
-                );
+                return <DietManagement/>
             case 'users':
                 return <UsersManagement/>
             case 'stats':
                 return <StatsPanel/>
             case "guide":
-                return <DietGuide/>
+                return (
+                    <div>
+                        <h2 className="text-2xl font-bold mb-4">Przewodnik</h2>
+                        <DietGuide/>
+                    </div>
+                );
             case "changelog":
                 return <Changelog/>
             default:

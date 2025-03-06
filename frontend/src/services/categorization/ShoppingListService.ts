@@ -1,5 +1,5 @@
 import api from "../../config/axios";
-import { ShoppingListV3, CategorizedShoppingListItem} from "../../types";
+import {ShoppingListV3, CategorizedShoppingListItem} from "../../types";
 import {Timestamp} from "firebase/firestore";
 
 export class ShoppingListService {
@@ -14,7 +14,9 @@ export class ShoppingListService {
         id: string,
         items: Record<string, CategorizedShoppingListItem[]>
     ): Promise<ShoppingListV3> {
-        const response = await api.put(`${this.BASE_URL}/${id}/items`, items);
+        const response = await api.put(`${this.BASE_URL}/${id}/items`, {
+            items: items
+        });
         return response.data;
     }
 
@@ -39,11 +41,10 @@ export class ShoppingListService {
         id: string,
         categoryId: string,
         itemIndex: number
-    ): Promise<ShoppingListV3> {
-        const response = await api.delete(
+    ): Promise<void> {
+        await api.delete(
             `${this.BASE_URL}/${id}/categories/${categoryId}/items/${itemIndex}`
         );
-        return response.data;
     }
 
     static async addItem(
@@ -51,10 +52,23 @@ export class ShoppingListService {
         categoryId: string,
         item: CategorizedShoppingListItem
     ): Promise<ShoppingListV3> {
-        const response = await api.post(
-            `${this.BASE_URL}/${id}/categories/${categoryId}/items`,
-            item
-        );
-        return response.data;
+
+        const requestItem = {
+            name: item.name || "",
+            quantity: item.quantity || 0,
+            unit: item.unit || "",
+            original: item.original || item.name || ""
+        };
+
+        try {
+            const response = await api.post(
+                `${this.BASE_URL}/${id}/categories/${categoryId}/items`,
+                requestItem
+            );
+            return response.data;
+        } catch (error) {
+            console.error("Error adding item:", error);
+            throw error;
+        }
     }
 }

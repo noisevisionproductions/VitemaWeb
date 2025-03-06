@@ -1,62 +1,68 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.2.3'
-	id 'io.spring.dependency-management' version '1.1.4'
-	id 'com.github.ben-manes.versions' version '0.50.0'
+    id 'java'
+    id 'org.springframework.boot' version '3.2.3'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'com.github.ben-manes.versions' version '0.50.0'
 }
 
 group = 'com.noisevisionsoftware'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_21
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 test {
-	jvmArgs = [
-			'-XX:+EnableDynamicAgentLoading',
-			'-Djdk.instrument.traceUsage=false',
-			'--add-opens=java.base/java.lang=ALL-UNNAMED',
-			'--add-opens=java.base/java.util=ALL-UNNAMED'
-	]
+    jvmArgs = [
+            '-XX:+EnableDynamicAgentLoading',
+            '-Djdk.instrument.traceUsage=false',
+            '--add-opens=java.base/java.lang=ALL-UNNAMED',
+            '--add-opens=java.base/java.util=ALL-UNNAMED'
+    ]
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-	implementation 'com.google.firebase:firebase-admin:9.4.3'
+    implementation 'com.google.firebase:firebase-admin:9.4.3'
 
-	// Cache
-	implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
-	implementation 'org.springframework.boot:spring-boot-starter-cache'
+    // Cache
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
 
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    implementation 'com.alibaba:easyexcel:3.3.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
 
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.security:spring-security-test'
-	testImplementation 'org.mockito:mockito-core:4.11.0'
-	testImplementation 'org.mockito:mockito-junit-jupiter:4.11.0'
-	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
-	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
-	testImplementation 'org.assertj:assertj-core:3.24.2'
-	testImplementation 'org.mockito:mockito-inline:5.2.0'
+    // For product category algorithm
+    implementation 'org.apache.commons:commons-text:1.10.0'
+
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.mockito:mockito-core:4.11.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:4.11.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+    testImplementation 'org.assertj:assertj-core:3.24.2'
+    testImplementation 'org.mockito:mockito-inline:5.2.0'
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }

@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
-import { CategorizedShoppingListItem} from "../../../../../types";
-import { toast } from 'sonner';
+import React, {useState} from 'react';
+import {Plus} from 'lucide-react';
+import {CategorizedShoppingListItem} from "../../../../../types";
+import {toast} from 'sonner';
 
 interface AddProductButtonProps {
     categoryId: string;
     onAdd: (item: CategorizedShoppingListItem) => Promise<void>;
 }
 
-const AddProductButton: React.FC<AddProductButtonProps> = ({ onAdd }) => {
+const AddProductButton: React.FC<AddProductButtonProps> = ({onAdd}) => {
     const [isAdding, setIsAdding] = useState(false);
     const [newItem, setNewItem] = useState<CategorizedShoppingListItem>({
         name: '',
@@ -29,7 +29,7 @@ const AddProductButton: React.FC<AddProductButtonProps> = ({ onAdd }) => {
                 original: `${newItem.quantity} ${newItem.unit} ${newItem.name}`
             });
             setIsAdding(false);
-            setNewItem({ name: '', quantity: 1, unit: 'g', original: '' });
+            setNewItem({name: '', quantity: 1, unit: 'g', original: ''});
         } catch (error) {
             console.error('Error adding item:', error);
             toast.error('Błąd podczas dodawania produktu');
@@ -100,7 +100,7 @@ const AddProductButton: React.FC<AddProductButtonProps> = ({ onAdd }) => {
             onClick={() => setIsAdding(true)}
             className="flex items-center gap-2 p-2 text-blue-600 hover:bg-blue-50 rounded-lg w-full"
         >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4 w-4"/>
             <span>Dodaj produkt</span>
         </button>
     );

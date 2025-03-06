@@ -1,14 +1,14 @@
-import React, { useState, useCallback } from "react";
-import { Diet, DietTemplate, Recipe, ShoppingList } from "../../../../../types";
-import { toast } from "sonner";
-import { useMealConfiguration } from "../../../../../hooks/useMealConfiguration";
-import { useConfirmation } from "../../../../../hooks/useConfirmation";
+import React, {useState, useCallback} from "react";
+import {Diet, DietTemplate, Recipe, ShoppingList} from "../../../../../types";
+import {toast} from "sonner";
+import {useMealConfiguration} from "../../../../../hooks/useMealConfiguration";
+import {useConfirmation} from "../../../../../hooks/useConfirmation";
 import ConfirmationDialog from "../../../../common/ConfirmationDialog";
 import MealConfigSection from "./MealConfiguration";
 import DietStartDateSection from "./DietStartDateSection";
 import DietDayItem from "./DietDayItem";
-import { ShoppingListService} from "../../../../../services/categorization/ShoppingListService";
-import { toFirestoreTimestamp} from "../../../../../utils/dateFormatters";
+import {ShoppingListService} from "../../../../../services/categorization/ShoppingListService";
+import {toFirestoreTimestamp} from "../../../../../utils/dateFormatters";
 
 interface DietDaysEditorProps {
     diet: Diet;
@@ -79,7 +79,7 @@ const DietDaysEditor: React.FC<DietDaysEditorProps> = ({
     const handleApplyConfiguration = useCallback(async () => {
         try {
             const updatedDays = applyMealConfiguration(diet.days);
-            openConfigurationConfirmation({ updatedDays });
+            openConfigurationConfirmation({updatedDays});
         } catch (error) {
             toast.error('Błąd podczas przygotowywania konfiguracji');
             console.error('Error preparing configuration:', error);
@@ -111,7 +111,7 @@ const DietDaysEditor: React.FC<DietDaysEditorProps> = ({
     }, []);
 
     const handleTimeChange = useCallback((dayIndex: number, mealIndex: number, newTime: string) => {
-        openTimeChangeConfirmation({ dayIndex, mealIndex, newTime });
+        openTimeChangeConfirmation({dayIndex, mealIndex, newTime});
     }, [openTimeChangeConfirmation]);
 
     const handleConfirmTimeChange = useCallback(async () => {
@@ -133,7 +133,7 @@ const DietDaysEditor: React.FC<DietDaysEditorProps> = ({
     }, [timeChangeData, diet, onUpdate, closeTimeChangeConfirmation]);
 
     const handleStartDateChange = useCallback((newDateStr: string) => {
-        openDateChangeConfirmation({ newDateStr });
+        openDateChangeConfirmation({newDateStr});
     }, [openDateChangeConfirmation]);
 
     const handleConfirmDateChange = useCallback(async () => {

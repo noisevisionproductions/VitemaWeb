@@ -1,3 +1,5 @@
+import {Timestamp} from "firebase/firestore";
+
 export enum MeasurementSourceType {
     APP = 'APP',
     GOOGLE_SHEET = 'GOOGLE_SHEET'
@@ -11,7 +13,7 @@ export enum MeasurementType {
 export interface BodyMeasurements {
     id: string;
     userId: string;
-    date: number;
+    date: Timestamp;
     height: number;
     weight: number;
     neck: number;

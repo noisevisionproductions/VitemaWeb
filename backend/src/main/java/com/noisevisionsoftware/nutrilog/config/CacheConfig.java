@@ -2,7 +2,7 @@ package com.noisevisionsoftware.nutrilog.config;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.noisevisionsoftware.nutrilog.security.model.UserRole;
+import com.noisevisionsoftware.nutrilog.model.user.UserRole;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
@@ -18,15 +18,22 @@ public class CacheConfig {
     @Bean
     public CacheManager cacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager(
+                "usersCache",
                 "dietsCache",
                 "dietsListCache",
-                "roleCache",
+                "userRoles",
                 "userEmailCache",
-                "userRoles"
+                "measurementsCache",
+                "changelogCache",
+                "categories",
+                "recipesCache",
+                "recipesBatchCache",
+                "shoppingListCache"
         );
         cacheManager.setCaffeine(Caffeine.newBuilder()
                 .expireAfterWrite(15, TimeUnit.MINUTES)
-                .maximumSize(10_000));
+                .maximumSize(10_000)
+                .recordStats());
         return cacheManager;
     }
 

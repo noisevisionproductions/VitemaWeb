@@ -1,21 +1,20 @@
-import React, {useMemo, useState} from "react";
+import React, {useMemo, useState, useCallback} from "react";
 import {User} from "../../../types/user";
 import {toast} from "sonner";
 import UserSelector from "./UserSelector";
 import FileUploadZone from "./FileUploadZone";
-import {ExcelParserService} from "../../../services/ExcelParserService";
-import {FirebaseService} from "../../../services/FirebaseService";
+import {DietUploadService} from "../../../services/DietUploadService";
 import DietTemplateConfig from "./DietTemplateConfig";
-import DietPreview from "./DietPreview";
+import DietPreview from "./preview/DietPreview";
 import {Timestamp} from "firebase/firestore";
 import ValidationSection from "./validation/ValidationSection";
-import debounce from "lodash/debounce";
-import {HelpCircle} from "lucide-react";
-import {TabName} from "../../../types/navigation";
 import {DietTemplate, MealType, ParsedDietData} from "../../../types";
+import {TabName} from "../../../types/navigation";
+import {ChevronDown, ChevronUp, UserCircle} from "lucide-react";
+import { AxiosError } from 'axios';
 
 interface ValidationState {
-    isExcelStructureValid: boolean | null;
+    isExcelStructureValid: boolean;
     isMealsPerDayValid: boolean;
     isDateValid: boolean;
     isMealsConfigValid: boolean;
@@ -31,34 +30,35 @@ const ExcelUpload: React.FC<ExcelUploadProps> = ({onTabChange}) => {
     const [isProcessing, setIsProcessing] = useState(false);
     const [previewData, setPreviewData] = useState<ParsedDietData | null>(null);
     const [totalMeals, setTotalMeals] = useState<number>(0);
+    const [isUserSelectorExpanded, setIsUserSelectorExpanded] = useState(true);
 
     const [validationState, setValidationState] = useState<ValidationState>({
-        isExcelStructureValid: null,
-        isMealsPerDayValid: true,
-        isDateValid: true,
-        isMealsConfigValid: true
+        isExcelStructureValid: false,
+        isMealsPerDayValid: false,
+        isDateValid: false,
+        isMealsConfigValid: false
     });
 
-    const handleFileSelect = async (file: File | null) => {
-        setFile(null);
-        setTotalMeals(0);
+    const handleFileSelect = useCallback(async (newFile: File | null) => {
+        if (!newFile) {
+            setFile(null);
+            setTotalMeals(0);
+            setValidationState({
+                isExcelStructureValid: false,
+                isMealsPerDayValid: false,
+                isDateValid: false,
+                isMealsConfigValid: false
+            });
+            return;
+        }
 
         if (!selectedUser) {
             toast.error('Najpierw wybierz użytkownika');
             return;
         }
 
-        if (file) {
-            try {
-                const parsedExcel = await ExcelParserService.parseDietExcel(file);
-                setTotalMeals(parsedExcel.totalMeals);
-                setFile(file);
-            } catch (error) {
-                console.error('Error parsing file:', error);
-                toast.error('Błąd podczas przetwarzania pliku');
-            }
-        }
-    };
+        setFile(newFile);
+    }, [selectedUser]);
 
     const [template, setTemplate] = useState<DietTemplate>({
         mealsPerDay: 5,
@@ -82,94 +82,167 @@ const ExcelUpload: React.FC<ExcelUploadProps> = ({onTabChange}) => {
 
     const handleUpload = async () => {
         if (!selectedUser || !file) {
-            toast.error('Wybierz użytkownika i plik przed wysłaniem');
+            toast.error('Wybierz użytkownika i plik');
+            return;
+        }
+
+        if (!isValidationPassed) {
+            toast.error('Popraw błędy walidacji przed wysłaniem');
+            return;
+        }
+
+        if (isProcessing) {
             return;
         }
 
         setIsProcessing(true);
-        try {
-            const parsedExcel = await ExcelParserService.parseDietExcel(file);
-            const parsedData = ExcelParserService.applyTemplate(parsedExcel, template);
+        const loadingToast = toast.loading('Przetwarzanie pliku...');
 
-            const dataWithTimestamps: ParsedDietData = {
-                ...parsedData,
-                days: parsedData.days.map(day => ({
+        try {
+            // First validate the template again
+            const validationResponse = await DietUploadService.validateDietTemplate(file, template);
+
+            if (!validationResponse.valid) {
+                const errorMessages = validationResponse.validationResults
+                    .filter(result => !result.isValid)
+                    .map(result => result.message)
+                    .join(', ');
+                toast.error(`Błąd walidacji: ${errorMessages}`);
+                return;
+            }
+
+            const previewData = await DietUploadService.previewDiet(
+                file,
+                template
+            );
+
+            if (!previewData || !previewData.days || !Array.isArray(previewData.days)) {
+                toast.error('Nieprawidłowy format danych z pliku Excel');
+                return;
+            }
+
+            const sanitizedPreviewData: ParsedDietData = {
+                days: previewData.days.map(day => ({
                     ...day,
-                    date: day.date
-                }))
+                    date: day.date,
+                    meals: Array.isArray(day.meals)
+                        ? day.meals.map(meal => ({
+                            ...meal,
+                            time: meal.time || template.mealTimes[`meal_${template.mealTypes.indexOf(meal.mealType)}`] || '12:00'
+                        }))
+                        : []
+                })),
+                shoppingList: Array.isArray(previewData.shoppingList) ? previewData.shoppingList : [],
+                categorizedProducts: previewData.categorizedProducts || {},
+                mealTimes: {...template.mealTimes},
+                mealsPerDay: template.mealsPerDay,
+                startDate: template.startDate,
+                duration: template.duration,
+                mealTypes: [...template.mealTypes]
             };
 
-            console.log('Data before setting preview:', dataWithTimestamps);
-            setPreviewData(dataWithTimestamps);
-        } catch (error) {
+            if (sanitizedPreviewData.days.length === 0) {
+                toast.error('Brak danych o posiłkach w pliku');
+                return;
+            }
+
+            if (sanitizedPreviewData.days.length !== template.duration) {
+                toast.warning(`Liczba dni w pliku (${sanitizedPreviewData.days.length}) różni się od zadeklarowanej (${template.duration})`);
+            }
+
+            toast.dismiss(loadingToast);
+            setPreviewData(sanitizedPreviewData);
+
+        } catch (error: unknown) {
             console.error('Error parsing diet:', error);
-            toast.error('Wystąpił błąd podczas przetwarzania pliku');
+
+            if (error instanceof AxiosError) {
+                const errorMessage = error.response?.data?.message ||
+                    error.response?.data?.error ||
+                    'Wystąpił nieoczekiwany błąd';
+                toast.error(errorMessage);
+            } else if (error instanceof Error) {
+                toast.error(error.message);
+            } else {
+                toast.error('Wystąpił błąd podczas przetwarzania pliku');
+            }
         } finally {
+            if (loadingToast) {
+                toast.dismiss(loadingToast);
+            }
             setIsProcessing(false);
         }
     };
 
     const handleConfirm = async () => {
-        if (!selectedUser || !file || !previewData) return;
+        if (!selectedUser || !file || !previewData) {
+            toast.error('Brakuje wymaganych danych');
+            return;
+        }
 
         setIsProcessing(true);
         try {
-            const fileUrl = await FirebaseService.uploadExcelFile(file, selectedUser.id);
-
-            const safePreviewData = {
-                ...previewData,
+            const sanitizedData: ParsedDietData = {
                 days: previewData.days.map(day => ({
                     ...day,
-                    meals: day.meals.map(meal => ({
-                        ...meal,
-                        nutritionalValues: meal.nutritionalValues || {
-                            calories: 0,
-                            protein: 0,
-                            fat: 0,
-                            carbs: 0
-                        }
-                    }))
-                }))
+                    date: day.date
+                })),
+                shoppingList: Array.isArray(previewData.shoppingList) ? previewData.shoppingList : [],
+                categorizedProducts: previewData.categorizedProducts || {},
+                mealTimes: previewData.mealTimes || template.mealTimes,
+                mealsPerDay: previewData.mealsPerDay || template.mealsPerDay,
+                startDate: previewData.startDate || template.startDate,
+                duration: previewData.duration || template.duration,
+                mealTypes: previewData.mealTypes || template.mealTypes
             };
 
-            await FirebaseService.saveDietWithShoppingList(
-                safePreviewData,
+            await DietUploadService.uploadDiet(
+                file,
                 selectedUser.id,
-                {
-                    fileName: file.name,
-                    fileUrl
-                }
+                sanitizedData
             );
 
             toast.success('Dieta została pomyślnie zapisana');
             setFile(null);
             setPreviewData(null);
+
+            onTabChange('data');
         } catch (error) {
             console.error('Error saving diet:', error);
-            toast.error('Wystąpił błąd podczas zapisywania diety');
+            toast.error(typeof error === 'string' ? error : 'Wystąpił błąd podczas zapisywania diety');
         } finally {
             setIsProcessing(false);
         }
     };
 
+    const handleTemplateChange = useCallback((newTemplate: DietTemplate) => {
+        setTemplate(newTemplate);
+    }, []);
+
     const isValidationPassed = useMemo(() => {
-        if (!file) return false;
+        return file &&
+            selectedUser &&
+            validationState.isExcelStructureValid &&
+            validationState.isMealsPerDayValid &&
+            validationState.isDateValid &&
+            validationState.isMealsConfigValid;
+    }, [file, selectedUser, validationState]);
 
-        return Object.entries(validationState).every(([key, value]) => {
-            if (key === 'isExcelStructureValid' && !file) return true;
-            return value === true;
-        });
-    }, [validationState, file]);
+    const updateExcelStructureValidation = useCallback((valid: boolean) => {
+        setValidationState(prev => ({...prev, isExcelStructureValid: valid}));
+    }, []);
 
-    const updateValidationState = useMemo(() =>
-            debounce((field: keyof ValidationState, value: boolean) => {
-                setValidationState(prev => {
-                    if (prev[field] === value) return prev;
-                    return {...prev, [field]: value};
-                });
-            }, 300),
-        []
-    );
+    const updateMealsPerDayValidation = useCallback((valid: boolean) => {
+        setValidationState(prev => ({...prev, isMealsPerDayValid: valid}));
+    }, []);
+
+    const updateDateValidation = useCallback((valid: boolean) => {
+        setValidationState(prev => ({...prev, isDateValid: valid}));
+    }, []);
+
+    const updateMealsConfigValidation = useCallback((valid: boolean) => {
+        setValidationState(prev => ({...prev, isMealsConfigValid: valid}));
+    }, []);
 
     if (previewData) {
         return (
@@ -190,46 +263,73 @@ const ExcelUpload: React.FC<ExcelUploadProps> = ({onTabChange}) => {
                     template={template}
                     totalMeals={totalMeals}
                     onValidationChange={{
-                        onExcelStructureValidation: (valid) =>
-                            updateValidationState('isExcelStructureValid', valid),
-                        onMealsPerDayValidation: (valid) =>
-                            updateValidationState('isMealsPerDayValid', valid),
-                        onDateValidation: (valid) =>
-                            updateValidationState('isDateValid', valid),
-                        onMealsConfigValidation: (valid) =>
-                            updateValidationState('isMealsConfigValid', valid)
+                        onExcelStructureValidation: updateExcelStructureValidation,
+                        onMealsPerDayValidation: updateMealsPerDayValidation,
+                        onDateValidation: updateDateValidation,
+                        onMealsConfigValidation: updateMealsConfigValidation
                     }}
                 />
             )}
 
-            <DietTemplateConfig
-                template={template}
-                onTemplateChange={setTemplate}
-            />
-
             <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h3 className="text-lg font-medium mb-4"> Wybór użytkownika</h3>
-                <UserSelector
-                    selectedUser={selectedUser}
-                    onUserSelect={setSelectedUser}
-                />
+                <div
+                    className={`flex items-center justify-between ${selectedUser ? 'bg-blue-50 p-3 rounded-lg transition-colors' : ''} cursor-pointer`}
+                    onClick={() => setIsUserSelectorExpanded(!isUserSelectorExpanded)}
+                >
+                    <div className="flex items-center">
+                        <h3 className="text-lg font-medium">
+                            Wybierz użytkownika
+                        </h3>
+                        {selectedUser && (
+                            <div className="flex items-center ml-3 font-medium text-blue-600">
+                                <UserCircle className="h-5 w-5 mr-1"/>
+                                <span>{selectedUser.email}</span>
+                            </div>
+                        )}
+                    </div>
+                    <button
+                        type="button"
+                        className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                        aria-label={isUserSelectorExpanded ? "Zwiń listę użytkowników" : "Rozwiń listę użytkowników"}
+                    >
+                        {isUserSelectorExpanded ? (
+                            <ChevronUp className="h-5 w-5"/>
+                        ) : (
+                            <ChevronDown className="h-5 w-5"/>
+                        )}
+                    </button>
+                </div>
+
+                {isUserSelectorExpanded ? (
+                    <div className="mt-4">
+                        <UserSelector
+                            selectedUser={selectedUser}
+                            onUserSelect={(user) => {
+                                setSelectedUser(user);
+                                setIsUserSelectorExpanded(false);
+                            }}
+                        />
+                    </div>
+                ) : selectedUser && (
+                    <div className="mt-2 text-sm text-gray-500 pl-3">
+                        Kliknij powyżej, aby zmienić użytkownika
+                    </div>
+                )}
             </div>
 
             <div className="bg-white p-6 rounded-lg shadow-sm">
                 <h3 className="text-lg font-medium mb-4">Upload pliku Excel</h3>
-                <button
-                    onClick={() => onTabChange('guide')}
-                    className="text-blue-600 hover:text-blue-700 flex items-center gap-2"
-                >
-                    <HelpCircle className="w-4 h-4"/>
-                    Jak przygotować plik Excel?
-                </button>
                 <FileUploadZone
                     file={file}
                     onFileSelect={handleFileSelect}
                     disabled={!selectedUser}
                 />
             </div>
+
+            <DietTemplateConfig
+                template={template}
+                onTemplateChange={handleTemplateChange}
+            />
 
             <div className="flex justify-end">
                 <button
@@ -241,7 +341,7 @@ const ExcelUpload: React.FC<ExcelUploadProps> = ({onTabChange}) => {
                             : 'bg-blue-500 hover:bg-blue-600 text-white'
                     }`}
                 >
-                    {isProcessing ? 'Przetwarzanie...' : 'Podgląd diety przed wysłaniem'}
+                    {isProcessing ? 'Przetwarzanie...' : 'Wyślij'}
                 </button>
             </div>
         </div>

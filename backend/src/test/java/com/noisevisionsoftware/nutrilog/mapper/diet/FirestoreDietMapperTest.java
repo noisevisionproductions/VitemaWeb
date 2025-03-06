@@ -3,6 +3,7 @@ package com.noisevisionsoftware.nutrilog.mapper.diet;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.noisevisionsoftware.nutrilog.model.diet.*;
+import com.noisevisionsoftware.nutrilog.model.diet.MealType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

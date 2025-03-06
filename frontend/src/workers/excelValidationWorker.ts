@@ -1,12 +1,30 @@
-import { read, utils } from 'xlsx';
+import {read, utils} from 'xlsx';
 
 interface ValidationMessage {
-    type: 'progress' | 'result' | 'error';
+    type: 'progress' | 'preliminary-validation' | 'error';
     data: any;
 }
 
+interface PreliminaryValidation {
+    isValid: boolean;
+    totalRows: number;
+    hasShoppingList: boolean;
+    errors: Array<{
+        row: number;
+        errors: string[];
+    }>;
+    structure: {
+        meals: Array<{
+            name: string;
+            preparation: string;
+            ingredients: string;
+            nutritionalValues: string;
+        }>;
+    };
+}
+
 self.onmessage = async (e: MessageEvent) => {
-    const { file } = e.data;
+    const {file} = e.data;
 
     try {
         const arrayBuffer = await file.arrayBuffer();
@@ -18,9 +36,10 @@ self.onmessage = async (e: MessageEvent) => {
         });
 
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-        const errors = [];
+        const errors: string | any[] = [];
         let validRows = 0;
         let hasShoppingList = false;
+        const meals = [];
 
         const isRowEmpty = (rowIndex: number) => {
             for (let col = 0; col <= 3; col++) {
@@ -35,7 +54,7 @@ self.onmessage = async (e: MessageEvent) => {
         const hasShoppingListInRow = (rowIndex: number) => {
             if (rowIndex === 0) return false;
 
-            const cell = worksheet[utils.encode_cell({ r: rowIndex, c: 3})];
+            const cell = worksheet[utils.encode_cell({r: rowIndex, c: 3})];
             return cell && cell.v !== undefined && cell.v.toString().trim() !== '';
         };
 
@@ -68,38 +87,29 @@ self.onmessage = async (e: MessageEvent) => {
                 return cell ? cell.v?.toString().trim() : '';
             };
 
-            const name = getValue(1);
-            const preparation = getValue(2);
+            const meal = {
+                name: getValue(1),
+                preparation: getValue(2),
+                ingredients: getValue(3),
+                nutritionalValues: getValue(4)
+            };
 
-            if (name || preparation) {
-                const rowErrors = [];
-                if (!name) rowErrors.push('brak nazwy posiłku');
-                if (!preparation) rowErrors.push('brak sposobu przygotowania');
-
-                if (rowErrors.length > 0) {
-                    errors.push({
-                        row: R + 1,
-                        errors: rowErrors
-                    });
-                }
+            if (meal.name || meal.preparation) {
+                meals.push(meal);
             }
         }
 
-        if (!hasShoppingList) {
-            errors.push({
-                row: 0,
-                errors: ['W pliku nie znaleziono żadnej listy zakupów (kolumna D)']
-            });
-        }
-
         self.postMessage({
-            type: 'result',
+            type: 'preliminary-validation',
             data: {
                 isValid: errors.length === 0,
                 totalRows: validRows,
                 hasShoppingList,
-                errors
-            }
+                errors,
+                structure: {
+                    meals
+                }
+            } as PreliminaryValidation
         } as ValidationMessage);
 
     } catch (error) {

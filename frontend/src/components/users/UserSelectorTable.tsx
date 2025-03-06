@@ -19,7 +19,7 @@ const UserSelectorTable: React.FC<UserSelectorTableProps> = ({
                                                                  loading
                                                              }) => {
     const userIds = useMemo(() => users.map(user => user.id), [users]);
-    const {dietInfo, loading: dietLoading} = useDietInfo(userIds);
+    const {dietInfo, loading: dietLoading, loadingStates} = useDietInfo(userIds);
 
     if (loading || dietLoading) {
         return (
@@ -30,12 +30,20 @@ const UserSelectorTable: React.FC<UserSelectorTableProps> = ({
     }
 
     const renderDietStatus = (userId: string) => {
+        if (loadingStates?.[userId]) {
+            return (
+                <div className="flex justify-start items-center h-8">
+                    <LoadingSpinner size="sm" />
+                </div>
+            );
+        }
+
         const info = dietInfo[userId];
         if (!info || !info.hasDiet) {
             return (
                 <span className="text-gray-500 text-xs">
-                Brak przypisanej diety
-            </span>
+                    Brak przypisanej diety
+                </span>
             );
         }
 
@@ -52,6 +60,7 @@ const UserSelectorTable: React.FC<UserSelectorTableProps> = ({
             </div>
         );
     };
+
 
     const renderNote = (note?: string) => {
         if (!note) return null;

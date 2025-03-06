@@ -53,7 +53,7 @@ public class ShoppingListRepository {
     }
 
     // Zaktualizujmy też metodę save, aby obsługiwała aktualizacje
-    public void save(ShoppingList shoppingList) {
+    public ShoppingList save(ShoppingList shoppingList) {
         try {
             DocumentReference docRef;
             if (shoppingList.getId() != null) {
@@ -67,10 +67,13 @@ public class ShoppingListRepository {
 
             Map<String, Object> data = firestoreShoppingMapper.toFirestoreMap(shoppingList);
             docRef.set(data).get();
+
+            // Pobierz zaktualizowany dokument i zwróć go
+            DocumentSnapshot updatedDoc = docRef.get().get();
+            return firestoreShoppingMapper.toShoppingList(updatedDoc);
         } catch (Exception e) {
             log.error("Failed to save shopping list", e);
             throw new RuntimeException("Failed to save shopping list", e);
         }
     }
-
 }

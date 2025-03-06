@@ -5,7 +5,7 @@ import com.google.cloud.firestore.Firestore;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.noisevisionsoftware.nutrilog.security.model.FirebaseUser;
-import com.noisevisionsoftware.nutrilog.security.model.UserRole;
+import com.noisevisionsoftware.nutrilog.model.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

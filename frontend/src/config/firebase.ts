@@ -2,7 +2,7 @@ import { initializeApp, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
-import { handleFirebaseError } from '../utils/errors/firebaseErrors';
+import { handleFirebaseError } from '../utils/firebaseErrors';
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,

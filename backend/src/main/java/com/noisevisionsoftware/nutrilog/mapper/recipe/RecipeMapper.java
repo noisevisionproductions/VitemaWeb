@@ -24,7 +24,7 @@ public class RecipeMapper {
                 .id(recipe.getId())
                 .name(recipe.getName())
                 .instructions(recipe.getInstructions())
-                .createdAt(timestampToLocalDateTime(recipe.getCreatedAt()))
+                .createdAt(recipe.getCreatedAt())
                 .photos(recipe.getPhotos())
                 .nutritionalValues(toNutritionalValuesResponse(recipe.getNutritionalValues()))
                 .parentRecipeId(recipe.getParentRecipeId())

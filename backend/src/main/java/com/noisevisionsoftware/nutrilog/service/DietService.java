@@ -1,14 +1,11 @@
 package com.noisevisionsoftware.nutrilog.service;
 
 import com.google.cloud.Timestamp;
-import com.google.cloud.firestore.Firestore;
-import com.google.protobuf.ServiceException;
 import com.noisevisionsoftware.nutrilog.dto.response.diet.DietInfo;
 import com.noisevisionsoftware.nutrilog.exception.NotFoundException;
 import com.noisevisionsoftware.nutrilog.model.diet.Day;
 import com.noisevisionsoftware.nutrilog.model.diet.Diet;
 import com.noisevisionsoftware.nutrilog.repository.DietRepository;
-import com.noisevisionsoftware.nutrilog.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -17,7 +14,6 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +30,6 @@ public class DietService {
 
     @Cacheable(value = DIETS_CACHE, key = "'allDiets'")
     public List<Diet> getAllDiets() {
-        log.info("CACHE: Fetching all diets FROM DATABASE");
         return dietRepository.findAll();
     }
 
@@ -56,17 +51,17 @@ public class DietService {
             List<Diet> userDiets = getDietsByUserId(userId);
 
             if (!userDiets.isEmpty()) {
-                LocalDateTime earliestDate = null;
-                LocalDateTime latestDate = null;
+                Timestamp earliestDate = null;
+                Timestamp latestDate = null;
 
                 for (Diet diet : userDiets) {
                     for (Day day : diet.getDays()) {
-                        LocalDateTime dayDate = DateUtils.timestampToLocalDateTime(day.getDate());
+                        Timestamp dayDate = day.getDate();
 
-                        if (earliestDate == null || dayDate.isBefore(earliestDate)) {
+                        if (earliestDate == null || dayDate.compareTo(earliestDate) < 0) {
                             earliestDate = dayDate;
                         }
-                        if (latestDate == null || dayDate.isAfter(latestDate)) {
+                        if (latestDate == null || dayDate.compareTo(latestDate) > 0) {
                             latestDate = dayDate;
                         }
                     }
@@ -96,7 +91,9 @@ public class DietService {
     public Diet createDiet(Diet diet) {
         diet.setCreatedAt(Timestamp.now());
         diet.setUpdatedAt(Timestamp.now());
-        return dietRepository.save(diet);
+        Diet savedDiet = dietRepository.save(diet);
+        refreshDietsCache();
+        return savedDiet;
     }
 
     @Caching(evict = {
@@ -124,11 +121,9 @@ public class DietService {
                 }
             });
 
-            log.info("Updating diet with ID: {}", diet.getId());
-            Diet savedDiet = dietRepository.save(diet);
-            log.info("Successfully updated diet with ID: {}", diet.getId());
-
-            return savedDiet;
+            Diet updatedDiet = dietRepository.update(diet.getId(), diet);
+            refreshDietsCache();
+            return updatedDiet;
         }
     }
 
@@ -137,16 +132,28 @@ public class DietService {
             @CacheEvict(value = DIETS_LIST_CACHE, allEntries = true)
     })
     public void deleteDiet(String id) {
-        log.info("Starting diet deletion process for id: {}", id);
         try {
             firestoreService.deleteRelatedData(id);
 
             dietRepository.delete(id);
 
-            log.info("Successfully deleted diet and related data for id: {}", id);
+            refreshDietsCache();
         } catch (Exception e) {
             log.error("Error deleting diet with id: {}", "Error deleting diet", e);
             throw e;
         }
+    }
+
+    /**
+     * Odświeża cache diet.
+     * Ta metoda powinna być wywołana po operacjach, które zmieniają diety,
+     * a których wyniki mogą nie być natychmiast widoczne z powodu cachowania.
+     */
+    @Caching(evict = {
+            @CacheEvict(value = DIETS_CACHE, allEntries = true),
+            @CacheEvict(value = DIETS_LIST_CACHE, allEntries = true)
+    })
+    public void refreshDietsCache() {
+        log.debug("Odświeżenie cache diet");
     }
 }

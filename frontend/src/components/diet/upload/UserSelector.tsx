@@ -13,10 +13,13 @@ const UserSelector: React.FC<UserSelectorProps> = ({selectedUser, onUserSelect})
     const [searchQuery, setSearchQuery] = useState("");
     const {users, loading} = useUsers();
 
-    const filteredUsers = users.filter(user =>
-        user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.nickname.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const filteredUsers = users.filter(user => {
+        if (!user || !user.email || !user.nickname) return false;
+
+        const lowercaseQuery = searchQuery.toLowerCase();
+        return user.email.toLowerCase().includes(lowercaseQuery) ||
+            user.nickname.toLowerCase().includes(lowercaseQuery);
+    });
 
     return (
         <div className="space-y-4">

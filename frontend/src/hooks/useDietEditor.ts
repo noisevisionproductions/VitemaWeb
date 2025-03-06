@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import {Diet, Recipe, ShoppingListV3} from '../types';
 import { toast } from 'sonner';
 import { useRecipes } from './useRecipes';
-import { useShoppingList } from './useShoppingList';
+import { useShoppingList } from './shopping/useShoppingList';
 import {DietService} from "../services/DietService";
+import axios from "axios";
 
 interface UseDietEditorReturn {
     diet: Diet | null;
@@ -12,6 +13,7 @@ interface UseDietEditorReturn {
     loading: boolean;
     error: Error | null;
     updateDiet: (updatedDiet: Partial<Diet>) => Promise<void>;
+    refreshDiets: () => Promise<void>;
 }
 
 export const useDietEditor = (dietId: string): UseDietEditorReturn => {
@@ -63,12 +65,33 @@ export const useDietEditor = (dietId: string): UseDietEditorReturn => {
         }
     };
 
+    const refreshDiets = async () => {
+        if (!dietId) return;
+
+        try {
+            setLoading(true);
+            const dietData = await DietService.getDietById(dietId);
+            setDiet(dietData);
+        } catch (err) {
+            if (axios.isAxiosError(err) && err.response?.status === 404) {
+                console.log('Dieta nie istnieje (prawdopodobnie została usunięta)');
+                setDiet(null);
+            } else {
+                console.error('Błąd podczas odświeżania diety:', err);
+                setError(err as Error);
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return {
         diet,
         recipes,
         shoppingList,
         loading: loading || isLoadingRecipes || loadingShoppingList,
         error,
-        updateDiet
+        updateDiet,
+        refreshDiets
     };
 };

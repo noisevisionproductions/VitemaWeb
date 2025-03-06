@@ -3,16 +3,10 @@ export interface ParsedProduct {
     quantity: number;
     unit: string;
     original: string;
-    hasCustomUnit: boolean;
-    similarity?: number;
+    hasCustomUnit?: boolean;
+    categoryId?: string;
+    id?: string;
 }
-
-export interface ParsingResult {
-    success: boolean;
-    product?: ParsedProduct;
-    error?: string;
-}
-
 export interface ProductUnit {
     value: string;
     label: string;

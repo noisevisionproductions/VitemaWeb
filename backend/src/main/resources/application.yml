@@ -1,0 +1,39 @@
+server:
+  port: 8080
+
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+  application:
+    name: nutrilog
+
+firebase:
+  storage:
+    bucket-name: fitapplication-3a2ae.appspot.com
+  service-account:
+    path: firebase-service-account.json
+
+cors:
+  allowed-origins: http://localhost:5173
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  allowed-headers: '*'
+  allow-credentials: true
+
+logging:
+  level:
+    com.noisevisionsoftware.nutrilog: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+
+product:
+  parsing:
+    similarity-threshold: 0.85
+
+app:
+  data:
+    directory: ${user.dir}/data
+    categories-file: categories.json
+

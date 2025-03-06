@@ -9,7 +9,9 @@ import com.noisevisionsoftware.nutrilog.model.recipe.NutritionalValues;
 import com.noisevisionsoftware.nutrilog.model.recipe.Recipe;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.internal.verification.Times;
 
+import java.sql.Time;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 
@@ -20,7 +22,6 @@ class RecipeMapperTest {
     private RecipeMapper mapper;
     private static final String TEST_RECIPE_ID = "test-recipe-id";
     private static final Timestamp TEST_TIMESTAMP = Timestamp.parseTimestamp("2025-02-23T10:52:47Z");
-    private static final LocalDateTime TEST_LOCAL_DATE_TIME = LocalDateTime.of(2025, 2, 23, 10, 52, 47);
 
     @BeforeEach
     void setUp() {
@@ -42,7 +43,7 @@ class RecipeMapperTest {
                     assertThat(r.getId()).isEqualTo(TEST_RECIPE_ID);
                     assertThat(r.getName()).isEqualTo("Test Recipe");
                     assertThat(r.getInstructions()).isEqualTo("Test instructions");
-                    assertThat(r.getCreatedAt()).isEqualTo(TEST_LOCAL_DATE_TIME);
+                    assertThat(r.getCreatedAt()).isEqualTo(TEST_TIMESTAMP);
                     assertThat(r.getPhotos()).containsExactly("photo1.jpg", "photo2.jpg");
                     assertThat(r.getParentRecipeId()).isEqualTo("parent-recipe-id");
 
@@ -88,7 +89,7 @@ class RecipeMapperTest {
                     assertThat(r.getId()).isEqualTo(TEST_RECIPE_ID);
                     assertThat(r.getName()).isEqualTo("Test Recipe");
                     assertThat(r.getInstructions()).isEqualTo("Test instructions");
-                    assertThat(r.getCreatedAt()).isEqualTo(TEST_LOCAL_DATE_TIME);
+                    assertThat(r.getCreatedAt()).isEqualTo(TEST_TIMESTAMP);
                     assertThat(r.getPhotos()).containsExactly("photo1.jpg", "photo2.jpg");
                     assertThat(r.getNutritionalValues()).isNull();
                 });

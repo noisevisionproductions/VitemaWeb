@@ -15,7 +15,6 @@ import com.noisevisionsoftware.nutrilog.model.shopping.ShoppingListRecipeReferen
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +31,6 @@ class ShoppingListMapperTest {
     private static final String TEST_USER_ID = "noisevisionproductions";
     private static final String TEST_TIMESTAMP_STRING = "2025-02-23T10:57:01Z";
     private static final Timestamp TEST_TIMESTAMP = Timestamp.parseTimestamp(TEST_TIMESTAMP_STRING);
-    private static final LocalDateTime TEST_LOCAL_DATE_TIME = LocalDateTime.parse(TEST_TIMESTAMP_STRING.replace("Z", ""));
 
     @BeforeEach
     void setUp() {
@@ -88,9 +86,9 @@ class ShoppingListMapperTest {
                     assertThat(r.getId()).isEqualTo(TEST_ID);
                     assertThat(r.getDietId()).isEqualTo(TEST_DIET_ID);
                     assertThat(r.getUserId()).isEqualTo(TEST_USER_ID);
-                    assertThat(r.getCreatedAt()).isEqualTo(TEST_LOCAL_DATE_TIME);
-                    assertThat(r.getStartDate()).isEqualTo(TEST_LOCAL_DATE_TIME);
-                    assertThat(r.getEndDate()).isEqualTo(TEST_LOCAL_DATE_TIME);
+                    assertThat(r.getCreatedAt()).isEqualTo(TEST_TIMESTAMP);
+                    assertThat(r.getStartDate()).isEqualTo(TEST_TIMESTAMP);
+                    assertThat(r.getEndDate()).isEqualTo(TEST_TIMESTAMP);
                     assertThat(r.getVersion()).isEqualTo(1);
 
                     Map<String, List<CategorizedShoppingListItemResponse>> items = r.getItems();

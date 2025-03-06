@@ -1,6 +1,6 @@
 import React from 'react';
-import {User, Gender} from '../../types/user';
-import {calculateAge, formatTimestamp} from '../../utils/dateFormatters';
+import {Gender, User} from '../../types/user';
+import {displayAge, formatTimestamp} from '../../utils/dateFormatters';
 import {Dialog} from '@headlessui/react';
 import {X} from 'lucide-react';
 import {useMeasurements} from "../../hooks/useMeasurements";
@@ -47,7 +47,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({user, onClose}) => {
                         </button>
                     </div>
 
-                    <div className="overflow-y-auto flex-1"> {/* Dodajemy overflow-y-auto i flex-1 */}
+                    <div className="overflow-y-auto flex-1">
                         <Tabs defaultValue="info" className="p-6">
                             <TabsList className="mb-6">
                                 <TabsTrigger value="info" className="px-6 py-2">
@@ -90,7 +90,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({user, onClose}) => {
                                                 Wiek
                                             </label>
                                             <div className="mt-1 text-sm text-gray-900">
-                                                {calculateAge(user.birthDate)} lat
+                                                {displayAge(user)}
                                             </div>
                                         </div>
                                         <div>

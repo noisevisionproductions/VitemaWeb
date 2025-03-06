@@ -30,7 +30,15 @@ class SecurityConfigTest {
         assertTrue(Objects.requireNonNull(corsConfiguration.getAllowedMethods())
                 .containsAll(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")));
         assertTrue(Objects.requireNonNull(corsConfiguration.getAllowedHeaders())
-                .contains("*"));
+                .containsAll(Arrays.asList(
+                        "Authorization",
+                        "Content-Type",
+                        "X-Requested-With",
+                        "Accept",
+                        "Origin",
+                        "Access-Control-Request-Method",
+                        "Access-Control-Request-Headers"
+                )));
         assertTrue(Objects.requireNonNull(corsConfiguration.getExposedHeaders())
                 .contains("Authorization"));
         assertEquals(Boolean.TRUE, corsConfiguration.getAllowCredentials());

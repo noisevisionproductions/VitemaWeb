@@ -1,7 +1,7 @@
 package com.noisevisionsoftware.nutrilog.config;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import com.noisevisionsoftware.nutrilog.security.model.UserRole;
+import com.noisevisionsoftware.nutrilog.model.user.UserRole;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,11 +28,14 @@ class CacheConfigTest {
         assertNotNull(cacheManager);
 
         // Verify all configured caches exist
+        assertNotNull(cacheManager.getCache("usersCache"));
         assertNotNull(cacheManager.getCache("dietsCache"));
         assertNotNull(cacheManager.getCache("dietsListCache"));
-        assertNotNull(cacheManager.getCache("roleCache"));
-        assertNotNull(cacheManager.getCache("userEmailCache"));
         assertNotNull(cacheManager.getCache("userRoles"));
+        assertNotNull(cacheManager.getCache("userEmailCache"));
+        assertNotNull(cacheManager.getCache("measurementsCache"));
+        assertNotNull(cacheManager.getCache("changelogCache"));
+        assertNotNull(cacheManager.getCache("categories"));
     }
 
     @Test

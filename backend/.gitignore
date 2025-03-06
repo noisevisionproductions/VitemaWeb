@@ -37,3 +37,7 @@ out/
 .vscode/
 
 firebase-service-account.json
+# Ignoruj zawartość katalogu data
+/data/*
+# Ale zachowaj sam katalog i plik .gitkeep
+!/data/.gitkeep

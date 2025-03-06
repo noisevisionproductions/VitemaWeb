@@ -3,14 +3,15 @@ package com.noisevisionsoftware.nutrilog.service;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.github.benmanes.caffeine.cache.Cache;
-import com.noisevisionsoftware.nutrilog.security.model.UserRole;
+import com.noisevisionsoftware.nutrilog.model.user.UserRole;
+import com.noisevisionsoftware.nutrilog.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.cache.CacheManager;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,6 +33,12 @@ class UserServiceTest {
     @Mock
     private ApiFuture<DocumentSnapshot> future;
 
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private CacheManager cacheManager;
+
     @InjectMocks
     private UserService userService;
 
@@ -51,6 +58,7 @@ class UserServiceTest {
         verify(userEmailCache).getIfPresent(TEST_USER_ID);
         verifyNoInteractions(firestore);
     }
+
 
     @Test
     void getUserEmail_WhenEmailNotInCache_ShouldFetchFromFirestore() throws Exception {

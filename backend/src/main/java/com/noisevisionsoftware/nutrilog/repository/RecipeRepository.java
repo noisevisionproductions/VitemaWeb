@@ -5,6 +5,7 @@ import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import com.noisevisionsoftware.nutrilog.mapper.recipe.FirestoreRecipeMapper;
 import com.noisevisionsoftware.nutrilog.model.recipe.Recipe;
+import com.noisevisionsoftware.nutrilog.model.recipe.RecipeReference;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -18,6 +19,7 @@ public class RecipeRepository {
     private final Firestore firestore;
     private final FirestoreRecipeMapper firestoreRecipeMapper;
     private static final String COLLECTION_NAME = "recipes";
+    private static final String REFERENCES_COLLECTION = "recipe_references";
 
     public Optional<Recipe> findById(String id) {
         try {
@@ -43,7 +45,7 @@ public class RecipeRepository {
         }
     }
 
-    public void update(String id, Recipe recipe) {
+    public Recipe update(String id, Recipe recipe) {
         try {
             DocumentReference docRef = firestore.collection(COLLECTION_NAME).document(id);
             Map<String, Object> data = firestoreRecipeMapper.toFirestoreMap(recipe);
@@ -51,6 +53,41 @@ public class RecipeRepository {
         } catch (Exception e) {
             log.error("Failed to update recipe: {}", id, e);
             throw new RuntimeException("Failed to update recipe", e);
+        }
+        return recipe;
+    }
+
+    public void save(Recipe recipe) {
+        try {
+            DocumentReference docRef;
+            if (recipe.getId() != null) {
+                docRef = firestore.collection(COLLECTION_NAME).document(recipe.getId());
+            } else {
+                docRef = firestore.collection(COLLECTION_NAME).document();
+                recipe.setId(docRef.getId());
+            }
+
+            Map<String, Object> data = firestoreRecipeMapper.toFirestoreMap(recipe);
+            docRef.set(data).get();
+        } catch (Exception e) {
+            log.error("Failed to save recipe", e);
+            throw new RuntimeException("Failed to save recipe", e);
+        }
+    }
+
+    public void saveReference(RecipeReference reference) {
+        try {
+            DocumentReference docRef = firestore.collection(REFERENCES_COLLECTION).document();
+            Map<String, Object> data = new HashMap<>();
+            data.put("recipeId", reference.getRecipeId());
+            data.put("userId", reference.getUserId());
+            data.put("mealType", reference.getMealType().name());
+            data.put("addedAt", reference.getAddedAt());
+
+            docRef.set(data).get();
+        } catch (Exception e) {
+            log.error("Failed to save recipe reference", e);
+            throw new RuntimeException("Failed to save recipe reference", e);
         }
     }
 }

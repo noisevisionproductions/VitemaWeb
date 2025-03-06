@@ -38,8 +38,8 @@ public class DietMapper {
                 .id(diet.getId())
                 .userId(diet.getUserId())
                 .userEmail(userEmail)
-                .createdAt(timestampToLocalDateTime(diet.getCreatedAt()))
-                .updatedAt(timestampToLocalDateTime(diet.getUpdatedAt()))
+                .createdAt(diet.getCreatedAt())
+                .updatedAt(diet.getUpdatedAt())
                 .days(diet.getDays().stream()
                         .map(this::toDayResponse)
                         .collect(Collectors.toList()))
@@ -61,7 +61,7 @@ public class DietMapper {
 
     private DayResponse toDayResponse(Day day) {
         return DayResponse.builder()
-                .date(timestampToLocalDateTime(day.getDate()))
+                .date(day.getDate())
                 .meals(day.getMeals().stream()
                         .map(this::toMealResponse)
                         .collect(Collectors.toList()))
@@ -70,9 +70,7 @@ public class DietMapper {
 
     private Day toDay(DayRequest request) {
         return Day.builder()
-                .date(request.getDate() != null ?
-                        convertToFirebaseTimestamp(request.getDate()) :
-                        Timestamp.now())
+                .date(request.getDate())
                 .meals(request.getMeals().stream()
                         .map(this::toMeal)
                         .collect(Collectors.toList()))
@@ -118,12 +116,20 @@ public class DietMapper {
                 .toLocalDateTime();
     }
 
-    private Timestamp convertToFirebaseTimestamp(String dateStr) {
+    private Timestamp convertToFirebaseTimestamp(Object dateInput) {
         try {
-            LocalDateTime dateTime = LocalDateTime.parse(dateStr);
-            return Timestamp.of(Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant()));
+            if (dateInput instanceof Timestamp) {
+                return (Timestamp) dateInput;
+            } else if (dateInput instanceof String dateStr) {
+                LocalDateTime dateTime = LocalDateTime.parse(dateStr);
+                return Timestamp.of(Date.from(dateTime.atZone(ZoneId.systemDefault()).toInstant()));
+            } else {
+                log.warn("Nieobsługiwany typ daty: {}", dateInput.getClass().getName());
+                return Timestamp.now();
+            }
         } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid date format: " + dateStr);
+            log.error("Błąd konwersji daty: {}", e.getMessage(), e);
+            throw new IllegalArgumentException("Invalid date format: " + dateInput);
         }
     }
 }

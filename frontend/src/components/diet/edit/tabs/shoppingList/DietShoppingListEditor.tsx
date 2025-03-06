@@ -7,7 +7,7 @@ import ConfirmationDialog from "../../../../common/ConfirmationDialog";
 import {getCategoryLabel} from "../../../../../utils/productUtils";
 import CategoryItemEditor from "../../CategoryItemEditor";
 import AddProductButton from "./AddProductButton";
-import { useShoppingList} from "../../../../../hooks/useShoppingList";
+import {useShoppingList} from "../../../../../hooks/shopping/useShoppingList";
 
 interface DietShoppingListEditorProps {
     diet: Diet;
@@ -19,7 +19,7 @@ const DietShoppingListEditor: React.FC<DietShoppingListEditorProps> = ({
                                                                            shoppingList: initialShoppingList
                                                                        }) => {
     const [shoppingList, setShoppingList] = useState(initialShoppingList);
-    const { updateItems, removeItem, addItem } = useShoppingList(shoppingList?.dietId || '');
+    const {updateItems, removeItem, addItem} = useShoppingList(shoppingList?.dietId || '');
 
     const {
         isConfirmationOpen,
@@ -49,8 +49,21 @@ const DietShoppingListEditor: React.FC<DietShoppingListEditorProps> = ({
 
         try {
             const newItems = {...shoppingList.items};
-            newItems[categoryId][index] = updatedItem;
-            await updateItems(newItems);
+            if (newItems[categoryId]) {
+                newItems[categoryId] = [...newItems[categoryId]];
+                newItems[categoryId][index] = updatedItem;
+            }
+
+            if (Object.keys(newItems).length === 0) {
+                console.error('New items structure is empty');
+                return;
+            }
+
+            const updated = await updateItems(newItems);
+            if (updated) {
+                setShoppingList(updated);
+                console.log('Successfully updated shopping list');
+            }
         } catch (error) {
             console.error('Error updating item:', error);
         }
@@ -58,7 +71,10 @@ const DietShoppingListEditor: React.FC<DietShoppingListEditorProps> = ({
 
     const handleDeleteItem = async (categoryId: string, index: number) => {
         try {
-            await removeItem(categoryId, index);
+            const updated = await removeItem(categoryId, index);
+            if (updated) {
+                setShoppingList(updated);
+            }
             closeConfirmation();
         } catch (error) {
             console.error('Error deleting item:', error);
@@ -67,11 +83,20 @@ const DietShoppingListEditor: React.FC<DietShoppingListEditorProps> = ({
 
     const handleAddItem = async (categoryId: string, newItem: CategorizedShoppingListItem) => {
         try {
-            await addItem(categoryId, newItem);
+            const updated = await addItem(categoryId, newItem);
+            if (updated) {
+                setShoppingList(updated);
+            }
         } catch (error) {
             console.error('Error adding item:', error);
         }
     };
+
+    useEffect(() => {
+        if (initialShoppingList) {
+            setShoppingList(initialShoppingList);
+        }
+    }, [initialShoppingList]);
 
     return (
         <div className="space-y-6">
@@ -120,8 +145,11 @@ const DietShoppingListEditor: React.FC<DietShoppingListEditorProps> = ({
             <ConfirmationDialog
                 isOpen={isConfirmationOpen}
                 onClose={closeConfirmation}
-                onConfirm={() => confirmationData &&
-                    handleDeleteItem(confirmationData.categoryId, confirmationData.itemIndex)}
+                onConfirm={() => {
+                    if (confirmationData) {
+                        handleDeleteItem(confirmationData.categoryId, confirmationData.itemIndex).catch(console.error);
+                    }
+                }}
                 title="Usuń produkt"
                 description="Czy na pewno chcesz usunąć ten produkt z listy zakupów?"
                 confirmLabel="Usuń"

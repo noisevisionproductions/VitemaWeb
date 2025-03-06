@@ -1,10 +1,10 @@
 import React from 'react';
 import {User, Gender, UserRole} from '../../types/user';
-import {calculateAge} from '../../utils/dateFormatters';
-import {db} from "../../config/firebase";
-import {doc, updateDoc} from "firebase/firestore";
-import {toast} from "sonner";
+import {displayAge} from '../../utils/dateFormatters';
+
 import UserNote from "./UserNote";
+import {UserService} from "../../services/UserService";
+import {toast} from "sonner";
 
 interface UsersListProps {
     users: User[];
@@ -13,6 +13,7 @@ interface UsersListProps {
 }
 
 const UsersList: React.FC<UsersListProps> = ({users, onUserSelect, onUpdate}) => {
+
     const getGenderLabel = (gender: Gender | null) => {
         switch (gender) {
             case Gender.MALE:
@@ -26,10 +27,9 @@ const UsersList: React.FC<UsersListProps> = ({users, onUserSelect, onUpdate}) =>
 
     const handleNoteSave = async (userId: string, note: string) => {
         try {
-            const userRef = doc(db, 'users', userId);
-            await updateDoc(userRef, {note});
+            await UserService.updateUserNote(userId, note);
             await onUpdate();
-            toast.success('Notatka została zaktualizowana')
+            toast.success('Notatka została zaktualizowana');
         } catch (error) {
             console.error('Error updating note:', error);
             toast.error('Błąd podczas aktualizacji notatki');
@@ -78,7 +78,7 @@ const UsersList: React.FC<UsersListProps> = ({users, onUserSelect, onUpdate}) =>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-900">
-                                {calculateAge(user.birthDate)} lat
+                                {displayAge(user)}
                             </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">

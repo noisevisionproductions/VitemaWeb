@@ -1,5 +1,6 @@
 package com.noisevisionsoftware.nutrilog.controller;
 
+import com.google.cloud.Timestamp;
 import com.noisevisionsoftware.nutrilog.dto.request.recipe.RecipeUpdateRequest;
 import com.noisevisionsoftware.nutrilog.dto.response.recipe.RecipeResponse;
 import com.noisevisionsoftware.nutrilog.exception.NotFoundException;
@@ -14,7 +15,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -161,7 +161,7 @@ class RecipeControllerTest {
                 .id(id)
                 .name("Test Recipe")
                 .instructions("Test instructions")
-                .createdAt(LocalDateTime.parse("2025-02-23T10:45:23"))
+                .createdAt(Timestamp.parseTimestamp("2025-02-23T10:45:23"))
                 .photos(Arrays.asList("photo1.jpg", "photo2.jpg"))
                 .build();
     }

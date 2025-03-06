@@ -1,8 +1,8 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {ParsedProduct} from "../../types/product";
-import {ProductCategorizationService} from "../../services/categorization/ProductCategorizationService";
 import {ArrowRight, Lightbulb} from "lucide-react";
-import {getCategoryById} from "../../data/productCategories";
+import {useProductCategories} from "../../hooks/shopping/useProductCategories";
+import { SuggestedCategoriesContext } from "../../contexts/SuggestedCategoriesContext";
 
 interface CategorySuggestionProps {
     product: ParsedProduct;
@@ -14,18 +14,28 @@ const CategorySuggestion: React.FC<CategorySuggestionProps> = ({
                                                                    onSuggestionAccept
                                                                }) => {
     const [suggestedCategoryId, setSuggestedCategoryId] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+    const {categories} = useProductCategories();
+    const {getSuggestion} = useContext(SuggestedCategoriesContext);
 
     useEffect(() => {
         const loadSuggestion = async () => {
+            if (!product) return;
+
             setIsLoading(true);
-            const suggestion = await ProductCategorizationService.suggestCategory(product);
-            setSuggestedCategoryId(suggestion);
-            setIsLoading(false);
+            try {
+                const suggestion = await getSuggestion(product);
+                setSuggestedCategoryId(suggestion);
+            } catch (error) {
+                console.error('Error getting category suggestion:', error);
+                setSuggestedCategoryId(null);
+            } finally {
+                setIsLoading(false);
+            }
         };
 
         loadSuggestion().catch(console.error);
-    }, [product]);
+    }, [product.original]);
 
     if (isLoading) {
         return (
@@ -42,7 +52,7 @@ const CategorySuggestion: React.FC<CategorySuggestionProps> = ({
         return null;
     }
 
-    const suggestedCategory = getCategoryById(suggestedCategoryId);
+    const suggestedCategory = categories.find(cat => cat.id === suggestedCategoryId);
     if (!suggestedCategory) return null;
 
     return (

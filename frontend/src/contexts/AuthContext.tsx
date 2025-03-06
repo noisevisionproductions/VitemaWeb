@@ -14,6 +14,7 @@ interface AuthContextType {
     logout: () => Promise<void>;
 }
 
+
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export const useAuth = () => {
@@ -44,13 +45,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
         });
     }, []);
 
+/*
+    const refreshAuth = async () => {
+        const user = auth.currentUser;
+        if (!user) {
+            await logout();
+            return Promise.reject(new Error('Brak zalogowanego użytkownika'));
+        }
+
+        try {
+            const token = await user.getIdToken(true);
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+
+            if (!userDoc.exists()) {
+                await logout();
+                return Promise.reject(new Error('Nie znaleziono danych użytkownika'));
+            }
+
+            const userData = userDoc.data() as User;
+            setUserData(userData);
+            return token;
+        } catch (error) {
+            console.error('Błąd odświeżania autoryzacji:', error);
+            await logout();
+            return Promise.reject(error);
+        }
+    };
+*/
+
     const login = async (email: string, password: string) => {
         try {
             const credential = await signInWithEmailAndPassword(auth, email, password);
-            const token = await credential.user.getIdToken();
+            const token = await credential.user.getIdToken(true);
 
             const response = await api.post('/auth/login',
-                {email, password},
+                { email },
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -58,18 +87,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
                 }
             );
 
-            const userData = response.data;
+            const userData = response.data as User;
+            if (userData.role !== 'ADMIN') {
+                await logout();
+                return Promise.reject(new Error('Brak uprawnień administratora'));
+            }
+
             setUserData(userData);
             return userData;
         } catch (error) {
-            console.error('Authentication failed:', error);
+            console.error('Błąd uwierzytelniania:', error);
             await logout();
 
             if (axios.isAxiosError(error)) {
-                throw new Error(error.response?.data?.message || 'Błąd uwierzytelniania');
+                return Promise.reject(new Error(error.response?.data?.message || 'Błąd uwierzytelniania'));
             }
-
-            throw error;
+            return Promise.reject(error);
         }
     };
 

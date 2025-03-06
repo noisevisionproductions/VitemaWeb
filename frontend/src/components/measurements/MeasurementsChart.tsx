@@ -19,7 +19,7 @@ const MeasurementsChart: React.FC<MeasurementsChartProps> = ({measurements}) => 
     })).reverse();
 
     return (
-        <div className="h-96 w-full"> {/* Zwiększamy wysokość wykresu */}
+        <div className="h-96 w-full">
             <ResponsiveContainer>
                 <LineChart data={data}>
                     <CartesianGrid strokeDasharray="3 3" />

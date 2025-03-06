@@ -1,14 +1,14 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {Category} from "../../types/product-categories";
 import {ParsedProduct} from "../../types/product";
 import DraggableProduct from "./DraggableProduct";
 import {Tabs, TabsContent, TabsList} from "../ui/Tabs";
 import {getLucideIcon} from "../../utils/icons";
 import CategoryDropZone from "./CategoryDropZone";
-import {ProductCategorizationService} from "../../services/categorization/ProductCategorizationService";
-import {toast} from "sonner";
-import {Brain} from "lucide-react";
+import {Brain, Loader2} from "lucide-react";
 import {DroppableTabsTrigger} from "../ui/DroppableTabsTrigger";
+import {toast} from "sonner";
+import {DietCategorizationService} from "../../services/DietCategorizationService";
 
 interface ProductCategorizationLayoutProps {
     categories: Category[];
@@ -17,6 +17,7 @@ interface ProductCategorizationLayoutProps {
     onProductDrop: (categoryId: string, product: ParsedProduct) => void;
     onProductRemove: (product: ParsedProduct) => void;
     onProductEdit?: (categoryId: string, oldProduct: ParsedProduct, newProduct: ParsedProduct) => void;
+    loading?: boolean;
 }
 
 const ProductCategorizationLayout: React.FC<ProductCategorizationLayoutProps> = ({
@@ -25,56 +26,63 @@ const ProductCategorizationLayout: React.FC<ProductCategorizationLayoutProps> = 
                                                                                      categorizedProducts,
                                                                                      onProductDrop,
                                                                                      onProductRemove,
-                                                                                     onProductEdit
+                                                                                     onProductEdit,
+                                                                                     loading = false
                                                                                  }) => {
-    const [activeCategory, setActiveCategory] = useState(categories[0]?.id);
-    const [categoryStats, setCategoryStats] = useState<Record<string, number>>({});
-    const [isAutoCategorizing, setIsAutoCategorizing] = useState(false);
-
-    useEffect(() => {
-        const hasAnyProducts = Object.values(categorizedProducts).some(products => products.length > 0);
-        if (hasAnyProducts) {
-            loadCategoryStats().catch(console.error);
-        }
-    }, [categorizedProducts]);
-
-    const loadCategoryStats = async () => {
-        try {
-            const stats = await ProductCategorizationService.getCategoryStats();
-            setCategoryStats(stats);
-        } catch (error) {
-            console.error('Błąd podczas ładowania statystyk:', error);
-        }
-    };
+    const [activeCategory, setActiveCategory] = useState<string>(
+        categories.length > 0 ? categories[0].id : ''
+    );
+    const [isAutoCategorizing, setIsAutoCategorizing] = useState<boolean>(false);
 
     const handleProductCategorize = (product: ParsedProduct, categoryId: string) => {
-        onProductDrop(categoryId, product);
+        onProductDrop(categoryId, {
+            ...product,
+            categoryId
+        });
+
         setActiveCategory(categoryId);
     };
 
+    const handleUncategorizedProductEdit = (oldProduct: ParsedProduct, newProduct: ParsedProduct) => {
+        onProductEdit?.('', oldProduct, newProduct);
+    };
+
     const handleAutoCategorizeBatch = async () => {
+        if (uncategorizedProducts.length === 0) return;
+
         setIsAutoCategorizing(true);
+
         try {
+            const suggestions = await DietCategorizationService.bulkSuggestCategories(uncategorizedProducts);
+
             let categorizedCount = 0;
+
             for (const product of uncategorizedProducts) {
-                const suggestedCategory = await ProductCategorizationService.suggestCategory(product);
+                const key = product.original || product.name;
+                const suggestedCategory = suggestions[key];
+
                 if (suggestedCategory) {
-                    onProductDrop(suggestedCategory, product);
+                    onProductDrop(suggestedCategory, {
+                        ...product,
+                        categoryId: suggestedCategory
+                    });
                     categorizedCount++;
                 }
             }
-            toast.success(`Automatycznie skategoryzowano ${categorizedCount} produktów`);
+
+            if (categorizedCount > 0) {
+                toast.success(`Automatycznie skategoryzowano ${categorizedCount} produktów`);
+            } else {
+                toast.info('Nie udało się automatycznie skategoryzować żadnego produktu');
+            }
         } catch (error) {
             toast.error('Wystąpił błąd podczas automatycznej kategoryzacji');
-            console.error('Error during auto-categorization:', error);
+            console.error('Błąd podczas auto-kategoryzacji:', error);
         } finally {
             setIsAutoCategorizing(false);
         }
     };
 
-    /*   const handleProductEdit = (categoryId: string, oldProduct: ParsedProduct, newProduct: ParsedProduct) => {
-           onProductEdit?.(categoryId, oldProduct, newProduct);
-       };*/
     return (
         <div className="grid grid-cols-12 gap-6 h-[calc(100vh-200px)]">
             {/* Kategorie jako zakładki */}
@@ -90,8 +98,6 @@ const ProductCategorizationLayout: React.FC<ProductCategorizationLayoutProps> = 
                             {categories.map(category => {
                                 const Icon = getLucideIcon(category.icon);
                                 const count = categorizedProducts[category.id]?.length || 0;
-                                const showStats = Object.values(categorizedProducts).some(p => p.length > 0);
-                                const totalUsage = showStats ? (categoryStats[category.id] || 0) : 0;
 
                                 return (
                                     <DroppableTabsTrigger
@@ -103,20 +109,11 @@ const ProductCategorizationLayout: React.FC<ProductCategorizationLayoutProps> = 
                                     >
                                         {Icon && <Icon className="h-4 w-4"/>}
                                         {category.name}
-                                        <div className="flex gap-2">
-                                            {count > 0 && (
-                                                <span className="ml-2 text-xs bg-gray-100 px-2 py-0.5 rounded-full">
-                                            {count}
-                                        </span>
-                                            )}
-                                            {showStats && totalUsage > 0 && (
-                                                <span
-                                                    className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full"
-                                                    title="Całkowita liczba użyć">
-                                                    {totalUsage}
-                                                </span>
-                                            )}
-                                        </div>
+                                        {count > 0 && (
+                                            <span className="ml-2 text-xs bg-gray-100 px-2 py-0.5 rounded-full">
+                                                {count}
+                                            </span>
+                                        )}
                                     </DroppableTabsTrigger>
                                 );
                             })}
@@ -130,29 +127,34 @@ const ProductCategorizationLayout: React.FC<ProductCategorizationLayoutProps> = 
                             <div className="p-4 border-b flex justify-between items-center">
                                 <h3 className="font-medium flex items-center gap-2">
                                     Produkty do przypisania
-                                    <span
-                                        className="text-sm text-gray-500">{uncategorizedProducts.length} pozostało
+                                    <span className="text-sm text-gray-500">
+                                        {uncategorizedProducts.length} pozostało
                                     </span>
                                 </h3>
                                 {uncategorizedProducts.length > 0 && (
                                     <button
                                         onClick={handleAutoCategorizeBatch}
-                                        disabled={isAutoCategorizing}
+                                        disabled={isAutoCategorizing || loading}
                                         className="flex items-center gap-2 px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 text-xs"
                                     >
-                                        <Brain className="h-4 w-4"/>
-                                        {isAutoCategorizing ? 'Kategoryzowanie...' : 'Automatyczna kategoryzacja'}
+                                        {isAutoCategorizing ? (
+                                            <Loader2 className="h-4 w-4 animate-spin"/>
+                                        ) : (
+                                            <Brain className="h-4 w-4"/>
+                                        )}
+                                        {isAutoCategorizing ? 'Kategoryzowanie...' : 'Automatycznie'}
                                     </button>
                                 )}
                             </div>
 
                             <div className="p-4 overflow-y-auto h-[calc(100%-60px)]">
                                 <div className="space-y-2">
-                                    {uncategorizedProducts.map(product => (
+                                    {uncategorizedProducts.map((product, index) => (
                                         <DraggableProduct
-                                            key={product.original}
+                                            key={product.id || `${product.original}-${index}`}
                                             product={product}
                                             onCategorize={handleProductCategorize}
+                                            onEdit={handleUncategorizedProductEdit}
                                         />
                                     ))}
                                 </div>

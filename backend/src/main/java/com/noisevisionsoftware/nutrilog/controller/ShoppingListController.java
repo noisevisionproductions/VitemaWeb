@@ -1,6 +1,7 @@
 package com.noisevisionsoftware.nutrilog.controller;
 
 import com.noisevisionsoftware.nutrilog.dto.request.shopping.ShoppingListItemRequest;
+import com.noisevisionsoftware.nutrilog.dto.request.shopping.UpdateShoppingListDatesRequest;
 import com.noisevisionsoftware.nutrilog.dto.request.shopping.UpdateShoppingListRequest;
 import com.noisevisionsoftware.nutrilog.dto.response.shopping.ShoppingListResponse;
 import com.noisevisionsoftware.nutrilog.mapper.shopping.ShoppingListMapper;
@@ -59,6 +60,18 @@ public class ShoppingListController {
                 id,
                 categoryId,
                 shoppingListMapper.toModel(request)
+        );
+        return ResponseEntity.ok(shoppingListMapper.toResponse(updated));
+    }
+
+    @PatchMapping("/{id}/dates")
+    public ResponseEntity<ShoppingListResponse> updateDates(
+            @PathVariable String id,
+            @RequestBody UpdateShoppingListDatesRequest request) {
+        ShoppingList updated = shoppingListService.updateDates(
+                id,
+                request.getStartDate(),
+                request.getEndDate()
         );
         return ResponseEntity.ok(shoppingListMapper.toResponse(updated));
     }

@@ -1,5 +1,6 @@
 package com.noisevisionsoftware.nutrilog.controller;
 
+import com.noisevisionsoftware.nutrilog.controller.diet.DietController;
 import com.noisevisionsoftware.nutrilog.dto.request.diet.DietRequest;
 import com.noisevisionsoftware.nutrilog.dto.response.diet.DietResponse;
 import com.noisevisionsoftware.nutrilog.exception.NotFoundException;

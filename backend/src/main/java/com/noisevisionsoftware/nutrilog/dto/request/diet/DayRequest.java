@@ -1,18 +1,22 @@
 package com.noisevisionsoftware.nutrilog.dto.request.diet;
 
+import com.google.cloud.Timestamp;
 import com.google.firebase.database.annotations.NotNull;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class DayRequest {
-    @NotBlank
-    private String date;
+    @NotNull
+    private Timestamp date;
 
     @Valid
     @NotNull

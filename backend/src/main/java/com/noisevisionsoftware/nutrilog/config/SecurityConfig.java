@@ -36,10 +36,17 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/auth/login").permitAll()
-                        .requestMatchers("/api/diets/**").permitAll()
-                        .requestMatchers("/api/shopping-lists/**").permitAll()
-                        .requestMatchers("/api/recipes/**").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/public/**").permitAll()
+                        .requestMatchers("/api/diets/**").hasRole("ADMIN")
+                        .requestMatchers("/api/shopping-lists/**").hasRole("ADMIN")
+                        .requestMatchers("/api/recipes/**").hasRole("ADMIN")
+                        .requestMatchers("/api/measurements/**").hasRole("ADMIN")
+                        .requestMatchers("/api/changelog/**").hasRole("ADMIN")
+                        .requestMatchers("/api/users/**").hasRole("ADMIN")
+                        .requestMatchers("/api/diets/upload/**").permitAll()
+                        .requestMatchers("/api/diets/categorization/**").permitAll()
+                        .requestMatchers("/api/diets/manager/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(
@@ -57,10 +64,20 @@ public class SecurityConfig {
                 "http://localhost:5173",
                 "http://localhost:5174"
         ));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+
+        configuration.setAllowedHeaders(Arrays.asList(
+                "Authorization",
+                "Content-Type",
+                "X-Requested-With",
+                "Accept",
+                "Origin",
+                "Access-Control-Request-Method",
+                "Access-Control-Request-Headers"
+        ));
         configuration.setExposedHeaders(List.of("Authorization"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

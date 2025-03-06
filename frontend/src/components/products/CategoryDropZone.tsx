@@ -55,9 +55,9 @@ const CategoryDropZone: React.FC<CategoryDropZoneProps> = ({
                 </div>
             ) : (
                 <div className="flex-1 space-y-2 overflow-y-auto">
-                    {products.map(product => (
+                    {products.map((product, index) => (
                         <DraggableProduct
-                            key={product.original}
+                            key={`${category.id}-${product.original}-${index}`}
                             product={product}
                             inCategory={true}
                             onRemove={onProductRemove}

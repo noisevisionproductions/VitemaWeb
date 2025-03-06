@@ -1,12 +1,15 @@
 import {Timestamp} from 'firebase/firestore';
+import {User} from "../types/user";
 
 /**
  * Uniwersalna funkcja do formatowania dat w aplikacji
  */
-export const formatTimestamp = (timestamp: number | Date | Timestamp | {
-    seconds: number,
-    nanoseconds: number
-} | string) => {
+interface FirestoreTimestamp {
+    _seconds: number;
+    _nanoseconds: number;
+}
+
+export const formatTimestamp = (timestamp: number | Date | Timestamp | FirestoreTimestamp | string) => {
     let date: Date;
 
     if (timestamp instanceof Date) {
@@ -16,22 +19,31 @@ export const formatTimestamp = (timestamp: number | Date | Timestamp | {
     } else if (timestamp instanceof Timestamp) {
         date = timestamp.toDate();
     } else if (typeof timestamp === 'string') {
-        // Obsługa string ISO oraz formatu dd-mm-yyyy
+        // Handle string ISO and dd-mm-yyyy format
         if (timestamp.includes('-')) {
             const parts = timestamp.split('-');
             if (parts.length === 3 && parts[0].length === 2) {
-                // Format dd-mm-yyyy
+                // dd-mm-yyyy format
                 const [day, month, year] = parts.map(Number);
                 date = new Date(year, month - 1, day);
             } else {
-                // Format ISO
+                // ISO format
                 date = new Date(timestamp);
             }
         } else {
             date = new Date(timestamp);
         }
-    } else if (timestamp && typeof timestamp === 'object' && 'seconds' in timestamp) {
-        date = new Date(timestamp.seconds * 1000);
+    } else if (timestamp && typeof timestamp === 'object') {
+        // Handle Firestore timestamp format
+        if ('_seconds' in timestamp && '_nanoseconds' in timestamp) {
+            const firestoreTimestamp = timestamp as FirestoreTimestamp;
+            date = new Date(firestoreTimestamp._seconds * 1000);
+        } else if ('seconds' in timestamp && 'nanoseconds' in timestamp) {
+            date = new Date((timestamp as any).seconds * 1000);
+        } else {
+            console.warn('Invalid timestamp format:', timestamp);
+            date = new Date();
+        }
     } else {
         console.warn('Invalid timestamp format:', timestamp);
         date = new Date();
@@ -49,9 +61,6 @@ export const formatTimestamp = (timestamp: number | Date | Timestamp | {
     });
 };
 
-/**
- * Konwersja dowolnego formatu daty na Timestamp (do zapisu w Firestore)
- */
 export const toFirestoreTimestamp = (date: Date | string | number | Timestamp): Timestamp => {
     if (date instanceof Timestamp) {
         return date;
@@ -68,42 +77,41 @@ export const toFirestoreTimestamp = (date: Date | string | number | Timestamp): 
 /**
  * Konwersja Timestamp na format ISO (YYYY-MM-DD)
  */
-export const toISODate = (timestamp: Timestamp | Date | string | number): string => {
+export const toISODate = (timestamp: Timestamp | Date | string | number | null | undefined): string => {
+    if (!timestamp) {
+        return '';
+    }
+
     let date: Date;
 
-    if (timestamp instanceof Timestamp) {
-        date = timestamp.toDate();
-    } else if (timestamp instanceof Date) {
-        date = timestamp;
-    } else if (typeof timestamp === 'string') {
-        date = new Date(timestamp);
-    } else {
-        date = new Date(timestamp);
-    }
+    try {
+        if (timestamp instanceof Timestamp) {
+            date = timestamp.toDate();
+        } else if (timestamp instanceof Date) {
+            date = timestamp;
+        } else if (typeof timestamp === 'string') {
+            date = new Date(timestamp);
+        } else if (typeof timestamp === 'object' && '_seconds' in timestamp) {
+            const firestoreTimestamp = timestamp as any;
+            date = new Date(firestoreTimestamp._seconds * 1000);
+        } else {
+            date = new Date(timestamp as any);
+        }
 
-    return date.toISOString().split('T')[0];
-};
+        if (isNaN(date.getTime())) {
+            console.warn('Invalid date created from timestamp:', timestamp);
+            return '';
+        }
 
-/**
- * Pomocnicza funkcja do porównywania dat
- */
-export const getTimestamp = (date: any): number => {
-    if (date instanceof Date) {
-        return date.getTime();
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+
+        return `${year}-${month}-${day}`;
+    } catch (error) {
+        console.error('Error converting timestamp to ISO date:', error, timestamp);
+        return '';
     }
-    if (date instanceof Timestamp) {
-        return date.toMillis();
-    }
-    if (typeof date === 'number') {
-        return date;
-    }
-    if (typeof date === 'string') {
-        return new Date(date).getTime();
-    }
-    if (date && typeof date === 'object' && 'seconds' in date) {
-        return date.seconds * 1000;
-    }
-    return 0;
 };
 
 export const formatMonthYear = (date: Date): string => {
@@ -115,11 +123,17 @@ export const stringToTimestamp = (dateString: string) => {
     return Timestamp.fromDate(date);
 };
 
-export const calculateAge = (birthDate: number | null): number => {
+export const calculateAge = (birthDate: Timestamp | number | null): number => {
     if (!birthDate) return 0;
 
     const today = new Date();
-    const birthDateObj = new Date(birthDate);
+    let birthDateObj: Date;
+
+    if (birthDate instanceof Timestamp) {
+        birthDateObj = birthDate.toDate();
+    } else {
+        birthDateObj = new Date(birthDate);
+    }
 
     let age = today.getFullYear() - birthDateObj.getFullYear();
     const monthDiff = today.getMonth() - birthDateObj.getMonth();
@@ -129,4 +143,13 @@ export const calculateAge = (birthDate: number | null): number => {
     }
 
     return age;
+};
+
+export const displayAge = (user: User): string => {
+    if (user.storedAge && user.storedAge > 0) {
+        return `${user.storedAge} lat`;
+    }
+
+    const calculatedAge = calculateAge(user.birthDate);
+    return calculatedAge > 0 ? `${calculatedAge} lat` : 'Nie podano';
 };

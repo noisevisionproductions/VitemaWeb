@@ -1,5 +1,3 @@
-import {Timestamp} from "firebase/firestore";
-
 export enum Gender {
     MALE = 'MALE',
     FEMALE = 'FEMALE'
@@ -21,10 +19,4 @@ export interface User {
     profileCompleted: boolean;
     role: UserRole;
     note?: string;
-}
-
-export interface UserSettings {
-    id: string;
-    userId: string;
-    lastChangelogRead: Timestamp | null;
 }

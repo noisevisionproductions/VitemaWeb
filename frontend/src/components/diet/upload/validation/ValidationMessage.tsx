@@ -1,7 +1,7 @@
 import React from 'react';
 import {AlertCircle, AlertTriangle, CheckCircle} from 'lucide-react';
 
-export type ValidationSeverity = 'error' | 'warning' | 'success';
+export type ValidationSeverity = 'error' | 'warning' | 'success' | 'ERROR' | 'WARNING' | 'SUCCESS';
 
 interface ValidationMessageProps {
     message: string;
@@ -9,8 +9,11 @@ interface ValidationMessageProps {
 }
 
 const ValidationMessage: React.FC<ValidationMessageProps> = ({message, severity}) => {
+    // Normalize severity to lowercase for consistent handling
+    const normalizedSeverity = severity.toLowerCase() as 'error' | 'warning' | 'success';
+
     const getIcon = () => {
-        switch (severity) {
+        switch (normalizedSeverity) {
             case 'error':
                 return <AlertCircle className="w-5 h-5 text-red-500"/>;
             case 'warning':
@@ -20,19 +23,23 @@ const ValidationMessage: React.FC<ValidationMessageProps> = ({message, severity}
         }
     };
 
-    const getColorClass = () => {
-        switch (severity) {
+    const getStyleClasses = () => {
+        const baseClasses = "flex items-center gap-2 p-3 rounded-md border ";
+
+        switch (normalizedSeverity) {
             case 'error':
-                return 'bg-red-50 text-red-700 border-red-200';
+                return baseClasses + 'bg-red-50 border-red-200 text-red-700';
             case 'warning':
-                return 'bg-yellow-50 text-yellow-700 border-yellow-200';
+                return baseClasses + 'bg-yellow-50 border-yellow-200 text-yellow-700';
             case 'success':
-                return 'bg-green-50 text-green-700 border-green-200';
+                return baseClasses + 'bg-green-50 border-green-200 text-green-700';
+            default:
+                return baseClasses + 'bg-gray-50 border-gray-200 text-gray-700';
         }
     };
 
     return (
-        <div className={`flex items-center gap-2 p-3 rounded-md border ${getColorClass()}`}>
+        <div className={getStyleClasses()}>
             {getIcon()}
             <span className="text-sm">
                 {message}

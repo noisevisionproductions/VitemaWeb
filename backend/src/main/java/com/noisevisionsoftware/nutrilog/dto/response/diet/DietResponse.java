@@ -1,9 +1,9 @@
 package com.noisevisionsoftware.nutrilog.dto.response.diet;
 
+import com.google.cloud.Timestamp;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -12,8 +12,8 @@ public class DietResponse {
     private String id;
     private String userId;
     private String userEmail;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
     private List<DayResponse> days;
     private DietMetadataResponse metadata;
 }

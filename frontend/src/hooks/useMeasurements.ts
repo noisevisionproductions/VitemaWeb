@@ -1,8 +1,7 @@
 import {useEffect, useState} from "react";
 import {BodyMeasurements} from "../types/measurements";
-import {collection, getDocs, orderBy, query, where} from "firebase/firestore";
-import {db} from "../config/firebase";
 import {toast} from "sonner";
+import {MeasurementsService} from "../services/MesaurementsService";
 
 export const useMeasurements = (userId: string) => {
     const [measurements, setMeasurements] = useState<BodyMeasurements[]>([]);
@@ -14,19 +13,7 @@ export const useMeasurements = (userId: string) => {
             setLoading(true);
             setError(null);
 
-            const measurementsRef = collection(db, 'bodyMeasurements');
-            const q = query(
-                measurementsRef,
-                where('userId', '==', userId),
-                orderBy('date', 'desc')
-            );
-
-            const snapshot = await getDocs(q);
-            const measurementsData = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            })) as BodyMeasurements[];
-
+            const measurementsData = await MeasurementsService.getUserMeasurements(userId);
             setMeasurements(measurementsData);
         } catch (error) {
             console.error('Error fetching measurements:', error);
@@ -43,10 +30,23 @@ export const useMeasurements = (userId: string) => {
         }
     }, [userId]);
 
+    const deleteMeasurement = async (id: string) => {
+        try {
+            await MeasurementsService.deleteMeasurement(id);
+            setMeasurements(prev => prev.filter(m => m.id !== id));
+            toast.success('Pomiar został usunięty');
+        } catch (error) {
+            console.error('Error deleting measurement:', error);
+            toast.error('Błąd podczas usuwania pomiaru');
+            throw error;
+        }
+    };
+
     return {
         measurements,
         loading,
         error,
-        refetch: fetchMeasurements
+        refetch: fetchMeasurements,
+        deleteMeasurement
     };
 };

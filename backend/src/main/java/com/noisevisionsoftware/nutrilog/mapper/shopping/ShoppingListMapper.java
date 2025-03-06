@@ -15,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.List;
@@ -100,9 +99,9 @@ public class ShoppingListMapper {
                 .dietId(shoppingList.getDietId())
                 .userId(shoppingList.getUserId())
                 .items(mapItemsToResponse(shoppingList.getItems()))
-                .createdAt(timestampToLocalDateTime(shoppingList.getCreatedAt()))
-                .startDate(timestampToLocalDateTime(shoppingList.getStartDate()))
-                .endDate(timestampToLocalDateTime(shoppingList.getEndDate()))
+                .createdAt(shoppingList.getCreatedAt())
+                .startDate(shoppingList.getStartDate())
+                .endDate(shoppingList.getEndDate())
                 .version(shoppingList.getVersion())
                 .build();
     }

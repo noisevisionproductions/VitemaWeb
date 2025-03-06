@@ -1,5 +1,6 @@
 import React, {useState} from "react";
 import {Upload} from "lucide-react";
+import {toast} from "sonner";
 
 interface FileUploadZoneProps {
     file: File | null;
@@ -17,7 +18,9 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({
 
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>): void => {
         e.preventDefault();
-        setIsDragging(true);
+        if (!disabled) {
+            setIsDragging(true);
+        }
     };
 
     const handleDragLeave = (): void => {
@@ -28,6 +31,10 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({
         e.preventDefault();
         setIsDragging(false);
 
+        if (disabled) {
+            return;
+        }
+
         const files = e.dataTransfer.files;
         if (files.length) {
             handleFile(files[0]);
@@ -35,6 +42,11 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({
     };
 
     const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>): void => {
+        if (disabled) {
+            e.preventDefault();
+            return;
+        }
+
         if (e.target.files?.length) {
             handleFile(e.target.files[0]);
         }
@@ -44,25 +56,33 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({
     };
 
     const handleFile = (file: File): void => {
+        if (disabled) {
+            return;
+        }
+
         const validTypes = [
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'application/vnd.ms-excel'
+            'application/vnd.ms-excel',
+            '.xlsx',
+            '.xls'
         ];
 
-        if (validTypes.includes(file.type)) {
+        const fileType = file.type || file.name.split('.').pop()?.toLowerCase();
+
+        if (validTypes.includes(fileType || '')) {
             onFileSelect(file);
         } else {
-            alert('Proszę wybrać plik Excel');
+            toast.error('Proszę wybrać plik Excel (.xlsx lub .xls)');
         }
     };
 
-    React.useEffect(() => {
+    const handleClick = (e: React.MouseEvent) => {
         if (disabled) {
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-            }
+            e.preventDefault();
+            toast.error('Najpierw wybierz użytkownika');
+            return;
         }
-    }, [disabled]);
+    };
 
     return (
         <div className="max-w-2xl mx-auto">
@@ -70,7 +90,7 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({
                 className={`border-2 border-dashed rounded-lg p-8 text-center
                 ${isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}
                 ${file ? 'bg-green-50' : ''}
-                ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                ${disabled ? 'opacity-50 pointer-events-none' : ''}`}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
@@ -90,6 +110,7 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({
                     className="hidden"
                     id="fileInput"
                     onChange={handleFileInput}
+                    disabled={disabled}
                 />
 
                 <label
@@ -99,6 +120,7 @@ const FileUploadZone: React.FC<FileUploadZoneProps> = ({
                             ? 'bg-gray-400 cursor-not-allowed'
                             : 'bg-blue-500 hover:bg-blue-600 cursor-pointer'
                     } text-white rounded-lg`}
+                    onClick={handleClick}
                 >
                     Wybierz plik
                 </label>

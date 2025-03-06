@@ -1,14 +1,15 @@
 import {useState, useEffect} from 'react';
 import {Diet} from '../types';
-import {toast} from 'sonner';
 import {User} from '../types/user';
 import {DietService} from "../services/DietService";
+import { useToast} from "../contexts/ToastContext";
 
 export interface DietWithUser extends Diet {
     userEmail?: string;
 }
 
 export const useDiets = (_users: User[], usersLoading: boolean) => {
+    const { showToast } = useToast();
     const [diets, setDiets] = useState<DietWithUser[]>([]);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(0);
@@ -16,14 +17,12 @@ export const useDiets = (_users: User[], usersLoading: boolean) => {
 
     const fetchDiets = async () => {
         try {
-            console.log('Fetching diets...');
             setLoading(true);
             const response = await DietService.getDiets();
-            console.log('Fetched diets:', response);
             setDiets(response);
         } catch (error) {
             console.error('Error fetching diets:', error);
-            toast.error('Błąd podczas pobierania diet');
+            showToast('Błąd podczas pobierania diet', 'error');
         } finally {
             setLoading(false);
         }
@@ -34,49 +33,39 @@ export const useDiets = (_users: User[], usersLoading: boolean) => {
         fetchDiets().catch(console.error);
     }, [usersLoading, page, size]);
 
-
     const deleteDiet = async (id: string) => {
         try {
-            console.log('Starting diet deletion, ID:', id);
-
-            // Natychmiastowa aktualizacja UI
             setDiets(prevDiets => prevDiets.filter(diet => diet.id !== id));
-
-            // Wywołanie API
             await DietService.deleteDiet(id);
-            console.log('Diet deleted successfully, ID:', id);
-
-            // Odśwież dane z serwera
-            await fetchDiets();
-
-            toast.success('Dieta została usunięta');
+            showToast('Dieta została usunięta', 'success');
         } catch (error) {
             console.error('Diet deletion failed:', error);
-            // Przywróć poprzedni stan w przypadku błędu
-            await fetchDiets();
+            showToast('Błąd podczas usuwania diety', 'error');
+            fetchDiets().catch(console.error);
             throw error;
         }
     };
+
     const updateDiet = async (id: string, dietData: Partial<Diet>) => {
         try {
             await DietService.updateDiet(id, dietData);
-            toast.success('Dieta została zaktualizowana');
+            showToast('Dieta została zaktualizowana', 'success');
             await fetchDiets();
         } catch (error) {
             console.error('Error updating diet:', error);
-            toast.error('Błąd podczas aktualizacji diety');
+            showToast('Błąd podczas aktualizacji diety', 'error');
         }
     };
 
     const createDiet = async (dietData: Omit<Diet, 'id'>) => {
         try {
             const response = await DietService.createDiet(dietData);
-            toast.success('Dieta została utworzona');
+            showToast('Dieta została utworzona', 'success');
             await fetchDiets();
             return response;
         } catch (error) {
             console.error('Error creating diet:', error);
-            toast.error('Błąd podczas tworzenia diety');
+            showToast('Błąd podczas tworzenia diety', 'error');
             throw error;
         }
     };

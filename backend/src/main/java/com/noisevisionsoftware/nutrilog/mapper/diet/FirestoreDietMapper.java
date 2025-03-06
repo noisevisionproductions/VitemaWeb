@@ -2,6 +2,7 @@ package com.noisevisionsoftware.nutrilog.mapper.diet;
 
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.noisevisionsoftware.nutrilog.model.diet.*;
+import com.noisevisionsoftware.nutrilog.model.diet.MealType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

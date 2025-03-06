@@ -4,6 +4,8 @@ import com.google.cloud.Timestamp;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.WeekFields;
+import java.util.Locale;
 
 public class DateUtils {
 
@@ -12,5 +14,10 @@ public class DateUtils {
                 .toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime();
+    }
+
+    public static int getWeekNumber(Timestamp timestamp) {
+        LocalDateTime date = timestampToLocalDateTime(timestamp);
+        return date.get(WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear());
     }
 }

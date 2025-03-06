@@ -1,15 +1,14 @@
 package com.noisevisionsoftware.nutrilog.dto.response.diet;
 
+import com.google.cloud.Timestamp;
 import lombok.Builder;
 import lombok.Data;
-
-import java.time.LocalDateTime;
 
 @Data
 @Builder
 public class DietInfo {
 
     private boolean hasDiet;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private Timestamp startDate;
+    private Timestamp endDate;
 }

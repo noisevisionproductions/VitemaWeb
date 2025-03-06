@@ -1,6 +1,6 @@
-import { Timestamp } from 'firebase/firestore';
+import {Timestamp} from 'firebase/firestore';
 import {DayMeal, ParsedMeal} from './meal';
-import { MealType } from './meal';
+import {MealType} from './meal';
 
 export interface Diet {
     id: string;
@@ -39,6 +39,11 @@ export interface ParsedDay {
 
 export interface ParsedDietData {
     days: ParsedDay[];
+    categorizedProducts: Record<string, string[]>;
     shoppingList: string[];
-    categorizedProducts?: Record<string, string[]>;
+    mealTimes: Record<string, string>;
+    mealsPerDay: number;
+    startDate: Timestamp;
+    duration: number;
+    mealTypes: MealType[];
 }

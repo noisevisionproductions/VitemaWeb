@@ -35,6 +35,19 @@ public class DietRepository {
         }
     }
 
+    public Diet update(String id, Diet diet) {
+        try {
+            DocumentReference docRef = firestore.collection(COLLECTION_NAME).document(id);
+            Map<String, Object> data = firestoreDietMapper.toFirestoreMap(diet);
+            ApiFuture<WriteResult> result = docRef.update(data);
+            result.get();
+            diet.setId(id);
+            return diet;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update diet", e);
+        }
+    }
+
     public Optional<Diet> findById(String id) {
         try {
             DocumentReference docRef = firestore.collection(COLLECTION_NAME).document(id);

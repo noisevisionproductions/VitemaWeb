@@ -1,14 +1,18 @@
 package com.noisevisionsoftware.nutrilog.service;
 
+import com.google.cloud.Timestamp;
 import com.noisevisionsoftware.nutrilog.exception.NotFoundException;
 import com.noisevisionsoftware.nutrilog.model.shopping.CategorizedShoppingListItem;
 import com.noisevisionsoftware.nutrilog.model.shopping.ShoppingList;
 import com.noisevisionsoftware.nutrilog.repository.ShoppingListRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +22,9 @@ import java.util.Map;
 public class ShoppingListService {
     private final ShoppingListRepository shoppingListRepository;
 
+    private static final String SHOPPING_LIST_CACHE = "shoppingListCache";
+
+    @Cacheable(value = SHOPPING_LIST_CACHE, key = "#dietId")
     public ShoppingList getShoppingListByDietId(String dietId) {
         return shoppingListRepository.findByDietId(dietId)
                 .orElse(null);
@@ -31,9 +38,28 @@ public class ShoppingListService {
         ShoppingList shoppingList = shoppingListRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Shopping list not found: " + id));
 
-        shoppingList.setItems(items);
-        shoppingListRepository.save(shoppingList);
-        return shoppingList;
+        if (items == null || items.isEmpty()) {
+            log.warn("Received empty items map for shopping list update: {}", id);
+            return shoppingList;
+        }
+
+        Map<String, List<CategorizedShoppingListItem>> updatedItems = new HashMap<>();
+        items.forEach((key, value) -> {
+            if (value != null) {
+                updatedItems.put(key, new ArrayList<>(value));
+            }
+        });
+
+        shoppingList.setItems(updatedItems);
+
+        try {
+            ShoppingList result = shoppingListRepository.save(shoppingList);
+            refreshShoppingListCache();
+            return result;
+        } catch (Exception e) {
+            log.error("Error updating shopping list items: {}", id, e);
+            throw new RuntimeException("Failed to update shopping list items", e);
+        }
     }
 
     public void removeItemFromCategory(String id, String categoryId, int itemIndex) {
@@ -63,4 +89,21 @@ public class ShoppingListService {
         shoppingListRepository.save(shoppingList);
         return shoppingList;
     }
+
+    public ShoppingList updateDates(String id, Timestamp startDate, Timestamp endDate) {
+        ShoppingList shoppingList = shoppingListRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Shopping list not found: " + id));
+
+        shoppingList.setStartDate(startDate);
+        shoppingList.setEndDate(endDate);
+
+        shoppingListRepository.save(shoppingList);
+        return shoppingList;
+    }
+
+    @CacheEvict(value = SHOPPING_LIST_CACHE, allEntries = true)
+    public void refreshShoppingListCache() {
+        log.debug("Odświeżenie cache list zakupów");
+    }
+
 }
