@@ -4,7 +4,6 @@ import {features} from "./featuresData";
 import FeatureCard from "./FeatureCard";
 
 const Features = () => {
-    // Posortuj funkcje tak, aby dostępne były najpierw
     const sortedFeatures = [...features].sort((a, b) => {
         if (!a.status || a.status === 'available') return -1;
         if (!b.status || b.status === 'available') return 1;
@@ -28,7 +27,8 @@ const Features = () => {
                 <div className="mt-12 text-center">
                     <p className="text-text-secondary">
                         Stale rozwijamy naszą platformę o nowe funkcje na podstawie potrzeb dietetyków.
-                        <span className="block mt-2">Masz pomysł? <a href="#contact" className="text-primary hover:underline">Daj nam znać!</a></span>
+                        <span className="block mt-2">Masz pomysł? <a href="#contact"
+                                                                     className="text-primary hover:underline">Daj nam znać!</a></span>
                     </p>
                 </div>
             </Container>

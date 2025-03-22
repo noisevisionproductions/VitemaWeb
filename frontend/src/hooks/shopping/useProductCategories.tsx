@@ -1,7 +1,7 @@
 import React, {createContext, useContext, useState, useEffect} from 'react';
 import {Category} from "../../types/product-categories";
-import {DietCategorizationService} from "../../services/DietCategorizationService";
-import {toast} from 'sonner';
+import {DietCategorizationService} from "../../services/diet/DietCategorizationService";
+import {toast} from "../../utils/toast";
 
 interface ProductCategoriesContextType {
     categories: Category[];

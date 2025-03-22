@@ -6,7 +6,7 @@ import com.noisevisionsoftware.nutrilog.dto.response.diet.DietResponse;
 import com.noisevisionsoftware.nutrilog.exception.NotFoundException;
 import com.noisevisionsoftware.nutrilog.mapper.diet.DietMapper;
 import com.noisevisionsoftware.nutrilog.model.diet.Diet;
-import com.noisevisionsoftware.nutrilog.service.DietService;
+import com.noisevisionsoftware.nutrilog.service.diet.DietService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

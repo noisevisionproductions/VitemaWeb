@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
-import { toast } from 'sonner';
-import { Diet, Recipe } from "../types";
-import { RecipeService } from "../services/RecipeService";
+import {useState, useEffect} from 'react';
+import {toast} from "../utils/toast";
+import {Diet, NutritionalValues, Recipe} from "../types";
+import {RecipeService} from "../services/RecipeService";
+import {Timestamp} from "firebase/firestore";
 
 export const useRecipes = (days: Diet['days']) => {
     const [recipes, setRecipes] = useState<{ [key: string]: Recipe }>({});
@@ -43,14 +44,13 @@ export const useRecipes = (days: Diet['days']) => {
     }, [days]);
 
     const updateRecipe = async (id: string, data: {
+        id: string;
         name: string;
         instructions: string;
-        nutritionalValues?: {
-            calories: number;
-            protein: number;
-            fat: number;
-            carbs: number;
-        };
+        createdAt: Timestamp;
+        photos: string[];
+        nutritionalValues: NutritionalValues;
+        parentRecipeId: string | null
     }) => {
         try {
             const updatedRecipe = await RecipeService.updateRecipe(id, data);

@@ -9,7 +9,7 @@ interface FirestoreTimestamp {
     _nanoseconds: number;
 }
 
-export const formatTimestamp = (timestamp: number | Date | Timestamp | FirestoreTimestamp | string) => {
+export const formatTimestamp = (timestamp: number | Date | Timestamp | FirestoreTimestamp | string, includeTime: boolean = false) => {
     let date: Date;
 
     if (timestamp instanceof Date) {
@@ -54,11 +54,18 @@ export const formatTimestamp = (timestamp: number | Date | Timestamp | Firestore
         date = new Date();
     }
 
-    return date.toLocaleDateString('pl-PL', {
+    const options: Intl.DateTimeFormatOptions = {
         year: 'numeric',
         month: 'long',
         day: 'numeric'
-    });
+    };
+
+    if (includeTime) {
+        options.hour = '2-digit';
+        options.minute = '2-digit';
+    }
+
+    return date.toLocaleDateString('pl-PL', options);
 };
 
 export const toFirestoreTimestamp = (date: Date | string | number | Timestamp): Timestamp => {

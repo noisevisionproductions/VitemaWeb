@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 @Configuration
 @Slf4j
@@ -25,13 +25,32 @@ public class FirebaseConfig {
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
         if (FirebaseApp.getApps().isEmpty()) {
-            InputStream serviceAccount = new ClassPathResource(firebaseConfigPath).getInputStream();
+            InputStream serviceAccount;
 
-            FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .build();
+            try {
+                Resource classpathResource = new ClassPathResource(firebaseConfigPath);
+                if (classpathResource.exists()) {
+                    serviceAccount = classpathResource.getInputStream();
+                    log.info("Loading Firebase config from classpath");
+                } else {
+                    File file = new File(firebaseConfigPath);
+                    if (file.exists()) {
+                        serviceAccount = new FileInputStream(file);
+                        log.info("Loading Firebase config from absolute path: {}", file.getAbsolutePath());
+                    } else {
+                        throw new FileNotFoundException("Firebase config file not found at: " + firebaseConfigPath);
+                    }
+                }
 
-            return FirebaseApp.initializeApp(options);
+                FirebaseOptions options = FirebaseOptions.builder()
+                        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                        .build();
+
+                return FirebaseApp.initializeApp(options);
+            } catch (Exception e) {
+                log.error("Failed to initialize Firebase: {}", e.getMessage(), e);
+                throw e;
+            }
         }
         return FirebaseApp.getInstance();
     }

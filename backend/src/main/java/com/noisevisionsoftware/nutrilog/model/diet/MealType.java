@@ -1,6 +1,5 @@
 package com.noisevisionsoftware.nutrilog.model.diet;
 
-
 import lombok.Getter;
 
 @Getter

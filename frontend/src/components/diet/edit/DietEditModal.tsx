@@ -2,7 +2,7 @@ import React from 'react';
 import {Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription} from "../../ui/sheet";
 import {Diet} from "../../../types";
 import DietEditTabs from "./DietEditTabs";
-import {useDietEditor} from "../../../hooks/useDietEditor";
+import {useDietEditor} from "../../../hooks/diet/useDietEditor";
 import LoadingSpinner from "../../common/LoadingSpinner";
 
 interface DietEditModalProps {

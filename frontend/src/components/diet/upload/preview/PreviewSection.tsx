@@ -9,6 +9,7 @@ import {
 import {formatTimestamp} from "../../../../utils/dateFormatters";
 import DietMealPreview from "./DietMealPreview";
 import {getPolishDayForm, getPolishMealForm, getPolishProductForm} from "../../../../utils/declensionsOfNouns";
+import {v4 as uuidv4} from "uuid";
 
 interface PreviewSectionProps {
     parsedData: ParsedDietData;
@@ -33,7 +34,6 @@ const PreviewSection: React.FC<PreviewSectionProps> = ({
     const [showShoppingList, setShowShoppingList] = useState(true);
     const [expandedDays, setExpandedDays] = useState<number[]>([0]);
 
-    // Funkcja do przełączania rozwinięcia dnia
     const toggleDayExpand = (dayIndex: number) => {
         setExpandedDays(prev =>
             prev.includes(dayIndex)
@@ -42,7 +42,26 @@ const PreviewSection: React.FC<PreviewSectionProps> = ({
         );
     };
 
-    // Zsumuj liczbę produktów we wszystkich kategoriach
+    const handleImageAdd = (dayIndex: number, mealIndex: number, imageUrl: string) => {
+        const updatedDays = [...parsedData.days];
+        if (!updatedDays[dayIndex].meals[mealIndex].photos) {
+            updatedDays[dayIndex].meals[mealIndex].photos = [];
+        }
+        updatedDays[dayIndex].meals[mealIndex].photos?.push(imageUrl);
+
+        if (!updatedDays[dayIndex].meals[mealIndex].recipeId) {
+            updatedDays[dayIndex].meals[mealIndex].recipeId = `temp-recipe-${uuidv4()}`;
+        }
+    };
+
+    const handleSaveWithImages = async () => {
+        try {
+            await onSave();
+        } catch (error) {
+            console.error("Błąd podczas zapisywania diety ze zdjęciami:", error);
+        }
+    };
+
     const totalProducts = Object.values(categorizedProducts)
         .reduce((sum, products) => sum + products.length, 0);
 
@@ -115,6 +134,9 @@ const PreviewSection: React.FC<PreviewSectionProps> = ({
                                             key={mealIndex}
                                             meal={meal}
                                             mealIndex={mealIndex}
+                                            onImageAdd={(mealIndex, imageUrl) =>
+                                                handleImageAdd(dayIndex, mealIndex, imageUrl)
+                                            }
                                         />
                                     ))}
                                 </div>
@@ -196,7 +218,7 @@ const PreviewSection: React.FC<PreviewSectionProps> = ({
                     Anuluj
                 </button>
                 <button
-                    onClick={onSave}
+                    onClick={handleSaveWithImages}
                     disabled={isSaving || disabled}
                     className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >

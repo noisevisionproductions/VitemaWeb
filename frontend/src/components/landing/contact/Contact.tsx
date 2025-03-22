@@ -20,8 +20,8 @@ const Contact = () => {
                             icon={PhoneIcon}
                             title="Zadzwoń do nas"
                             description="Porozmawiaj z nami bezpośrednio o Twoich potrzebach"
-                            content="+48 XXX XXX XXX"
-                            action="tel:+48XXXXXXXXX"
+                            content="+48 880 172 098"
+                            action="tel:+48880172098"
                         />
 
                         <ContactCard
@@ -31,15 +31,6 @@ const Contact = () => {
                             content="kontakt@nutriLog.pl"
                             action="mailto:kontakt@nutriLog.pl"
                         />
-
-                        {/*   <ContactCard
-                            icon={ChatBubbleLeftRightIcon}
-                            title="Umów prezentację"
-                            description="Zaplanuj indywidualną prezentację systemu"
-                            content="Wybierz dogodny termin"
-                            action="#"
-                            isButton
-                        />*/}
                     </div>
 
                     {/* Prawa kolumna-formularz */}

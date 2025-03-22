@@ -1,0 +1,27 @@
+<!-- templates/email/partials/header.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        .header {
+            padding: 20px 30px;
+            background-color: #FFFFFF;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2D87BB;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+<div th:fragment="header" class="header">
+    <a href="https://nutrilog.pl" class="logo">NutriLog</a>
+</div>
+</body>
+</html>

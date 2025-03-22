@@ -7,6 +7,8 @@ import com.noisevisionsoftware.nutrilog.model.diet.Day;
 import com.noisevisionsoftware.nutrilog.model.diet.Diet;
 import com.noisevisionsoftware.nutrilog.model.diet.DietMetadata;
 import com.noisevisionsoftware.nutrilog.repository.DietRepository;
+import com.noisevisionsoftware.nutrilog.service.diet.DietService;
+import com.noisevisionsoftware.nutrilog.service.firebase.FirestoreService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

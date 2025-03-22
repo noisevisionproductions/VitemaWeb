@@ -3,7 +3,6 @@ import {useForm} from 'react-hook-form';
 import {Bug, Lightbulb, Sparkles} from "lucide-react";
 
 interface ChangelogFormData {
-    title: string;
     description: string;
     type: 'feature' | 'fix' | 'improvement';
 }
@@ -27,23 +26,6 @@ const ChangelogForm: React.FC<ChangelogFormProps> = ({onSubmit, isSubmitting}) =
 
     return (
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
-            <div>
-                <label className="block text-sm font-medium text-gray-700">
-                    Tytuł zmiany
-                </label>
-                <input
-                    type="text"
-                    {...register('title', {required: 'Tytuł jest wymagany'})}
-                    className="mt-1 px-3 py-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    placeholder="Np. Dodano możliwość eksportu danych"
-                />
-                {errors.title && (
-                    <p className="mt-1 text-sm text-red-600">
-                        {errors.title.message}
-                    </p>
-                )}
-            </div>
-
             <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                     Typ zmiany

@@ -1,18 +1,23 @@
 import {useForm} from "react-hook-form";
-
-interface ContactFormData {
-    name: string;
-    email: string;
-    phone?: string;
-    message: string;
-}
+import {useState} from "react";
+import {ContactFormData} from "../../../types/contact";
+import {ContactService} from "../../../services/contact/ContactService";
+import {toast} from "../../../utils/toast";
 
 const ContactForm = () => {
-    const {register, handleSubmit, formState: {errors, isSubmitting}} = useForm<ContactFormData>();
+    const {register, handleSubmit, formState: {errors, isSubmitting}, reset} = useForm<ContactFormData>();
+    const [submitSuccess, setSubmitSuccess] = useState(false);
 
     const onSubmit = async (data: ContactFormData) => {
-        // TODO
-        console.log(data);
+        try {
+            await ContactService.sendContactForm(data);
+            setSubmitSuccess(true);
+            toast.success("Twoja wiadomość została wysłana. Skontaktujemy się wkrótce.");
+            reset();
+        } catch (error) {
+            console.error("Błąd wysyłania formularza:", error);
+            toast.error("Wystąpił błąd podczas wysyłania wiadomości. Spróbuj ponownie później.");
+        }
     };
 
     return (
@@ -20,6 +25,12 @@ const ContactForm = () => {
             <h3 className="text-xl font-semibold text-text-primary mb-6">
                 Wyślij wiadomość
             </h3>
+
+            {submitSuccess && (
+                <div className="mb-6 p-4 bg-status-success/10 text-status-success rounded-lg">
+                    Twoja wiadomość została wysłana. Skontaktujemy się wkrótce.
+                </div>
+            )}
 
             <div className="space-y-6">
                 <div>
@@ -90,6 +101,18 @@ const ContactForm = () => {
                         </p>
                     )}
                 </div>
+
+                {/*   <div className="mt-4 mb-4">
+                    <ReCAPTCHA
+                        sitekey="YOUR_RECAPTCHA_SITE_KEY"
+                        onChange={(value: any) => setValue('captcha', value || '')}
+                    />
+                    {errors.captcha && (
+                        <p className="mt-1 text-sm text-status-error">
+                            {errors.captcha.message}
+                        </p>
+                    )}
+                </div>*/}
 
                 <button
                     type="submit"

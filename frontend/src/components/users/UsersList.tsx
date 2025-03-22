@@ -1,10 +1,9 @@
 import React from 'react';
 import {User, Gender, UserRole} from '../../types/user';
 import {displayAge} from '../../utils/dateFormatters';
-
 import UserNote from "./UserNote";
 import {UserService} from "../../services/UserService";
-import {toast} from "sonner";
+import {toast} from "../../utils/toast";
 
 interface UsersListProps {
     users: User[];

@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {Plus} from 'lucide-react';
 import {CategorizedShoppingListItem} from "../../../../../types";
-import {toast} from 'sonner';
+import {toast} from "../../../../../utils/toast";
 
 interface AddProductButtonProps {
     categoryId: string;

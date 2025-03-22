@@ -24,7 +24,7 @@ const ExcelExample: React.FC = () => (
                 <td className="px-4 py-2 text-gray-500">Dowolne notatki</td>
                 <td className="px-4 py-2">Owsianka z jabłkiem</td>
                 <td className="px-4 py-2">Ugotuj płatki owsiane na mleku...</td>
-                <td className="px-4 py-2">płatki owsiane, mleko, jabłko...</td>
+                <td className="px-4 py-2">300 g płatków owsianych, mleko 2 L, 3 jabłka (ok 300g)...</td>
                 <td className="px-4 py-2">300,15,5,45</td>
             </tr>
             </tbody>

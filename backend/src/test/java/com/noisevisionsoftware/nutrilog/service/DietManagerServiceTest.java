@@ -11,6 +11,8 @@ import com.noisevisionsoftware.nutrilog.model.diet.Diet;
 import com.noisevisionsoftware.nutrilog.model.diet.DietFileInfo;
 import com.noisevisionsoftware.nutrilog.model.diet.MealType;
 import com.noisevisionsoftware.nutrilog.model.recipe.NutritionalValues;
+import com.noisevisionsoftware.nutrilog.service.diet.DietManagerService;
+import com.noisevisionsoftware.nutrilog.service.diet.DietService;
 import com.noisevisionsoftware.nutrilog.utils.excelParser.model.*;
 import com.noisevisionsoftware.nutrilog.utils.excelParser.service.ProductParsingService;
 import org.junit.jupiter.api.BeforeEach;

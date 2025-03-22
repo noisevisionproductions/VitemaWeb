@@ -22,4 +22,6 @@ export interface ParsedMeal {
     nutritionalValues?: NutritionalValues;
     mealType: MealType;
     time: string;
+    photos?: string[];
+    recipeId?: string;
 }

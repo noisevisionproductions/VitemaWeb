@@ -1,0 +1,54 @@
+server:
+  port: 8080
+
+spring:
+  # PostgreSQL Production Configuration
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 300000
+      max-lifetime: 1200000
+
+  # JPA Production Configuration
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  mail:
+    host: ${SMTP_HOST:serwer2561711.home.pl}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME:kontakt@nutrilog.pl}
+    password: ${SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+firebase:
+  storage:
+    bucket-name: fitapplication-3a2ae.firebasestorage.app
+  service-account:
+    path: firebase-service-account.json
+
+cors:
+  allowed-origins: https://nutrilog.pl
+
+app:
+  frontend-url: https://nutrilog.pl
+  admin-email: ${ADMIN_EMAIL}
+
+logging:
+  level:
+    com.noisevisionsoftware.nutrilog: INFO
+    org.springframework.security: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: WARN

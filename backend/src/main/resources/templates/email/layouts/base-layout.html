@@ -1,0 +1,171 @@
+<!-- src/main/resources/templates/email/layouts/base-layout.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriLog</title>
+    <style>
+        /* Zostawiamy wszystkie style bez zmian */
+        /* Reset stylów */
+        body, p, h1, h2, h3, h4, h5, h6, table, td {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', Arial, sans-serif;
+            line-height: 1.5;
+        }
+
+        body {
+            background-color: #F8F9FA;
+            color: #2D3748;
+            font-size: 16px;
+        }
+
+        /* Kontener wiadomości */
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Nagłówek */
+        .header {
+            padding: 20px 30px;
+            background-color: #FFFFFF;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2D87BB;
+            text-decoration: none;
+        }
+
+        /* Treść wiadomości */
+        .content {
+            padding: 30px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2D3748;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2D3748;
+            margin-bottom: 16px;
+        }
+
+        p {
+            margin-bottom: 16px;
+        }
+
+        ul {
+            margin-bottom: 20px;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        /* Przycisk */
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #43B988;
+            color: #FFFFFF !important;
+            font-weight: 600;
+            font-size: 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .button:hover {
+            background-color: #338F69;
+        }
+
+        /* Survey notice */
+        .survey-notice {
+            margin-top: 24px;
+            padding: 16px;
+            background-color: #F8F9FA;
+            border-radius: 6px;
+            border-left: 4px solid #2D87BB;
+        }
+
+        .survey-notice h2 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #2D3748;
+        }
+
+        /* Stopka */
+        .footer {
+            padding: 20px 30px;
+            background-color: #F8F9FA;
+            color: #718096;
+            font-size: 12px;
+            text-align: center;
+            border-top: 1px solid #E2E8F0;
+        }
+
+        .footer p {
+            margin-bottom: 8px;
+        }
+
+        .footer-copyright {
+            font-size: 12px;
+        }
+
+        .footer-links {
+            font-size: 11px;
+        }
+
+        .footer a {
+            color: #2D87BB;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <!-- Nagłówek -->
+    <div class="header">
+        <a href="https://nutrilog.pl" class="logo">NutriLog</a>
+    </div>
+
+    <div class="content">
+        <th:block th:utext="${emailContent}">
+            <!-- Tutaj będzie wstawiona treść -->
+        </th:block>
+    </div>
+
+    <!-- Stopka -->
+    <div class="footer">
+        <p class="footer-copyright">&copy; 2025 NutriLog. Wszelkie prawa zastrzeżone.</p>
+        <p class="footer-links" th:if="${showUnsubscribe == null || showUnsubscribe == true}">
+            <a th:href="${unsubscribeUrl}">Wypisz się</a> |
+            <a th:href="${privacyPolicyUrl}">Polityka prywatności</a>
+        </p>
+        <p class="footer-links" th:if="${showUnsubscribe != null && showUnsubscribe == false}">
+            <a th:href="${privacyPolicyUrl}">Polityka prywatności</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>

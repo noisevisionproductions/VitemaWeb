@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import { Edit2, ShoppingBag, Trash2 } from 'lucide-react';
 import { CategorizedShoppingListItem} from "../../../types";
-import {toast} from "sonner";
+import {toast} from "../../../utils/toast";
 
 interface CategoryItemEditorProps {
     item: CategorizedShoppingListItem;

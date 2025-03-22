@@ -1,12 +1,15 @@
 import axios from 'axios';
 import {auth} from './firebase';
-import {toast} from "sonner";
+import {toast} from "../utils/toast";
+
+const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
 const api = axios.create({
-    baseURL:/* import.meta.env.VITE_API_URL ||*/ 'http://localhost:8080/api',
+    baseURL: apiUrl,
     headers: {
         'Content-Type': 'application/json'
-    }
+    },
+    withCredentials: true
 });
 
 api.interceptors.request.use(async (config) => {

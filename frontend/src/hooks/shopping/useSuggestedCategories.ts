@@ -1,6 +1,6 @@
 import {useCallback, useState} from 'react';
 import {ParsedProduct} from "../../types/product";
-import {DietCategorizationService} from "../../services/DietCategorizationService";
+import {DietCategorizationService} from "../../services/diet/DietCategorizationService";
 
 export function useSuggestedCategories() {
 

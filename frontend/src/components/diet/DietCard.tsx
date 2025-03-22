@@ -114,7 +114,7 @@ const DietCard: React.FC<DietCardProps> = ({
 
                         <div className="flex items-center text-xs text-slate-600">
                             <Clock className="h-3.5 w-3.5 mr-2 text-slate-500"/>
-                            <span>Utworzono: {diet.createdAt ? formatTimestamp(diet.createdAt) : 'Brak daty'}</span>
+                            <span>Utworzono: {diet.createdAt ? formatTimestamp(diet.createdAt, true) : 'Brak daty'}</span>
                         </div>
                     </div>
 

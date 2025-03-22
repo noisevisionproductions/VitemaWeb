@@ -1,3 +1,4 @@
+// src/components/common/Toast.tsx
 import React, {useState, useEffect} from 'react';
 import {X} from 'lucide-react';
 
@@ -98,11 +99,11 @@ const Toast: React.FC<ToastProps> = ({
 
     return (
         <div
-            className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300 ${
+            className={`w-full max-w-md transition-all duration-300 ${
                 isExiting ? 'opacity-0 translate-y-[-10px]' : 'opacity-100 translate-y-0'
             }`}
         >
-            <div className={`max-w-md w-full shadow-lg rounded-lg pointer-events-auto border-l-4 ${getTypeStyles()}`}>
+            <div className={`w-full shadow-lg rounded-lg pointer-events-auto border-l-4 ${getTypeStyles()}`}>
                 <div className="p-4 flex items-start">
                     <div className="flex-shrink-0 mr-3">
                         {getIconByType()}

@@ -28,7 +28,7 @@ const Hero = () => {
                         <div className="mt-4 flex items-start space-x-2">
                             <span className="inline-block mt-1 text-primary">🎁</span>
                             <p className="text-sm text-text-secondary">
-                                <span className="font-medium">Oferta specjalna:</span> Pierwsze <span className="font-medium text-primary">50 osób</span> otrzyma 6 miesięcy dostępu w cenie 3 miesięcy oraz indywidualne wdrożenie.
+                                <span className="font-medium">Oferta specjalna:</span> Pierwszych <span className="font-medium text-primary">50 użytkowników</span> otrzyma 6 miesięcy dostępu za darmo! Zapisz się na listę oczekujących.
                             </p>
                         </div>
                     </motion.div>

@@ -1,7 +1,7 @@
 import {useState, useEffect} from "react";
 import {ShoppingListV3} from "../../types";
-import {toast} from "sonner";
-import {ShoppingListService} from "../../services/categorization/ShoppingListService";
+import {toast} from "../../utils/toast";
+import {ShoppingListService} from "../../services/ShoppingListService";
 import {CategorizedShoppingListItem} from "../../types";
 
 export const useShoppingList = (dietId: string) => {

@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {BodyMeasurements} from "../types/measurements";
-import {toast} from "sonner";
+import {toast} from "../utils/toast";
 import {MeasurementsService} from "../services/MesaurementsService";
 
 export const useMeasurements = (userId: string) => {

@@ -27,7 +27,6 @@ public class AuthService {
         }
 
         if (!"ADMIN".equals(user.getRole())) {
-            log.error("User {} does not have admin role", user.getEmail());
             throw new AuthenticationException("Insufficient privileges");
         }
 

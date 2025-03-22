@@ -18,8 +18,12 @@ public class FirestoreRecipeMapper {
         Map<String, Object> data = new HashMap<>();
         data.put("name", recipe.getName());
         data.put("instructions", recipe.getInstructions());
+        if (recipe.getCreatedAt() == null) {
+            recipe.setCreatedAt(Timestamp.now());
+        }
         data.put("createdAt", recipe.getCreatedAt());
-        data.put("photos", recipe.getPhotos());
+        data.put("updatedAt", Timestamp.now());
+        data.put("photos", recipe.getPhotos() != null ? recipe.getPhotos() : new ArrayList<>());
         data.put("nutritionalValues", nutritionalValuesToMap(recipe.getNutritionalValues()));
         data.put("parentRecipeId", recipe.getParentRecipeId());
         return data;
@@ -61,11 +65,23 @@ public class FirestoreRecipeMapper {
 
     private NutritionalValues toNutritionalValues(Map<String, Object> data) {
         if (data == null) return null;
+
         return NutritionalValues.builder()
-                .calories(((Number) data.get("calories")).doubleValue())
-                .protein(((Number) data.get("protein")).doubleValue())
-                .fat(((Number) data.get("fat")).doubleValue())
-                .carbs(((Number) data.get("carbs")).doubleValue())
+                .calories(getDoubleValue(data, "calories"))
+                .protein(getDoubleValue(data, "protein"))
+                .fat(getDoubleValue(data, "fat"))
+                .carbs(getDoubleValue(data, "carbs"))
                 .build();
+    }
+
+    private double getDoubleValue(Map<String, Object> data, String key) {
+        Object value = data.get(key);
+        if (value == null) return 0.0;
+
+        if (value instanceof Number) {
+            return ((Number) value).doubleValue();
+        }
+
+        return 0.0;
     }
 }

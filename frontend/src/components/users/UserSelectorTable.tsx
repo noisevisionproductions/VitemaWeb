@@ -1,7 +1,7 @@
 import React, {useMemo} from "react";
 import {User} from "../../types/user";
 import LoadingSpinner from "../common/LoadingSpinner";
-import {useDietInfo} from "../../hooks/useDietInfo";
+import {useDietInfo} from "../../hooks/diet/useDietInfo";
 import {formatTimestamp} from "../../utils/dateFormatters";
 import {StickyNote} from "lucide-react";
 
@@ -33,7 +33,7 @@ const UserSelectorTable: React.FC<UserSelectorTableProps> = ({
         if (loadingStates?.[userId]) {
             return (
                 <div className="flex justify-start items-center h-8">
-                    <LoadingSpinner size="sm" />
+                    <LoadingSpinner size="sm"/>
                 </div>
             );
         }
@@ -60,7 +60,6 @@ const UserSelectorTable: React.FC<UserSelectorTableProps> = ({
             </div>
         );
     };
-
 
     const renderNote = (note?: string) => {
         if (!note) return null;
@@ -118,10 +117,10 @@ const UserSelectorTable: React.FC<UserSelectorTableProps> = ({
                         </td>
                         <td className="px-4 py-2">
                             <div className="text-xs font-medium text-gray-900">
-                                {user.email}
+                                {user.email || "Brak adresu e-mail"}
                             </div>
                             <div className="text-xs text-gray-500">
-                                {user.nickname}
+                                {user.nickname || "Brak pseudonimu"}
                             </div>
                         </td>
                         <td className="px-4 py-2">

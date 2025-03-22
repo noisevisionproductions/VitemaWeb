@@ -12,7 +12,7 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
                                                  children,
                                                  requiredRole = UserRole.ADMIN
                                              }) => {
-    const { currentUser, userData, loading } = useAuth();
+    const { currentUser, userData, loading, isAdmin } = useAuth();
 
     if (loading) {
         return (
@@ -26,7 +26,11 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
         return <Navigate to="/" />;
     }
 
-    if (userData.role !== requiredRole) {
+    if (requiredRole === UserRole.ADMIN) {
+        if (!isAdmin()) {
+            return <Navigate to="/unauthorized" />;
+        }
+    } else if (userData.role !== requiredRole) {
         return <Navigate to="/unauthorized" />;
     }
 

@@ -9,24 +9,27 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class DietTemplateService {
+
     private final ExcelStructureValidator excelStructureValidator;
     private final MealsPerDayValidator mealsPerDayValidator;
     private final DateValidator dateValidator;
     private final MealsConfigValidator mealsConfigValidator;
     private final ExcelParserService excelParserService;
     private final ValidationCacheService cacheService;
+    private final DietOverlapValidator dietOverlapValidator;
 
     /**
      * Waliduje szablon diety na podstawie przesłanych parametrów.
      */
-    public ValidationResponse validateDietTemplate(DietTemplateRequest request) {
-        String cacheKey = cacheService.generateCacheKey(request);
+    public ValidationResponse validateDietTemplate(DietTemplateRequest request, String userId) {
+        String cacheKey = cacheService.generateCacheKey(request, userId);
 
         // Sprawdź cache
         Optional<ValidationResponse> cachedResponse = cacheService.getFromCache(cacheKey);
@@ -75,6 +78,30 @@ public class DietTemplateService {
                 return createErrorResponse(allValidations);
             }
 
+            // Walidacja nakładania się diet
+            if (userId != null && !userId.isEmpty()) {
+                try {
+                    LocalDate startDate = LocalDate.parse(request.getStartDate());
+                    ValidationResult overlapValidation = dietOverlapValidator.validateDietOverlap(
+                            userId, startDate, request.getDuration());
+
+                    allValidations.add(overlapValidation);
+
+                    if (!overlapValidation.isValid()) {
+                        return createErrorResponse(allValidations);
+                    }
+                } catch (Exception e) {
+                    log.error("Error during diet overlap validation", e);
+                    allValidations.add(new ValidationResult(
+                            false,
+                            "Błąd podczas sprawdzania nakładania się diet: " +
+                                    (e.getMessage() != null ? e.getMessage() : "sprawdź format daty"),
+                            ValidationSeverity.ERROR
+                    ));
+                    return createErrorResponse(allValidations);
+                }
+            }
+
             // Dodaj podsumowanie
             allValidations.add(new ValidationResult(
                     true,
@@ -95,6 +122,10 @@ public class DietTemplateService {
             ));
             return createErrorResponse(allValidations);
         }
+    }
+
+    public ValidationResponse validateDietTemplate(DietTemplateRequest request) {
+        return validateDietTemplate(request, null);
     }
 
     private ValidationResult validateBasicParameters(DietTemplateRequest request) {

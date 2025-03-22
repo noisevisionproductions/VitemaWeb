@@ -50,7 +50,6 @@ public class FirebaseAuthenticationService {
                     .get();
 
             if (!userDoc.exists()) {
-                log.error("User document does not exist in Firestore for UID: {}", uid);
                 return null;
             }
 

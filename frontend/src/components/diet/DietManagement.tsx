@@ -6,8 +6,8 @@ import DietCard from "./DietCard";
 import useUsers from "../../hooks/useUsers";
 import DietFilter, {SortOption} from "./DietFilter";
 import {Diet} from "../../types";
-import {useDiets} from "../../hooks/useDiets";
-import {toast} from "sonner";
+import {useDiets} from "../../hooks/diet/useDiets";
+import {toast} from "../../utils/toast";
 import {getTimestamp} from "../../utils/dateUtils";
 import {AlertTriangle, FileText, Filter, RefreshCw} from 'lucide-react';
 import {getDaysRemainingToDietEnd, getDietWarningStatus, isDietEnded} from "../../utils/dietWarningUtils";
@@ -32,7 +32,7 @@ const DietManagement: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState<SortOption>('newest');
     const [isRefreshing, setIsRefreshing] = useState(false);
-    const [filterExpanded, setFilterExpanded] = useState(false);
+    const [filterExpanded, setFilterExpanded] = useState(true);
     const [showOnlyWarnings, setShowOnlyWarnings] = useState(false);
 
     useEffect(() => {

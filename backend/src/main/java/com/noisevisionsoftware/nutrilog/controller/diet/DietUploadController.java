@@ -137,6 +137,31 @@ public class DietUploadController {
         }
     }
 
+    @PostMapping(value = "/validate-template-with-user",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ValidationResponse> validateDietTemplateWithUser(
+            @ModelAttribute DietTemplateRequest request,
+            @RequestParam(required = false) String userId) {
+        try {
+            ValidationResponse response = dietTemplateService.validateDietTemplate(request, userId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Błąd podczas walidacji szablonu diety", e);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ValidationResponse(
+                            false,
+                            Collections.singletonList(new ValidationResult(
+                                    false,
+                                    "Wystąpił nieoczekiwany błąd: " + e.getMessage(),
+                                    ValidationSeverity.ERROR
+                            )),
+                            new HashMap<>()
+                    ));
+        }
+    }
+
     @PostMapping(value = "/preview",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)

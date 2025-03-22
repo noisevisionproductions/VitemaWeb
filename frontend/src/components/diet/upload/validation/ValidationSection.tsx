@@ -1,21 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { DietTemplate } from "../../../../types";
-import ValidationMessage from './ValidationMessage';
-import { DietUploadService } from "../../../../services/DietUploadService";
+import React, {useState, useEffect, useRef} from 'react';
+import {DietTemplate} from "../../../../types";
+import ValidationMessage, {ValidationErrorType} from './ValidationMessage';
+import {DietUploadService} from "../../../../services/diet/DietUploadService";
 import LoadingSpinner from "../../../common/LoadingSpinner";
-import { useDebounce } from '../../../../hooks/useDebounce';
+import {useDebounce} from '../../../../hooks/useDebounce';
 import {AxiosError} from "axios";
 
 interface ValidationSectionProps {
     file: File;
     template: DietTemplate;
     totalMeals: number;
+    userId?: string;
     onValidationChange: {
         onExcelStructureValidation: (valid: boolean) => void;
         onMealsPerDayValidation: (valid: boolean) => void;
         onDateValidation: (valid: boolean) => void;
         onMealsConfigValidation: (valid: boolean) => void;
     };
+    onNavigate?: (section: ValidationErrorType) => void;
 }
 
 interface ValidationResult {
@@ -25,11 +27,13 @@ interface ValidationResult {
 }
 
 const ValidationSection: React.FC<ValidationSectionProps> = ({
-                                                                   file,
-                                                                   template,
-                                                                   totalMeals,
-                                                                   onValidationChange
-                                                               }) => {
+                                                                 file,
+                                                                 template,
+                                                                 totalMeals,
+                                                                 userId,
+                                                                 onValidationChange,
+                                                                 onNavigate
+                                                             }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [validationResults, setValidationResults] = useState<Array<{
         isValid: boolean;
@@ -70,7 +74,7 @@ const ValidationSection: React.FC<ValidationSectionProps> = ({
         const validateTemplate = async () => {
             setIsLoading(true);
             try {
-                const response = await DietUploadService.validateDietTemplate(file, template);
+                const response = await DietUploadService.validateDietTemplateWithUser(file, template, userId);
 
                 // Safely handle the response
                 const validationResults = response?.validationResults || [];
@@ -87,7 +91,7 @@ const ValidationSection: React.FC<ValidationSectionProps> = ({
 
                 // Update validation states with safe defaults
                 onValidationChange.onExcelStructureValidation(
-                    !hasErrorOfType(['excel', 'struktura'])
+                    !hasErrorOfType(['excel', 'struktura', 'pliku'])
                 );
 
                 onValidationChange.onMealsPerDayValidation(
@@ -95,7 +99,7 @@ const ValidationSection: React.FC<ValidationSectionProps> = ({
                 );
 
                 onValidationChange.onDateValidation(
-                    !hasErrorOfType(['daty', 'date', 'diet'])
+                    !hasErrorOfType(['daty', 'date', 'diet', 'okresie', 'konflikt'])
                 );
 
                 onValidationChange.onMealsConfigValidation(
@@ -123,12 +127,46 @@ const ValidationSection: React.FC<ValidationSectionProps> = ({
         };
 
         validateTemplate().catch(console.error);
-    }, [file, debouncedTemplateSignature, onValidationChange, template]);
+    }, [file, debouncedTemplateSignature, onValidationChange, template, userId]);
+
+    const getErrorType = (result: ValidationResult): ValidationErrorType => {
+        const message = result.message.toLowerCase();
+
+        if (message.includes('konflikt') || message.includes('już dietę') || message.includes('okresie') ||
+            (message.includes('daty') && message.includes('rozpoczęcia'))) {
+            return 'diet-overlap';
+        }
+
+        if (message.includes('excel') || message.includes('pliku') || message.includes('struktura')) {
+            return 'excel-structure';
+        }
+
+        if (message.includes('posiłków') || message.includes('posilkow') || message.includes('meals')) {
+            return 'meals-per-day';
+        }
+
+        if (message.includes('daty') || message.includes('date') || message.includes('rozpoczęcia')) {
+            return 'date';
+        }
+
+        if (message.includes('posiłku') || message.includes('posilku') || message.includes('godziny') ||
+            message.includes('time') || message.includes('konfiguracji')) {
+            return 'meals-config';
+        }
+
+        return 'unknown';
+    };
+
+    const handleNavigate = (errorType: ValidationErrorType) => {
+        if (onNavigate) {
+            onNavigate(errorType);
+        }
+    };
 
     if (isLoading) {
         return (
             <div className="flex items-center gap-2 p-4 bg-gray-50 rounded-lg">
-                <LoadingSpinner />
+                <LoadingSpinner/>
                 <span>Walidacja w toku...</span>
             </div>
         );
@@ -140,13 +178,19 @@ const ValidationSection: React.FC<ValidationSectionProps> = ({
 
             {validationResults.length > 0 ? (
                 <div className="space-y-2">
-                    {validationResults.map((result, index) => (
-                        <ValidationMessage
-                            key={index}
-                            message={result.message}
-                            severity={result.severity}
-                        />
-                    ))}
+                    {validationResults.map((result, index) => {
+                        const errorType = !result.isValid ? getErrorType(result) : 'unknown';
+
+                        return (
+                            <ValidationMessage
+                                key={index}
+                                message={result.message}
+                                severity={result.severity}
+                                errorType={errorType}
+                                onNavigate={!result.isValid ? handleNavigate : undefined}
+                            />
+                        );
+                    })}
                 </div>
             ) : (
                 <div className="text-gray-500 p-4 bg-gray-50 rounded-lg">

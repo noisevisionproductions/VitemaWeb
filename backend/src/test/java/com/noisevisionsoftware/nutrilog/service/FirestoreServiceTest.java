@@ -2,6 +2,7 @@ package com.noisevisionsoftware.nutrilog.service;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
+import com.noisevisionsoftware.nutrilog.service.firebase.FirestoreService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

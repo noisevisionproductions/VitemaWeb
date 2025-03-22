@@ -1,17 +1,18 @@
-import React, {useMemo, useState, useCallback} from "react";
+import React, {useMemo, useState, useCallback, useRef} from "react";
 import {User} from "../../../types/user";
-import {toast} from "sonner";
+import {toast} from "../../../utils/toast";
 import UserSelector from "./UserSelector";
 import FileUploadZone from "./FileUploadZone";
-import {DietUploadService} from "../../../services/DietUploadService";
+import {DietUploadService} from "../../../services/diet/DietUploadService";
 import DietTemplateConfig from "./DietTemplateConfig";
 import DietPreview from "./preview/DietPreview";
 import {Timestamp} from "firebase/firestore";
 import ValidationSection from "./validation/ValidationSection";
 import {DietTemplate, MealType, ParsedDietData} from "../../../types";
-import {TabName} from "../../../types/navigation";
+import {MainNav} from "../../../types/navigation";
 import {ChevronDown, ChevronUp, UserCircle} from "lucide-react";
-import { AxiosError } from 'axios';
+import {AxiosError} from 'axios';
+import {ValidationErrorType} from "./validation/ValidationMessage";
 
 interface ValidationState {
     isExcelStructureValid: boolean;
@@ -21,7 +22,7 @@ interface ValidationState {
 }
 
 interface ExcelUploadProps {
-    onTabChange: (tab: TabName) => void;
+    onTabChange: (tab: MainNav) => void;
 }
 
 const ExcelUpload: React.FC<ExcelUploadProps> = ({onTabChange}) => {
@@ -96,11 +97,9 @@ const ExcelUpload: React.FC<ExcelUploadProps> = ({onTabChange}) => {
         }
 
         setIsProcessing(true);
-        const loadingToast = toast.loading('Przetwarzanie pliku...');
 
         try {
-            // First validate the template again
-            const validationResponse = await DietUploadService.validateDietTemplate(file, template);
+            const validationResponse = await DietUploadService.validateDietTemplateWithUser(file, template, selectedUser?.id);
 
             if (!validationResponse.valid) {
                 const errorMessages = validationResponse.validationResults
@@ -150,7 +149,6 @@ const ExcelUpload: React.FC<ExcelUploadProps> = ({onTabChange}) => {
                 toast.warning(`Liczba dni w pliku (${sanitizedPreviewData.days.length}) różni się od zadeklarowanej (${template.duration})`);
             }
 
-            toast.dismiss(loadingToast);
             setPreviewData(sanitizedPreviewData);
 
         } catch (error: unknown) {
@@ -167,9 +165,6 @@ const ExcelUpload: React.FC<ExcelUploadProps> = ({onTabChange}) => {
                 toast.error('Wystąpił błąd podczas przetwarzania pliku');
             }
         } finally {
-            if (loadingToast) {
-                toast.dismiss(loadingToast);
-            }
             setIsProcessing(false);
         }
     };
@@ -206,7 +201,7 @@ const ExcelUpload: React.FC<ExcelUploadProps> = ({onTabChange}) => {
             setFile(null);
             setPreviewData(null);
 
-            onTabChange('data');
+            onTabChange('diets');
         } catch (error) {
             console.error('Error saving diet:', error);
             toast.error(typeof error === 'string' ? error : 'Wystąpił błąd podczas zapisywania diety');
@@ -218,6 +213,76 @@ const ExcelUpload: React.FC<ExcelUploadProps> = ({onTabChange}) => {
     const handleTemplateChange = useCallback((newTemplate: DietTemplate) => {
         setTemplate(newTemplate);
     }, []);
+
+    const fileUploadRef = useRef<HTMLDivElement>(null);
+    const userSelectorRef = useRef<HTMLDivElement>(null);
+    const templateConfigRef = useRef<HTMLDivElement>(null);
+    const mealsPerDayRef = useRef<HTMLDivElement>(null);
+    const dateConfigRef = useRef<HTMLDivElement>(null);
+    const mealsConfigRef = useRef<HTMLDivElement>(null);
+
+    const navigateToSection = useCallback((errorType: ValidationErrorType) => {
+        let targetRef: React.RefObject<HTMLDivElement> | null = null;
+
+        switch (errorType) {
+            case 'excel-structure':
+                targetRef = fileUploadRef;
+                break;
+            case 'meals-per-day':
+                targetRef = mealsPerDayRef;
+                break;
+            case 'date':
+            case 'diet-overlap':
+                targetRef = dateConfigRef;
+                break;
+            case 'meals-config':
+                targetRef = mealsConfigRef;
+                break;
+            default:
+                targetRef = templateConfigRef;
+                break;
+        }
+
+        if (targetRef && targetRef.current) {
+            targetRef.current.scrollIntoView({behavior: 'smooth'});
+
+            // Wyróżnij sekcję przez chwilę
+            targetRef.current.classList.add('ring-2', 'ring-blue-500', 'ring-opacity-50', 'transition-all');
+            setTimeout(() => {
+                targetRef.current?.classList.remove('ring-2', 'ring-blue-500', 'ring-opacity-50');
+            }, 3000);
+
+            // Fokusuj odpowiednie pole, jeśli możliwe
+            const inputSelector = getInputSelectorForType(errorType);
+            const input = inputSelector ? targetRef.current.querySelector(inputSelector) : null;
+
+            if (input instanceof HTMLElement) {
+                setTimeout(() => {
+                    input.focus();
+                    input.classList.add('ring-2', 'ring-blue-500', 'ring-opacity-50');
+                    setTimeout(() => {
+                        input.classList.remove('ring-2', 'ring-blue-500', 'ring-opacity-50');
+                    }, 3000);
+                }, 500);
+            }
+        }
+    }, []);
+
+    const getInputSelectorForType = (errorType: ValidationErrorType): string | null => {
+        switch (errorType) {
+            case 'date':
+            case 'diet-overlap':
+                return 'input[type="date"]';
+            case 'meals-per-day':
+                return 'input[name="mealsPerDay"]';
+            case 'meals-config':
+                return 'input[type="time"]';
+            case 'excel-structure':
+                return 'input[type="file"]';
+            default:
+                return null;
+        }
+    };
 
     const isValidationPassed = useMemo(() => {
         return file &&
@@ -262,16 +327,18 @@ const ExcelUpload: React.FC<ExcelUploadProps> = ({onTabChange}) => {
                     file={file}
                     template={template}
                     totalMeals={totalMeals}
+                    userId={selectedUser?.id}
                     onValidationChange={{
                         onExcelStructureValidation: updateExcelStructureValidation,
                         onMealsPerDayValidation: updateMealsPerDayValidation,
                         onDateValidation: updateDateValidation,
                         onMealsConfigValidation: updateMealsConfigValidation
                     }}
+                    onNavigate={navigateToSection}
                 />
             )}
 
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div ref={userSelectorRef} className="bg-white p-6 rounded-lg shadow-sm">
                 <div
                     className={`flex items-center justify-between ${selectedUser ? 'bg-blue-50 p-3 rounded-lg transition-colors' : ''} cursor-pointer`}
                     onClick={() => setIsUserSelectorExpanded(!isUserSelectorExpanded)}
@@ -326,10 +393,17 @@ const ExcelUpload: React.FC<ExcelUploadProps> = ({onTabChange}) => {
                 />
             </div>
 
-            <DietTemplateConfig
-                template={template}
-                onTemplateChange={handleTemplateChange}
-            />
+            <div ref={templateConfigRef}>
+                <DietTemplateConfig
+                    template={template}
+                    onTemplateChange={handleTemplateChange}
+                    refs={{
+                        mealsPerDayRef,
+                        dateConfigRef,
+                        mealsConfigRef
+                    }}
+                />
+            </div>
 
             <div className="flex justify-end">
                 <button

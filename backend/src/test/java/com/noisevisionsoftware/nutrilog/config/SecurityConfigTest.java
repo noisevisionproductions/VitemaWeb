@@ -2,6 +2,7 @@ package com.noisevisionsoftware.nutrilog.config;
 
 import com.noisevisionsoftware.nutrilog.service.auth.FirebaseAuthenticationService;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.env.Environment;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -17,7 +18,8 @@ class SecurityConfigTest {
     @Test
     void corsConfigurationSource_ShouldReturnCorrectConfiguration() {
         FirebaseAuthenticationService mockAuthService = mock(FirebaseAuthenticationService.class);
-        SecurityConfig securityConfig = new SecurityConfig(mockAuthService);
+        Environment environment = mock(Environment.class);
+        SecurityConfig securityConfig = new SecurityConfig(mockAuthService, environment);
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/api/test");
 

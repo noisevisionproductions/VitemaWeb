@@ -1,0 +1,47 @@
+<!-- templates/email/partials/footer.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        .footer {
+            padding: 20px 30px;
+            background-color: #F8F9FA;
+            color: #718096;
+            font-size: 12px;
+            text-align: center;
+            border-top: 1px solid #E2E8F0;
+        }
+
+        .footer p {
+            margin-bottom: 8px;
+        }
+
+        .footer-copyright {
+            font-size: 12px;
+        }
+
+        .footer-links {
+            font-size: 11px;
+        }
+
+        .footer a {
+            color: #2D87BB;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+<div th:fragment="footer" class="footer">
+    <p class="footer-copyright">&copy; 2025 NutriLog. Wszelkie prawa zastrzeżone.</p>
+    <p class="footer-links" th:if="${showUnsubscribe == null || showUnsubscribe == true}">
+        <a th:href="${unsubscribeUrl}">Wypisz się</a> |
+        <a th:href="${privacyPolicyUrl}">Polityka prywatności</a>
+    </p>
+    <p class="footer-links" th:if="${showUnsubscribe != null && showUnsubscribe == false}">
+        <a th:href="${privacyPolicyUrl}">Polityka prywatności</a>
+    </p>
+</div>
+</body>
+</html>

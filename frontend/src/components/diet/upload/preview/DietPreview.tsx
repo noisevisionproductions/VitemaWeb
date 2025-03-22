@@ -1,7 +1,7 @@
 import React, {useState} from "react";
-import {toast} from "sonner";
+import {toast} from "../../../../utils/toast";
 import {ParsedDietData} from "../../../../types";
-import {DietCategorizationService} from "../../../../services/DietCategorizationService";
+import {DietCategorizationService} from "../../../../services/diet/DietCategorizationService";
 import CategorySection from "./CategorySection";
 import PreviewSection from "./PreviewSection";
 import {useCategorization} from "../../../../hooks/shopping/useCategorization";
@@ -65,7 +65,6 @@ const DietPreview: React.FC<DietPreviewProps> = ({
         }
     };
 
-    // Obsługa zapisywania diety
     const handleConfirm = async () => {
         try {
             setIsSaving(true);

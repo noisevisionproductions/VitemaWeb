@@ -1,39 +1,41 @@
-server:
-  port: 8080
-
 spring:
+  application:
+    name: nutrilog
   servlet:
     multipart:
       enabled: true
       max-file-size: 10MB
       max-request-size: 10MB
-  application:
-    name: nutrilog
+  security:
+    user:
+      password: none
 
-firebase:
-  storage:
-    bucket-name: fitapplication-3a2ae.firebasestorage.app
-  service-account:
-    path: firebase-service-account.json
+  # Wspólne ustawienia JPA/Hibernate
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
 
-cors:
-  allowed-origins: http://localhost:5173,https://nutrilog.pl,https://www.nutrilog.pl
-  allowed-methods: GET,POST,PUT,DELETE,OPTIONS,PATCH
-  allowed-headers: '*'
-  allow-credentials: true
-
-logging:
-  level:
-    com.noisevisionsoftware.nutrilog: DEBUG
-    org.springframework.security: DEBUG
-    org.springframework.web: DEBUG
-
-product:
-  parsing:
-    similarity-threshold: 0.85
+  # Podstawowa konfiguracja Flyway
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    table: flyway_schema_history
 
 app:
   data:
     directory: ${user.dir}/data
     categories-file: categories.json
+  repository:
+    use-postgres: true
 
+cors:
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS,PATCH
+  allowed-headers: '*'
+  allow-credentials: true
+
+product:
+  parsing:
+    similarity-threshold: 0.85

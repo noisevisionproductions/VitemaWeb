@@ -1,0 +1,12 @@
+<!-- src/main/resources/templates/email/contact-notification-content.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<body>
+<h1>Nowa wiadomość kontaktowa</h1>
+<p><strong>Od:</strong> <span th:text="${name}"></span></p>
+<p><strong>Email:</strong> <span th:text="${email}"></span></p>
+<p th:if="${phone}"><strong>Telefon:</strong> <span th:text="${phone}"></span></p>
+<p><strong>Wiadomość:</strong></p>
+<p th:text="${message}"></p>
+</body>
+</html>

@@ -1,0 +1,51 @@
+server:
+  port: 8080
+
+spring:
+  # PostgreSQL Development Configuration
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:nutrilog_dev}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
+
+  # JPA Development Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update  # Opcjonalnie: update dla dev, validate dla prod
+    show-sql: true
+
+  mail:
+    host: ${SMTP_HOST:serwer2561711.home.pl}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME:kontakt@nutrilog.pl}
+    password: ${SMTP_PASSWORD:haslo_testowe}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+firebase:
+  storage:
+    bucket-name: fitapplication-3a2ae.firebasestorage.app
+  service-account:
+    path: firebase-service-account.json
+
+cors:
+  allowed-origins: http://localhost:5173
+
+app:
+  frontend-url: http://localhost:5173
+  admin-email: ${ADMIN_EMAIL}
+
+logging:
+  level:
+    com.noisevisionsoftware.nutrilog: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE

@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {MealType, Recipe} from "../../../../../types";
 import {ChevronDown, ChevronUp, Clock, Edit2, Save, X} from 'lucide-react';
-import {toast} from 'sonner';
+import {toast} from "../../../../../utils/toast";
 
 interface MealItemProps {
     recipe: Recipe;

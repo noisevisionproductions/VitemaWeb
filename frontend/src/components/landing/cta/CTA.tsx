@@ -1,8 +1,18 @@
 import Container from "../../ui/landing/Container";
 import {motion} from "framer-motion";
 import NewsletterForm from "../forms/NewsletterForm";
+import CountdownTimer from "../../common/CountdownTimer";
+import {useMemo} from "react";
 
 const CTA = () => {
+
+    const targetDate = useMemo(() => {
+        const today = new Date();
+        const futureDate = new Date(today);
+        futureDate.setDate(today.getDate() + 40);
+        return futureDate.toISOString();
+    }, []);
+
     return (
         <section id="cta-section" className="relative py-24 bg-primary">
             <Container>
@@ -16,7 +26,7 @@ const CTA = () => {
                         Rozpocznij transformację swojej praktyki dietetycznej
                     </h2>
                     <p className="text-lg text-white/90 mb-8">
-                        Dołącz do grona pierwszych użytkowników i zyskaj 6 miesięcy premium za darmo
+                        Dołącz do grona pierwszych użytkowników i zyskaj 6 miesięcy dostępu za darmo
                     </p>
 
                     <div className="max-w-xl mx-auto">
@@ -32,16 +42,19 @@ const CTA = () => {
 
                     <div className="mt-12 grid sm:grid-cols-3 gap-8">
                         <div className="text-white">
-                            <div className="text-3xl font-bold mb-2">100+</div>
-                            <p className="text-white/80">Zapisanych dietetyków</p>
+                            <div className="text-3xl font-bold mb-2">50</div>
+                            <p className="text-white/80">Miejsc w fazie testowej</p>
                         </div>
                         <div className="text-white">
-                            <div className="text-3xl font-bold mb-2">14 dni</div>
-                            <p className="text-white/80">Do startu platformy</p>
+                            <CountdownTimer
+                                targetDate={targetDate}
+                                className="text-white"
+                            />
+                            <p className="text-white/80 mb-2">Do startu platformy</p>
                         </div>
                         <div className="text-white">
-                            <div className="text-3xl font-bold mb-2">50%</div>
-                            <p className="text-white/80">Zniżki dla pierwszych użytkowników</p>
+                            <div className="text-3xl font-bold mb-2">6 mies.</div>
+                            <p className="text-white/80">Bezpłatnego dostępu</p>
                         </div>
                     </div>
                 </motion.div>

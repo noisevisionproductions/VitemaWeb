@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { ParsedProduct } from "../../types/product";
 import { ProductParsingService } from "../../services/ProductParsingService";
 import { createSafeProduct } from "../../utils/productUtils";
-import {DietUploadService} from "../../services/DietUploadService";
-import {toast} from "sonner";
+import {DietUploadService} from "../../services/diet/DietUploadService";
+import {toast} from "../../utils/toast";
 
 export const useCategorization = (shoppingList: string[]) => {
     const [categorizedProducts, setCategorizedProducts] = useState<Record<string, ParsedProduct[]>>({});

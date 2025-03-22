@@ -3,10 +3,11 @@ package com.noisevisionsoftware.nutrilog.controller.diet;
 import com.noisevisionsoftware.nutrilog.dto.request.diet.DietRequest;
 import com.noisevisionsoftware.nutrilog.dto.response.diet.DietInfo;
 import com.noisevisionsoftware.nutrilog.dto.response.diet.DietResponse;
+import com.noisevisionsoftware.nutrilog.exception.DietOverlapException;
 import com.noisevisionsoftware.nutrilog.exception.NotFoundException;
 import com.noisevisionsoftware.nutrilog.mapper.diet.DietMapper;
 import com.noisevisionsoftware.nutrilog.model.diet.Diet;
-import com.noisevisionsoftware.nutrilog.service.DietService;
+import com.noisevisionsoftware.nutrilog.service.diet.DietService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -97,6 +98,15 @@ public class DietController {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
                 HttpStatus.NOT_FOUND, ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(problem);
+    }
+
+    @ExceptionHandler(DietOverlapException.class)
+    public ResponseEntity<ProblemDetail> handleDietOverlapException(DietOverlapException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT, ex.getMessage());
+        problem.setTitle("Konflikt terminów diet");
+        return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(problem);
     }
 }

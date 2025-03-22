@@ -7,7 +7,7 @@ import {getLucideIcon} from "../../utils/icons";
 import CategoryDropZone from "./CategoryDropZone";
 import {Brain, Loader2} from "lucide-react";
 import {DroppableTabsTrigger} from "../ui/DroppableTabsTrigger";
-import {toast} from "sonner";
+import {toast} from "../../utils/toast";
 import {useSuggestedCategoriesContext} from "../../contexts/SuggestedCategoriesContext";
 
 interface ProductCategorizationLayoutProps {

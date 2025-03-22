@@ -3,6 +3,7 @@ package com.noisevisionsoftware.nutrilog.service;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
+import com.noisevisionsoftware.nutrilog.service.firebase.FileStorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

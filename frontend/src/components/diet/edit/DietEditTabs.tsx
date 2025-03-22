@@ -13,7 +13,7 @@ import DietMetadataEditor from "./tabs/DietMetadataEditor";
 import {useUndoableState} from "../../../hooks/useUndoableState";
 import {Redo2, Trash2, Undo2} from "lucide-react";
 import {useNavigate} from "react-router-dom";
-import {toast} from "sonner";
+import {toast} from "../../../utils/toast";
 import ConfirmationDialog from "../../common/ConfirmationDialog";
 
 interface DietEditTabsProps {

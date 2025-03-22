@@ -66,7 +66,6 @@ public class UserRepository {
             DocumentReference docRef = firestore.collection(COLLECTION_NAME).document(id);
             Map<String, Object> data = firestoreUserMapper.toFirestoreMap(user);
             docRef.update(data).get();
-            log.info("User with id {} successfully updated", id);
         } catch (Exception e) {
             log.error("Failed to update user with id: {}", id, e);
             throw new RuntimeException("Failed to update user", e);

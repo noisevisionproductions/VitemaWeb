@@ -57,7 +57,7 @@ class ValidationCacheServiceTest {
 
         DietTemplateRequest request2 = mock(DietTemplateRequest.class);
         when(request2.getFile()).thenReturn(mockFile);
-        when(request2.getMealsPerDay()).thenReturn(4); // inna liczba posiłków
+        when(request2.getMealsPerDay()).thenReturn(4);
         when(request2.getDuration()).thenReturn(7);
         when(request2.getStartDate()).thenReturn("2023-10-15");
 

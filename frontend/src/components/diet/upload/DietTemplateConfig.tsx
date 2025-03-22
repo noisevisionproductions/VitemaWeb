@@ -7,6 +7,11 @@ import { Calendar, Clock } from "react-feather";
 interface DietTemplateConfigProps {
     template: DietTemplate;
     onTemplateChange: (template: DietTemplate) => void;
+    refs?: {
+        mealsPerDayRef?: React.RefObject<HTMLDivElement>;
+        dateConfigRef?: React.RefObject<HTMLDivElement>;
+        mealsConfigRef?: React.RefObject<HTMLDivElement>;
+    };
 }
 
 interface MealTimeConfig {
@@ -24,7 +29,8 @@ const DEFAULT_MEAL_TIMES: MealTimeConfig[] = [
 
 const DietTemplateConfig: React.FC<DietTemplateConfigProps> = ({
                                                                    template,
-                                                                   onTemplateChange
+                                                                   onTemplateChange,
+                                                                   refs
                                                                }) => {
     const handleMealsPerDayChange = (value: number) => {
         const newTemplate = {...template, mealsPerDay: value};
@@ -55,7 +61,7 @@ const DietTemplateConfig: React.FC<DietTemplateConfigProps> = ({
             </h3>
 
             {/* Meals per day selection */}
-            <div className="space-y-4">
+            <div ref={refs?.mealsPerDayRef} className="space-y-4">
                 <label className="block text-sm font-medium text-gray-700">
                     Liczba posiłków dziennie
                 </label>
@@ -79,7 +85,7 @@ const DietTemplateConfig: React.FC<DietTemplateConfigProps> = ({
             </div>
 
             {/* Date and Duration Configuration */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div ref={refs?.dateConfigRef} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-gradient-to-br from-green-50 to-blue-50 p-6 rounded-xl shadow-sm">
                     <div className="flex items-center gap-2 mb-4">
                         <Calendar className="w-5 h-5 text-green-600" />
@@ -95,7 +101,7 @@ const DietTemplateConfig: React.FC<DietTemplateConfigProps> = ({
                             ...template,
                             startDate: stringToTimestamp(e.target.value)
                         })}
-                        className="w-full px-4 py-2 rounded-lg border-2 border-green-100 focus:border-green-400 focus:ring-2 focus:ring-green-200 outline-none transition-all"
+                        className="w-full px-4 py-2 rounded-lg border-2 border-green-100 focus:border-green-400 focus:ring-2 focus:ring-green-200 outline-none transition-all date-input"
                     />
                 </div>
 
@@ -117,12 +123,13 @@ const DietTemplateConfig: React.FC<DietTemplateConfigProps> = ({
                             duration: Number(e.target.value)
                         })}
                         className="w-full px-4 py-2 rounded-lg border-2 border-yellow-100 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 outline-none transition-all"
+                        name="mealsPerDay" // Dodany atrybut name dla lepszego wybierania elementu
                     />
                 </div>
             </div>
 
             {/* Meal Configuration */}
-            <div className="space-y-6">
+            <div ref={refs?.mealsConfigRef} className="space-y-6">
                 <h4 className="text-xl font-semibold text-gray-800">Konfiguracja posiłków</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {Array.from({ length: template.mealsPerDay }).map((_, index) => (

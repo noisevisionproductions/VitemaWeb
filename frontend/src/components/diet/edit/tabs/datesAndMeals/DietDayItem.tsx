@@ -5,7 +5,7 @@ import React, { useCallback } from "react";
 import { Recipe, Day } from "../../../../../types";
 import MealItem from "./MealItem";
 import { RecipeService } from "../../../../../services/RecipeService";
-import { toast } from "sonner";
+import { toast} from "../../../../../utils/toast";
 
 interface DietDayItemProps {
     day: Day;

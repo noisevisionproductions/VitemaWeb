@@ -1,25 +1,87 @@
-import React from "react";
+import React, {useState} from "react";
 import {ParsedMeal} from "../../../../types";
 import {getMealTypeLabel} from "../../../../utils/mealTypeUtils";
-import {Clock} from "lucide-react";
+import {Clock, Image, Plus} from "lucide-react";
+import ImageUploadDialog from "../../../common/ImageUploadDialog";
+import {Button} from "../../../ui/button";
+import api from "../../../../config/axios";
+import {toast} from "../../../../utils/toast";
 
 interface DietMealPreviewProps {
     meal: ParsedMeal;
     mealIndex: number;
+    onImageAdd?: (mealIndex: number, imageUrl: string) => void;
 }
 
-const DietMealPreview: React.FC<DietMealPreviewProps> = ({ meal }) => {
+const DietMealPreview: React.FC<DietMealPreviewProps> = ({meal, mealIndex, onImageAdd}) => {
+    const [showImageUpload, setShowImageUpload] = useState(false);
+
+    const handleImageUploadSuccess = async (imageUrl: string) => {
+        try {
+            if (imageUrl.startsWith('data:image/')) {
+                const response = await api.post('/recipes/base64-image', {
+                    imageData: imageUrl
+                });
+
+                if (response.data && response.data.imageUrl) {
+                    imageUrl = response.data.imageUrl;
+                } else {
+                    console.error("Brak URL obrazu w odpowiedzi");
+                    toast.error("Nie udało się przetworzyć obrazu");
+                    return;
+                }
+            }
+
+            if (onImageAdd) {
+                onImageAdd(mealIndex, imageUrl);
+            }
+            setShowImageUpload(false);
+        } catch (error) {
+            console.error("Błąd podczas przetwarzania obrazu:", error);
+            toast.error("Nie udało się przesłać obrazu");
+        }
+    };
+
     return (
         <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
             <div className="flex justify-between items-center">
                 <div className="font-medium text-blue-700">
                     {getMealTypeLabel(meal.mealType)}
                 </div>
-                <div className="flex items-center gap-1 text-gray-600 bg-blue-50 px-2 py-1 rounded-md">
-                    <Clock className="h-4 w-4" />
-                    <span>{meal.time || "Brak godziny"}</span>
+                <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 text-gray-600 bg-blue-50 px-2 py-1 rounded-md">
+                        <Clock className="h-4 w-4"/>
+                        <span>{meal.time || "Brak godziny"}</span>
+                    </div>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-1"
+                        onClick={() => setShowImageUpload(true)}
+                    >
+                        <Plus className="h-3 w-3"/>
+                        <Image className="h-4 w-4"/>
+                    </Button>
                 </div>
             </div>
+
+            {/* Wyświetlanie zdjęć, jeśli są dostępne */}
+            {meal.photos && meal.photos.length > 0 && (
+                <div className="mt-3 overflow-x-auto">
+                    <div className="flex gap-2">
+                        {meal.photos.map((photo, idx) => (
+                            <div key={idx} className="w-16 h-16 flex-shrink-0 rounded overflow-hidden border">
+                                <img
+                                    src={photo}
+                                    alt={`${meal.name} ${idx}`}
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             <div className="mt-2">
                 <div className="font-medium text-gray-900 text-lg">{meal.name}</div>
                 {meal.instructions && (
@@ -46,7 +108,7 @@ const DietMealPreview: React.FC<DietMealPreviewProps> = ({ meal }) => {
                         </div>
                     </div>
                 )}
-{/*
+
                 {meal.ingredients && meal.ingredients.length > 0 && (
                     <div className="mt-3 bg-gray-100 p-2 rounded">
                         <div className="text-sm font-medium mb-1">Składniki:</div>
@@ -60,8 +122,19 @@ const DietMealPreview: React.FC<DietMealPreviewProps> = ({ meal }) => {
                             ))}
                         </div>
                     </div>
-                )}*/}
+                )}
             </div>
+
+            {showImageUpload && (
+                <ImageUploadDialog
+                    isOpen={showImageUpload}
+                    onClose={() => setShowImageUpload(false)}
+                    title={`Dodaj zdjęcie do posiłku - ${meal.name}`}
+                    description="Wybierz zdjęcie, aby dodać je do tego posiłku. Zdjęcie zostanie zapisane po kliknięciu 'Zapisz dietę'."
+                    onSuccess={handleImageUploadSuccess}
+                    localMode={true}
+                />
+            )}
         </div>
     );
 };

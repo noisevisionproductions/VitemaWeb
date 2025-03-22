@@ -1,121 +1,27 @@
-import {TabName} from "../../types/navigation";
-import {
-    BarChart3,
-    ChevronLeft,
-    ChevronRight,
-    ClipboardList,
-    FileSpreadsheet,
-    HelpCircle, Home,
-    LogOut,
-    Upload,
-    Users
-} from "lucide-react";
-import NavButton from "./NavButton";
-import React, {useState} from "react";
-import {cn} from "../../utils/cs";
-import {useAuth} from "../../contexts/AuthContext";
-import {useNavigate} from "react-router-dom";
-import {toast} from "sonner";
-import {useChangeLog} from "../../hooks/useChangeLog";
+import {MainNav} from "../../types/navigation";
+import React from "react";
+import DietitianSidebar from "./DietitianSidebar";
 
-interface SidebarProps {
-    activeTab: TabName;
-    onTabChange: (tab: TabName) => void;
+interface AdminLayoutProps {
+    children: React.ReactNode;
+    activeTab: MainNav;
+    onTabChange: (tab: MainNav) => void;
 }
 
-const navigationItems = [
-    {id: 'upload', label: 'Upload Excel', icon: Upload},
-    {id: 'data', label: 'Zarządzanie Dietami', icon: FileSpreadsheet},
-    {id: 'users', label: 'Użytkownicy', icon: Users},
-    {id: 'stats', label: 'Statystyki', icon: BarChart3},
-    {id: 'guide', label: 'Przewodnik', icon: HelpCircle},
-    {id: 'changelog', label: 'Historia zmian', icon: ClipboardList}
-] as const;
-
-const Sidebar: React.FC<SidebarProps> = ({activeTab, onTabChange}) => {
-    const [isCollapsed, setIsCollapsed] = useState(true);
-    const {logout} = useAuth();
-    const {hasUnread} = useChangeLog();
-    const navigate = useNavigate();
-
-    const handleLogout = async () => {
-        try {
-            await logout();
-            navigate('/');
-            toast.success('Wylogowano pomyślnie');
-        } catch (error) {
-            toast.error('Wystąpił błąd podczas wylogowywania');
-        }
-    };
-
-    const handleGoToHomepage = () => {
-        navigate('/');
-    };
-
+const Sidebar: React.FC<AdminLayoutProps> = ({
+                                                          children,
+                                                          activeTab,
+                                                          onTabChange
+                                                      }) => {
     return (
-        <div className={cn(
-            "bg-white shadow-lg h-screen flex flex-col transition-all duration-300",
-            isCollapsed ? "w-20" : "w-64"
-        )}>
-            {/* Header */}
-            <div className=" relative p-4 border-b border-gray-200 flex items-center">
-                {!isCollapsed && (
-                    <h1 className="text-xl font-bold text-gray-800">Panel Admina Szyta Dieta</h1>
-                )}
-
-                <button
-                    onClick={() => setIsCollapsed(!isCollapsed)}
-                    className={cn(
-                        "absolute p-1 rounded-full bg-white shadow-md hover:bg-gray-50",
-                        "transition-all duration-200",
-                        isCollapsed ? "-right-3" : "-right-4"
-                    )}
-                >
-                    {isCollapsed ? (
-                        <ChevronRight className="w-4 h-4"/>
-                    ) : (
-                        <ChevronLeft className="h-4 w-4"/>
-                    )}
-                </button>
-            </div>
-
-            {/* Navigation */}
-            <nav className="flex-1 mt-4">
-                {navigationItems.map((item) => (
-                    <NavButton
-                        key={item.id}
-                        icon={item.icon}
-                        label={item.label}
-                        isActive={activeTab === item.id}
-                        onClick={() => onTabChange(item.id as TabName)}
-                        isCollapsed={isCollapsed}
-                        showNotification={item.id === 'changelog' && hasUnread}
-                    />
-                ))}
-            </nav>
-
-            {/* Przyciski w dolnej części */}
-            <div className="p-4 border-t border-gray-200 space-y-2">
-                {/* Przycisk do strony głównej */}
-                <NavButton
-                    icon={Home}
-                    label="Strona główna"
-                    isActive={false}
-                    onClick={handleGoToHomepage}
-                    isCollapsed={isCollapsed}
-                    className="text-gray-600 hover:text-blue-600 hover:bg-blue-50"
-                />
-
-                {/* Przycisk wylogowania */}
-                <NavButton
-                    icon={LogOut}
-                    label="Wyloguj"
-                    isActive={false}
-                    onClick={handleLogout}
-                    isCollapsed={isCollapsed}
-                    className="text-gray-600 hover:text-red-600 hover:bg-red-50"
-                />
-            </div>
+        <div className="flex h-screen bg-gray-100">
+            <DietitianSidebar
+                activeTab={activeTab}
+                onTabChange={onTabChange}
+            />
+            <main className="flex-1 p-8 overflow-auto">
+                {children}
+            </main>
         </div>
     );
 };

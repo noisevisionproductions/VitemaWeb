@@ -35,7 +35,7 @@ public class ValidationCacheService {
         }
     }
 
-    public String generateCacheKey(DietTemplateRequest request) {
+    public String generateCacheKey(DietTemplateRequest request, String userId) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
 
@@ -48,6 +48,10 @@ public class ValidationCacheService {
             md.update(String.valueOf(request.getMealsPerDay()).getBytes());
             md.update(String.valueOf(request.getDuration()).getBytes());
             md.update(request.getStartDate().getBytes());
+
+            if (userId != null) {
+                md.update(userId.getBytes());
+            }
 
             // Konwertujemy hash do string
             byte[] digest = md.digest();

@@ -1,13 +1,13 @@
 import React, {useState, useCallback} from "react";
 import {Diet, DietTemplate, Recipe, ShoppingList} from "../../../../../types";
-import {toast} from "sonner";
-import {useMealConfiguration} from "../../../../../hooks/useMealConfiguration";
+import {toast} from "../../../../../utils/toast";
+import {useMealConfiguration} from "../../../../../hooks/diet/useMealConfiguration";
 import {useConfirmation} from "../../../../../hooks/useConfirmation";
 import ConfirmationDialog from "../../../../common/ConfirmationDialog";
 import MealConfigSection from "./MealConfiguration";
 import DietStartDateSection from "./DietStartDateSection";
 import DietDayItem from "./DietDayItem";
-import {ShoppingListService} from "../../../../../services/categorization/ShoppingListService";
+import {ShoppingListService} from "../../../../../services/ShoppingListService";
 import {toFirestoreTimestamp} from "../../../../../utils/dateFormatters";
 
 interface DietDaysEditorProps {

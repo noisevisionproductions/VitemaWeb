@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Diet } from '../../types';
-import { DietService } from '../../services/DietService';
+import { DietService } from '../../services/diet/DietService';
 import { formatMonthYear } from '../../utils/dateFormatters';
 import useUsers from '../../hooks/useUsers';
 

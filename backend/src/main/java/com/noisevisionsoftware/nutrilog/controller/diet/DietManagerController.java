@@ -2,8 +2,8 @@ package com.noisevisionsoftware.nutrilog.controller.diet;
 
 import com.noisevisionsoftware.nutrilog.dto.request.diet.SaveDietRequest;
 import com.noisevisionsoftware.nutrilog.dto.response.diet.SaveDietResponse;
-import com.noisevisionsoftware.nutrilog.service.DietManagerService;
-import com.noisevisionsoftware.nutrilog.service.FileStorageService;
+import com.noisevisionsoftware.nutrilog.service.diet.DietManagerService;
+import com.noisevisionsoftware.nutrilog.service.firebase.FileStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -28,18 +28,13 @@ public class DietManagerController {
             @RequestParam("userId") String userId
     ) {
         try {
-            log.info("Otrzymano żądanie uploadowania pliku dla użytkownika: {}, nazwa pliku: {}, rozmiar: {} bytes",
-                    userId, file.getOriginalFilename(), file.getSize());
-
-            if (file.isEmpty()) {
-                log.error("Próba uploadowania pustego pliku");
+             if (file.isEmpty()) {
                 return ResponseEntity
                         .badRequest()
                         .body(Map.of("message", "Nie można przesłać pustego pliku"));
             }
 
             String fileUrl = storageService.uploadFile(file, userId);
-            log.info("Plik został pomyślnie przesłany. URL: {}", fileUrl);
 
             return ResponseEntity.ok(Map.of(
                     "fileUrl", fileUrl,
@@ -57,16 +52,11 @@ public class DietManagerController {
     @PostMapping("/save")
     public ResponseEntity<SaveDietResponse> saveDiet(@RequestBody SaveDietRequest request) {
         try {
-            log.info("Otrzymano żądanie zapisania diety dla użytkownika: {}, URL pliku: {}",
-                    request.getUserId(), request.getFileInfo().getFileUrl());
-
             String dietId = dietManagerService.saveDietWithShoppingList(
                     request.getParsedData(),
                     request.getUserId(),
                     request.getFileInfo()
             );
-
-            log.info("Dieta została pomyślnie zapisana z ID: {}", dietId);
 
             return ResponseEntity.ok(new SaveDietResponse(
                     dietId,

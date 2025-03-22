@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ChangelogEntry } from "../types/changeLog";
 import { useAuth } from "../contexts/AuthContext";
-import { toast } from "sonner";
+import { toast} from "../utils/toast";
 import { ChangelogService } from "../services/ChangelogService";
 
 export const useChangeLog = () => {

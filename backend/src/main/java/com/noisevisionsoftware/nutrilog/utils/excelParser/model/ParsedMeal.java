@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -21,4 +20,5 @@ public class ParsedMeal {
     private NutritionalValues nutritionalValues;
     private MealType mealType;
     private String time;
+    private List<String> photos;
 }

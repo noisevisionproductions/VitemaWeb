@@ -1,17 +1,27 @@
 package com.noisevisionsoftware.nutrilog.controller;
 
 import com.noisevisionsoftware.nutrilog.dto.request.recipe.RecipeUpdateRequest;
+import com.noisevisionsoftware.nutrilog.dto.response.recipe.RecipeImageResponse;
 import com.noisevisionsoftware.nutrilog.dto.response.recipe.RecipeResponse;
+import com.noisevisionsoftware.nutrilog.dto.response.recipe.RecipesPageResponse;
 import com.noisevisionsoftware.nutrilog.mapper.recipe.RecipeMapper;
 import com.noisevisionsoftware.nutrilog.model.recipe.Recipe;
 import com.noisevisionsoftware.nutrilog.service.RecipeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -21,6 +31,32 @@ import java.util.stream.Collectors;
 public class RecipeController {
     private final RecipeService recipeService;
     private final RecipeMapper recipeMapper;
+
+    @GetMapping
+    public ResponseEntity<RecipesPageResponse> getAllRecipes(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+
+        Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Recipe> recipesPage = recipeService.getAllRecipes(pageable);
+        List<RecipeResponse> content = recipesPage.getContent().stream()
+                .map(recipeMapper::toResponse)
+                .collect(Collectors.toList());
+
+        RecipesPageResponse response = RecipesPageResponse.builder()
+                .content(content)
+                .page(recipesPage.getNumber())
+                .size(recipesPage.getSize())
+                .totalElements(recipesPage.getTotalElements())
+                .totalPages(recipesPage.getTotalPages())
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<RecipeResponse> getRecipeById(@PathVariable String id) {
@@ -46,5 +82,48 @@ public class RecipeController {
         Recipe recipe = recipeMapper.toModel(request);
         Recipe updatedRecipe = recipeService.updateRecipe(id, recipe);
         return ResponseEntity.ok(recipeMapper.toResponse(updatedRecipe));
+    }
+
+    @PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<RecipeImageResponse> uploadImage(
+            @PathVariable String id,
+            @RequestParam("image") MultipartFile image) throws BadRequestException {
+        String imageUrl = recipeService.uploadImage(id, image);
+        return ResponseEntity.ok(RecipeImageResponse.builder()
+                .imageUrl(imageUrl)
+                .build());
+    }
+
+    @DeleteMapping("/{id}/image")
+    public ResponseEntity<Void> deleteImage(
+            @PathVariable String id,
+            @RequestBody RecipeImageResponse request) throws BadRequestException {
+        recipeService.deleteImage(id, request.getImageUrl());
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<RecipeResponse>> searchRecipes(@RequestParam String query) {
+        List<Recipe> searchResults = recipeService.searchRecipes(query);
+        return ResponseEntity.ok(
+                searchResults.stream()
+                        .map(recipeMapper::toResponse)
+                        .collect(Collectors.toList())
+        );
+    }
+
+    @PostMapping(value = "/base64-image")
+    public ResponseEntity<RecipeImageResponse> uploadBase64Image(
+            @RequestBody Map<String, String> request) throws BadRequestException {
+        String base64Image = request.get("imageData");
+        if (base64Image == null) {
+            throw new BadRequestException("Brak danych obrazu");
+        }
+
+        String imageUrl = recipeService.uploadBase64Image(base64Image);
+
+        return ResponseEntity.ok(RecipeImageResponse.builder()
+                .imageUrl(imageUrl)
+                .build());
     }
 }

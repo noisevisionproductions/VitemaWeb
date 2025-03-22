@@ -8,10 +8,12 @@ import axios from 'axios';
 interface AuthContextType {
     currentUser: FirebaseUser | null;
     userData: User | null;
+    userClaims: Record<string, any> | null;
     loading: boolean;
     login: (email: string, password: string) => Promise<User>;
     logout: () => Promise<void>;
     refreshUserData: () => Promise<void>;
+    isAdmin: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -28,6 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
     const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
     const [userData, setUserData] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [userClaims, setUserClaims] = useState<Record<string, any> | null>(null);
 
     useEffect(() => {
         return onAuthStateChanged(auth, async (user) => {
@@ -35,6 +38,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
 
             if (user) {
                 try {
+                    const tokenResult = await user.getIdTokenResult();
+                    setUserClaims(tokenResult.claims);
+
                     await validateTokenAndSetUserData(user);
                 } catch (error) {
                     console.error("Token validation failed:", error);
@@ -42,6 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
                 }
             } else {
                 setUserData(null);
+                setUserClaims(null);
             }
 
             setLoading(false);
@@ -59,6 +66,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
             });
 
             setUserData(response.data as User);
+
+            const tokenResult = await user.getIdTokenResult(true);
+            setUserClaims(tokenResult.claims);
         } catch (error) {
             console.error("Error validating token:", error);
             throw error;
@@ -83,7 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
             const token = await credential.user.getIdToken(true);
 
             const response = await api.post('/auth/login',
-                { email },
+                {email},
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -93,6 +103,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
 
             const userData = response.data as User;
             setUserData(userData);
+
+            const tokenResult = await credential.user.getIdTokenResult();
+            setUserClaims(tokenResult.claims);
+
             return userData;
         } catch (error) {
             console.error('Błąd uwierzytelniania:', error);
@@ -111,19 +125,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
             await signOut(auth);
             setCurrentUser(null);
             setUserData(null);
+            setUserClaims(null);
         } catch (error) {
             console.error('Błąd wylogowania:', error);
             throw error;
         }
     };
 
+    const isAdmin = (): boolean => {
+        if (userClaims?.admin === true) {
+            return true;
+        }
+
+        return userData?.role === 'ADMIN';
+    };
+
     const value = {
         currentUser,
         userData,
+        userClaims,
         loading,
         login,
         logout,
-        refreshUserData
+        refreshUserData,
+        isAdmin
     };
 
     return (

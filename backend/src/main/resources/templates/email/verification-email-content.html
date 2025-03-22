@@ -1,0 +1,30 @@
+<!-- src/main/resources/templates/email/verification-email-content.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+<body>
+<h1>Potwierdź swój adres email</h1>
+
+<p>Dziękujemy za zapisanie się do newslettera NutriLog!</p>
+
+<p>Aby dokończyć proces rejestracji i rozpocząć otrzymywanie naszego newslettera, prosimy o potwierdzenie
+    swojego adresu email klikając przycisk poniżej:</p>
+
+<div class="button-container">
+    <a th:href="${verificationUrl}" class="button">Potwierdź email</a>
+</div>
+
+<p>Jeśli przycisk nie działa, skopiuj i wklej poniższy link do przeglądarki:</p>
+<p style="word-break: break-all; color: #718096;" th:text="${verificationUrl}">Link weryfikacyjny</p>
+
+<div class="survey-notice">
+    <h2>Pomóż nam być lepszymi</h2>
+    <p>Po potwierdzeniu adresu email zaprosimy Cię do udziału w krótkiej, opcjonalnej ankiecie. Twoje odpowiedzi
+        pomogą nam lepiej zrozumieć potrzeby dietetyków i dostosować nasze usługi do Twoich oczekiwań.</p>
+</div>
+<br>
+
+<p>Jeśli nie zapisywałeś(aś) się do naszego newslettera, prosimy o zignorowanie tej wiadomości.</p>
+
+<p>Z poważaniem,<br>Zespół NutriLog</p>
+</body>
+</html>
