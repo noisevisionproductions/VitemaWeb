@@ -71,14 +71,11 @@ public class DietController {
     public ResponseEntity<DietResponse> updateDiet(
             @PathVariable String id,
             @Valid @RequestBody DietRequest request) {
-        log.info("Received update request for diet ID: {}", id);
-
         try {
             Diet diet = dietMapper.toDomain(request);
             diet.setId(id);
 
             Diet updatedDiet = dietService.updateDiet(diet);
-            log.info("Successfully updated diet with ID: {}", id);
 
             return ResponseEntity.ok(dietMapper.toResponse(updatedDiet));
         } catch (Exception e) {

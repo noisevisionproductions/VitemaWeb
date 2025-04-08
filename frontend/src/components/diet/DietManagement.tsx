@@ -9,7 +9,7 @@ import {Diet} from "../../types";
 import {useDiets} from "../../hooks/diet/useDiets";
 import {toast} from "../../utils/toast";
 import {getTimestamp} from "../../utils/dateUtils";
-import {AlertTriangle, Clock, FileText, Filter, RefreshCw} from 'lucide-react';
+import {FileText, Filter, RefreshCw} from 'lucide-react';
 import {getDaysRemainingToDietEnd, getDietWarningStatus, isDietEnded} from "../../utils/diet/dietWarningUtils";
 import {hasDietGap} from "../../utils/diet/dietContinuityUtils";
 import SectionHeader from "../common/SectionHeader";
@@ -28,6 +28,7 @@ const DietManagement: React.FC = () => {
         refreshDiets
     } = useDiets(users, usersLoading);
 
+    // Stany filtrów i sortowania
     const [selectedDiet, setSelectedDiet] = useState<DietWithUser | null>(null);
     const [editingDiet, setEditingDiet] = useState<DietWithUser | null>(null);
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
@@ -38,13 +39,15 @@ const DietManagement: React.FC = () => {
     const [showOnlyWarnings, setShowOnlyWarnings] = useState(false);
     const [showOnlyGaps, setShowOnlyGaps] = useState(false);
 
+    // Odświeżanie diet co 5 minut
     useEffect(() => {
         const interval = setInterval(() => {
             refreshDiets().catch(console.error);
-        }, 5 * 60 * 1000);
+        }, 5 * 60 * 1000); // 5 minut
         return () => clearInterval(interval);
     }, [refreshDiets]);
 
+    // Filtrowane i posortowane diety
     const filteredAndSortedDiets = React.useMemo(() => {
         let result = diets.filter(diet => {
             const matchesUser = selectedUserId ? diet.userId === selectedUserId : true;
@@ -64,6 +67,7 @@ const DietManagement: React.FC = () => {
         });
 
         if (showOnlyWarnings) {
+            // Jeśli pokazujemy tylko ostrzeżenia, sortujemy po dniach pozostałych do końca diety
             return result.sort((a, b) => {
                 const daysRemainingA = getDaysRemainingToDietEnd(a);
                 const daysRemainingB = getDaysRemainingToDietEnd(b);
@@ -72,11 +76,14 @@ const DietManagement: React.FC = () => {
         }
 
         return result.sort((a, b) => {
+            const timestampA = getTimestamp(a.createdAt);
+            const timestampB = getTimestamp(b.createdAt);
+
             switch (sortBy) {
                 case "newest":
-                    return getTimestamp(b.createdAt) - getTimestamp(a.createdAt);
+                    return timestampB - timestampA;
                 case "oldest":
-                    return getTimestamp(a.createdAt) - getTimestamp(b.createdAt);
+                    return timestampA - timestampB;
                 case "name":
                     return (a.metadata?.fileName || '').localeCompare(b.metadata?.fileName || '');
                 default:
@@ -85,6 +92,7 @@ const DietManagement: React.FC = () => {
         });
     }, [diets, selectedUserId, searchQuery, sortBy, showOnlyWarnings, showOnlyGaps]);
 
+    // Liczniki ostrzeżeń i przerw
     const gapsCount = React.useMemo(() => {
         return diets.filter(diet =>
             !isDietEnded(diet) && hasDietGap(diet, diets)
@@ -98,17 +106,21 @@ const DietManagement: React.FC = () => {
         }).length;
     }, [diets]);
 
+    // Resetowanie filtrów
     const handleResetFilters = () => {
         setSelectedUserId(null);
         setSearchQuery('');
         setSortBy('newest');
         setShowOnlyWarnings(false);
+        setShowOnlyGaps(false);
     };
 
+    // Odświeżanie diet
     const handleRefreshDiets = async () => {
         setIsRefreshing(true);
         try {
             await refreshDiets();
+            toast.success('Diety zostały odświeżone');
         } catch (error) {
             toast.error('Nie udało się odświeżyć diet');
         } finally {
@@ -116,6 +128,7 @@ const DietManagement: React.FC = () => {
         }
     };
 
+    // Aktualizacja diety
     const handleDietUpdate = async (diet: Diet) => {
         try {
             await updateDiet(diet.id, diet);
@@ -127,6 +140,7 @@ const DietManagement: React.FC = () => {
         }
     };
 
+    // Usuwanie diety
     const handleDietDelete = async (dietId: string) => {
         try {
             setSelectedDiet(null);
@@ -138,11 +152,13 @@ const DietManagement: React.FC = () => {
         }
     };
 
+    // Lista aktywnych użytkowników
     const activeUsers = React.useMemo(() => {
         const uniqueUserIds = new Set(diets.map(diet => diet.userId));
         return users.filter(user => uniqueUserIds.has(user.id));
     }, [diets, users]);
 
+    // Renderowanie podczas ładowania
     if (dietsLoading || usersLoading) {
         return (
             <div className="flex justify-center items-center h-64">
@@ -154,44 +170,13 @@ const DietManagement: React.FC = () => {
     return (
         <div className="space-y-6 pb-8">
             {/* Nagłówek */}
-            <SectionHeader title="Zarządzanie dietami"
-                           description="Zarządzaj dietami wszystkich użytkowników"
+            <SectionHeader
+                title="Zarządzanie dietami"
+                description="Zarządzaj dietami wszystkich użytkowników"
             />
 
-            <div className="flex gap-2">
-                {warningCount > 0 && (
-                    <button
-                        onClick={() => setShowOnlyWarnings(!showOnlyWarnings)}
-                        className={`px-3 py-2 rounded-md border shadow-sm flex items-center text-sm font-medium
-                               ${showOnlyWarnings
-                            ? 'bg-amber-50 text-amber-700 border-amber-200'
-                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'}
-                            transition-colors`}
-                    >
-                        <AlertTriangle
-                            className={`h-4 w-4 mr-2 ${showOnlyWarnings ? 'text-amber-500' : 'text-slate-500'}`}/>
-                        {showOnlyWarnings ? 'Wszystkie diety' : `Ostrzeżenia (${warningCount})`}
-                    </button>
-                )}
-
-                {gapsCount > 0 && (
-                    <button
-                        onClick={() => {
-                            setShowOnlyGaps(!showOnlyGaps);
-                            if (!showOnlyGaps) setShowOnlyWarnings(false);
-                        }}
-                        className={`px-3 py-2 rounded-md border shadow-sm flex items-center text-sm font-medium
-                           ${showOnlyGaps
-                            ? 'bg-blue-50 text-blue-700 border-blue-200'
-                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'}
-                        transition-colors`}
-                    >
-                        <Clock
-                            className={`h-4 w-4 mr-2 ${showOnlyGaps ? 'text-blue-500' : 'text-slate-500'}`}/>
-                        {showOnlyGaps ? 'Wszystkie diety' : `Bez kontynuacji (${gapsCount})`}
-                    </button>
-                )}
-
+            {/* Przyciski szybkich filtrów i odświeżania */}
+            <div className="flex gap-2 flex-wrap">
                 <button
                     onClick={() => setFilterExpanded(!filterExpanded)}
                     className="px-3 py-2 rounded-md bg-white text-slate-700 border border-slate-200 shadow-sm hover:bg-slate-50 transition-colors flex items-center text-sm font-medium"
@@ -209,24 +194,6 @@ const DietManagement: React.FC = () => {
                 </button>
             </div>
 
-            {/* Baner ostrzeżeń */}
-            {warningCount > 0 && !showOnlyWarnings && (
-                <div
-                    className="flex items-center p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-sm">
-                    <AlertTriangle className="h-5 w-5 mr-2 text-amber-500"/>
-                    <div className="flex-1">
-                        Masz <strong>{warningCount}</strong> {warningCount === 1 ? 'dietę' : (warningCount < 5 ? 'diety' : 'diet')} wymagających
-                        uwagi.
-                    </div>
-                    <button
-                        className="px-3 py-1 bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-md text-xs font-medium transition"
-                        onClick={() => setShowOnlyWarnings(true)}
-                    >
-                        Pokaż tylko ostrzeżenia
-                    </button>
-                </div>
-            )}
-
             {/* Filtry */}
             <div
                 className={`transition-all duration-300 overflow-hidden ${filterExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
@@ -241,6 +208,12 @@ const DietManagement: React.FC = () => {
                             onReset={handleResetFilters}
                             sortBy={sortBy}
                             onSortChange={setSortBy}
+                            showOnlyWarnings={showOnlyWarnings}
+                            onWarningsChange={setShowOnlyWarnings}
+                            showOnlyGaps={showOnlyGaps}
+                            onGapsChange={setShowOnlyGaps}
+                            warningCount={warningCount}
+                            gapsCount={gapsCount}
                         />
                     </div>
                 )}
@@ -254,7 +227,9 @@ const DietManagement: React.FC = () => {
                     <p className="text-slate-500 max-w-md mx-auto mt-2">
                         {showOnlyWarnings
                             ? 'Nie ma żadnych diet wymagających uwagi. Wszystkie diety mają odpowiedni zapas czasu.'
-                            : 'Nie znaleziono diet spełniających kryteria wyszukiwania. Spróbuj zmienić filtry lub odświeżyć listę.'}
+                            : showOnlyGaps
+                                ? 'Nie ma żadnych diet bez kontynuacji. Wszystkie diety mają zaplanowaną kontynuację.'
+                                : 'Nie znaleziono diet spełniających kryteria wyszukiwania. Spróbuj zmienić filtry lub odświeżyć listę.'}
                     </p>
                 </div>
             ) : (
@@ -272,6 +247,7 @@ const DietManagement: React.FC = () => {
                 </div>
             )}
 
+            {/* Modalne okna podglądu i edycji */}
             {selectedDiet && (
                 <DietView
                     diet={selectedDiet}

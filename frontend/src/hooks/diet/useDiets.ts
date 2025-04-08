@@ -2,14 +2,14 @@ import {useState, useEffect} from 'react';
 import {Diet} from '../../types';
 import {User} from '../../types/user';
 import {DietService} from "../../services/diet/DietService";
-import { useToast} from "../../contexts/ToastContext";
+import {useToast} from "../../contexts/ToastContext";
 
 export interface DietWithUser extends Diet {
     userEmail?: string;
 }
 
 export const useDiets = (_users: User[], usersLoading: boolean) => {
-    const { showToast } = useToast();
+    const {showToast} = useToast();
     const [diets, setDiets] = useState<DietWithUser[]>([]);
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(0);
