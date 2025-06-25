@@ -1,21 +1,21 @@
 import React, {useMemo, useState, useCallback, useRef} from "react";
-import {User} from "../../../types/user";
-import {toast} from "../../../utils/toast";
-import {DietUploadService} from "../../../services/diet/DietUploadService";
-import DietPreview from "../../diet/upload/preview/DietPreview";
+import {User} from "../../../../../types/user";
+import {toast} from "../../../../../utils/toast";
+import {DietUploadService} from "../../../../../services/diet/DietUploadService";
+import DietPreview from "../../../../diet/upload/preview/DietPreview";
 import {Timestamp} from "firebase/firestore";
-import ValidationSection from "../../diet/upload/validation/ValidationSection";
-import {DietTemplate, MealType, ParsedDietData} from "../../../types";
-import {MainNav} from "../../../types/navigation";
-import {ValidationErrorType} from "../../diet/upload/validation/ValidationMessage";
-import SectionHeader from "../../common/SectionHeader";
+import ValidationSection from "../../../../diet/upload/validation/ValidationSection";
+import {DietTemplate, MealType, ParsedDietData} from "../../../../../types";
+import {MainNav} from "../../../../../types/navigation";
+import {ValidationErrorType} from "../../../../diet/upload/validation/ValidationMessage";
+import SectionHeader from "../../../../common/SectionHeader";
 import {AxiosError} from "axios";
-import UserSelectionSection from "../../diet/upload/sections/user/UserSelectionSection";
-import FileUploadSection from "../../diet/upload/sections/file/FileUploadSection";
-import UploadActionSection from "../../diet/upload/sections/UploadActionSection";
-import DietTemplateConfig from "../../diet/upload/sections/DietTemplateConfig";
-import ExcelParserSettings from "../../diet/upload/sections/ExcelParserSettings";
-import {useSettings} from "../../../contexts/SettingsContextType";
+import UserSelectionSection from "../../../../diet/upload/sections/user/UserSelectionSection";
+import FileUploadSection from "../../../../diet/upload/sections/file/FileUploadSection";
+import UploadActionSection from "../../../../diet/upload/sections/UploadActionSection";
+import DietTemplateConfig from "../../../../diet/upload/sections/DietTemplateConfig";
+import ExcelParserSettings from "../../../../diet/upload/sections/ExcelParserSettings";
+import {useSettings} from "../../../../../contexts/SettingsContextType";
 
 interface ValidationState {
     isExcelStructureValid: boolean;

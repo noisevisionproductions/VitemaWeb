@@ -1,4 +1,6 @@
 export type MainNav =
+    | 'dietitianDashboard'
+    | 'dietCreation'
     | 'upload'
     | 'diets'
     | 'users'
@@ -6,13 +8,12 @@ export type MainNav =
     | 'guide'
     | 'changelog'
     | 'landing'
-    | 'dietitianDashboard'
     | 'recipes';
 
 export type AdminNav =
+    | 'adminDashboard'
     | 'newsletter'
     | 'subscribers'
     | 'surveys'
     | 'bulkEmail'
-    | 'contactMessages'
-    | 'adminDashboard';
+    | 'contactMessages';

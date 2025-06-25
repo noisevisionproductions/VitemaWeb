@@ -43,7 +43,7 @@ public class UserRepository {
         }
     }
 
-    public void save(User user) {
+    public User save(User user) {
         try {
             DocumentReference docRef;
             if (user.getId() != null) {
@@ -59,6 +59,7 @@ public class UserRepository {
             log.error("Failed to save user", e);
             throw new RuntimeException("Failed to save user", e);
         }
+        return user;
     }
 
     public void update(String id, User user) {

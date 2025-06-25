@@ -161,7 +161,7 @@ const ExcelParserSettings: React.FC<ExcelParserSettingsProps> = ({
                                     className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                                 />
                                 <label htmlFor="enableCalorieValidation" className="text-sm">
-                                    Sprawdź zgodność kalorii z pliku Excel z założonym celem./frontend
+                                    Sprawdź zgodność kalorii z pliku Excel z założonym celem
                                 </label>
                             </div>
 

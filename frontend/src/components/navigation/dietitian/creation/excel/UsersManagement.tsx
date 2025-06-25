@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from "react";
-import UsersList from "../../users/UsersList";
-import UserDetailsModal from "../../users/UserDetailsModal";
-import {User} from "../../../types/user";
-import useUsers from "../../../hooks/useUsers";
-import LoadingSpinner from "../../common/LoadingSpinner";
-import SectionHeader from "../../common/SectionHeader";
+import UsersList from "../../../../users/UsersList";
+import UserDetailsModal from "../../../../users/UserDetailsModal";
+import {User} from "../../../../../types/user";
+import useUsers from "../../../../../hooks/useUsers";
+import LoadingSpinner from "../../../../common/LoadingSpinner";
+import SectionHeader from "../../../../common/SectionHeader";
 
 const UsersManagement: React.FC = () => {
     const {users, loading, fetchUsers} = useUsers();

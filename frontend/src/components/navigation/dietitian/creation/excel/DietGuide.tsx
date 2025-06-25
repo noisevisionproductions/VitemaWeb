@@ -1,12 +1,12 @@
 import React, {useState} from "react";
-import {CardContent} from "../../ui/card";
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "../../ui/Tabs";
+import {CardContent} from "../../../../ui/card";
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "../../../../ui/Tabs";
 import {AlertTriangle, Clock, FileSpreadsheet, ListChecks} from "lucide-react";
 import ExcelGuide from "./ExcelGuide";
-import RulesGuide from "../../guide/RulesGuide";
-import ScheduleGuide from "../../guide/ScheduleGuide";
-import WarningSystemGuide from "../../guide/WarningSystemGuide";
-import SectionHeader from "../../common/SectionHeader";
+import RulesGuide from "../../../../guide/RulesGuide";
+import ScheduleGuide from "../../../../guide/ScheduleGuide";
+import WarningSystemGuide from "../../../../guide/WarningSystemGuide";
+import SectionHeader from "../../../../common/SectionHeader";
 
 const DietGuide: React.FC = () => {
     const [activeTab, setActiveTab] = useState('excel');

@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 
 interface CountdownTimerProps {
+    targetDate: string;
     className?: string;
 }
 
-const CountdownTimer: React.FC<CountdownTimerProps> = ({ className = '' }) => {
-    // Ustawienie docelowej daty na 1 maja 2025
-    const targetDate = new Date('2025-05-01T00:00:00');
-
+const CountdownTimer: React.FC<CountdownTimerProps> = ({targetDate, className = ''}) => {
     const [timeLeft, setTimeLeft] = useState({
         days: 0,
         hours: 0,
@@ -18,9 +16,11 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ className = '' }) => {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
+        const target = new Date(targetDate);
+
         // Funkcja obliczająca pozostały czas
         const calculateTimeLeft = () => {
-            const difference = targetDate.getTime() - new Date().getTime();
+            const difference = target.getTime() - new Date().getTime();
 
             if (difference > 0) {
                 setTimeLeft({
@@ -30,9 +30,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ className = '' }) => {
                     seconds: Math.floor((difference / 1000) % 60)
                 });
             } else {
-                // Gdy czas upłynie, zatrzymujemy odliczanie
                 setTimeLeft({days: 0, hours: 0, minutes: 0, seconds: 0});
-                clearInterval(timer);
             }
 
             if (isLoading) {
@@ -50,7 +48,7 @@ const CountdownTimer: React.FC<CountdownTimerProps> = ({ className = '' }) => {
 
         // Czyszczenie interwału przy odmontowaniu komponentu
         return () => clearInterval(timer);
-    }, [isLoading]);
+    }, [targetDate, isLoading]);
 
     // Formatowanie liczby do zawsze dwucyfrowej postaci
     const formatNumber = (num: number) => {

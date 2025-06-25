@@ -1,7 +1,7 @@
 import React from "react";
 import { CheckCircle2, FileSpreadsheet, Info } from "lucide-react";
-import GuideSection from "../../guide/GuideSection";
-import ExcelExample from "../../guide/ExcelExample";
+import GuideSection from "../../../../guide/GuideSection";
+import ExcelExample from "../../../../guide/ExcelExample";
 
 const ExcelGuide: React.FC = () => {
     return (

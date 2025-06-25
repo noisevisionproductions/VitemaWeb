@@ -1,15 +1,18 @@
 import React, {useEffect, useState} from 'react';
 import {MainNav} from "../../types/navigation";
-import ExcelUpload from "../../components/navigation/dietitian/ExcelUpload";
-import UsersManagement from "../../components/navigation/dietitian/UsersManagement";
+import ExcelUpload from "../../components/navigation/dietitian/creation/excel/ExcelUpload";
+import UsersManagement from "../../components/navigation/dietitian/creation/excel/UsersManagement";
 import DietManagement from "../../components/diet/DietManagement";
 import StatsPanel from "../../components/stats/StatsPanel";
-import DietGuide from "../../components/navigation/dietitian/DietGuide";
-import Changelog from "../../components/navigation/dietitian/Changelog";
-import RecipesPage from "../../components/navigation/dietitian/RecipesPage";
+import DietGuide from "../../components/navigation/dietitian/creation/excel/DietGuide";
+import Changelog from "../../components/navigation/dietitian/creation/excel/Changelog";
+import RecipesPage from "../../components/navigation/dietitian/creation/excel/RecipesPage";
 import usePageTitle from "../../hooks/usePageTitle";
-import DietitianDashboard from "../../components/navigation/dietitian/DietitianDashboard";
+import DietitianDashboard from "../../components/navigation/dietitian/creation/excel/DietitianDashboard";
 import DietitianSidebar from "../../components/navigation/DietitianSidebar";
+import DietCreationContainer from "../../components/navigation/dietitian/creation/DietCreationContainer";
+
+
 
 const DietitianPanel: React.FC = () => {
     const [activeTab, setActiveTab] = useState<MainNav>('dietitianDashboard');
@@ -28,7 +31,8 @@ const DietitianPanel: React.FC = () => {
 
     const titleMap: Record<MainNav, string> = {
         dietitianDashboard: 'Pulpit',
-        upload: 'Tworzenie diety',
+        dietCreation: 'Tworzenie diety',
+        upload: 'Import Excel',
         diets: 'Zarządzanie dietami',
         users: 'Klienci',
         stats: 'Statystyki',
@@ -44,6 +48,8 @@ const DietitianPanel: React.FC = () => {
         switch (activeTab) {
             case 'dietitianDashboard':
                 return <DietitianDashboard/>;
+            case 'dietCreation':
+                return <DietCreationContainer onTabChange={setActiveTab}/>;
             case 'upload':
                 return <ExcelUpload onTabChange={setActiveTab}/>;
             case 'diets':

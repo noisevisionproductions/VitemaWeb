@@ -4,10 +4,10 @@ import {
     ChartBarIcon,
     BookOpenIcon
 } from '@heroicons/react/24/outline';
-import {useAuth} from "../../../contexts/AuthContext";
-import {ClipboardList, ClipboardListIcon, HelpCircle, Plus, Settings, UploadIcon, Users} from "lucide-react";
-import {toast} from "../../../utils/toast";
-import SectionHeader from "../../common/SectionHeader";
+import {useAuth} from "../../../../../contexts/AuthContext";
+import {ClipboardList, ClipboardListIcon, HelpCircle, PlusCircle, Users} from "lucide-react";
+import {toast} from "../../../../../utils/toast";
+import SectionHeader from "../../../../common/SectionHeader";
 
 const DietitianDashboard: React.FC = () => {
     const {currentUser, logout} = useAuth();
@@ -16,9 +16,9 @@ const DietitianDashboard: React.FC = () => {
     const dietitianModules = [
         {
             name: 'Tworzenie diety',
-            description: 'Prześlij dietę w formacie Excel dla klientów.',
-            icon: UploadIcon,
-            tabName: 'upload'
+            description: 'Utwórz nową dietę dla klienta - wybierz między importem z Excel a tworzeniem ręcznym.',
+            icon: PlusCircle,
+            tabName: 'dietCreation'
         },
         {
             name: 'Zarządzanie dietami',
@@ -78,18 +78,6 @@ const DietitianDashboard: React.FC = () => {
                 title="Panel Dietetyka"
                 description="Zarządzaj dietami, przepisami i klientami."
                 welcomeUser={currentUser}
-                rightContent={
-                    <div className="flex gap-2">
-                        <button className="px-3 py-2 rounded-md bg-white text-slate-700 border border-slate-200 shadow-sm hover:bg-slate-50 transition-colors flex items-center text-sm font-medium">
-                            <Settings className="h-4 w-4 mr-2" />
-                            Ustawienia
-                        </button>
-                        <button className="px-3 py-2 rounded-md bg-primary text-white flex items-center gap-2 text-sm">
-                            <Plus size={16} />
-                            Nowa dieta
-                        </button>
-                    </div>
-                }
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useChangeLog } from "../../../hooks/useChangeLog";
-import LoadingSpinner from "../../common/LoadingSpinner";
+import { useChangeLog } from "../../../../../hooks/useChangeLog";
+import LoadingSpinner from "../../../../common/LoadingSpinner";
 import { PlusCircle } from "lucide-react";
-import ChangelogForm from "../../changelog/ChangelogForm";
-import ChangelogList from "../../changelog/ChangelogList";
-import SectionHeader from "../../common/SectionHeader";
+import ChangelogForm from "../../../../changelog/ChangelogForm";
+import ChangelogList from "../../../../changelog/ChangelogList";
+import SectionHeader from "../../../../common/SectionHeader";
 
 const Changelog: React.FC = () => {
     const { entries, loading, addEntry, hasUnread, markAsRead } = useChangeLog();

@@ -1,11 +1,11 @@
 import React, {useRef, useState} from "react";
-import RecipesList, {RecipesListRef} from "../../recipes/RecipesList";
-import RecipeModal from "../../recipes/RecipeModal";
-import SectionHeader from "../../common/SectionHeader";
-import {Button} from "../../ui/button";
+import RecipesList, {RecipesListRef} from "../../../../recipes/RecipesList";
+import RecipeModal from "../../../../recipes/RecipeModal";
+import SectionHeader from "../../../../common/SectionHeader";
+import {Button} from "../../../../ui/button";
 import {FileImage, FileX, RefreshCcw, Search, Filter, ChevronDown} from "lucide-react";
-import {Input} from "../../ui/Input";
-import {Badge} from "../../ui/badge";
+import {Input} from "../../../../ui/Input";
+import {Badge} from "../../../../ui/badge";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -13,9 +13,9 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "../../ui/dropdown-menu";
-import LoadingSpinner from "../../common/LoadingSpinner";
-import {Recipe} from "../../../types";
+} from "../../../../ui/dropdown-menu";
+import LoadingSpinner from "../../../../common/LoadingSpinner";
+import {Recipe} from "../../../../../types";
 
 const RecipesPage: React.FC = () => {
     const [selectedRecipeId, setSelectedRecipeId] = useState<string | null>(null);
