@@ -6,8 +6,10 @@ import {useProductCategories} from "../../../../hooks/shopping/useProductCategor
 import ProductCategorizationLayout from "../../../products/ProductCategorizationLayout";
 import ParserGuide from "../../../products/ParserGuide";
 import LoadingSpinner from "../../../common/LoadingSpinner";
-import {Loader2} from "lucide-react";
+import {ArrowLeft, ArrowRight, Loader2} from "lucide-react";
 import {useSuggestedCategoriesContext} from "../../../../contexts/SuggestedCategoriesContext";
+import SectionHeader from "../../../common/SectionHeader";
+import {FloatingActionButton, FloatingActionButtonGroup} from "../../../common/FloatingActionButton";
 
 interface CategorySectionProps {
     uncategorizedProducts: ParsedProduct[];
@@ -18,6 +20,8 @@ interface CategorySectionProps {
     onComplete: () => Promise<void>;
     onCancel: () => void;
     selectedUserEmail: string;
+    showBackButton?: boolean;
+    onBack?: () => void;
 }
 
 const CategorySection: React.FC<CategorySectionProps> = ({
@@ -29,6 +33,8 @@ const CategorySection: React.FC<CategorySectionProps> = ({
                                                              onComplete,
                                                              onCancel,
                                                              selectedUserEmail,
+                                                             showBackButton,
+                                                             onBack
                                                          }) => {
     const [isSaving, setIsSaving] = useState(false);
     const {categories, loading: loadingCategories} = useProductCategories();
@@ -53,6 +59,16 @@ const CategorySection: React.FC<CategorySectionProps> = ({
         }
     };
 
+    const totalProducts = Object.values(categorizedProducts).reduce(
+        (sum, products) => sum + products.length,
+        0
+    ) + uncategorizedProducts.length;
+
+    const categorizedCount = Object.values(categorizedProducts).reduce(
+        (sum, products) => sum + products.length,
+        0
+    );
+
     if (loadingCategories) {
         return (
             <div className="flex items-center justify-center h-64">
@@ -63,11 +79,39 @@ const CategorySection: React.FC<CategorySectionProps> = ({
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold">Kategoryzacja produktów</h2>
-                <div className="text-gray-600">
-                    Użytkownik: {selectedUserEmail}
+            <SectionHeader
+                title="Kategoryzacja produktów"
+                description={`Przypisz ${totalProducts} produktów do odpowiednich kategorii (${categorizedCount}/${totalProducts} skategoryzowane)`}
+                rightContent={
+                    <div className="text-sm text-gray-600 bg-blue-50 px-3 py-2 rounded-lg">
+                        <span className="font-medium">Użytkownik:</span> {selectedUserEmail}
+                    </div>
+                }
+            />
+
+            {/* Progress indicator */}
+            <div className="bg-white p-4 rounded-lg shadow-sm border">
+                <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-gray-700">
+                        Postęp kategoryzacji
+                    </span>
+                    <span className="text-sm text-gray-600">
+                        {categorizedCount} z {totalProducts}
+                    </span>
                 </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                        className="bg-primary h-2 rounded-full transition-all duration-300"
+                        style={{
+                            width: totalProducts > 0 ? `${(categorizedCount / totalProducts) * 100}%` : '0%'
+                        }}
+                    />
+                </div>
+                {uncategorizedProducts.length > 0 && (
+                    <p className="text-sm text-amber-600 mt-2">
+                        Pozostało {uncategorizedProducts.length} produktów do skategoryzowania
+                    </p>
+                )}
             </div>
 
             <ParserGuide/>
@@ -84,28 +128,37 @@ const CategorySection: React.FC<CategorySectionProps> = ({
                 />
             </DndProvider>
 
-            <div className="flex justify-end space-x-4 pt-4">
-                <button
-                    onClick={onCancel}
-                    className="px-4 py-2 mt-7 border rounded-lg hover:bg-gray-50"
-                    disabled={isSaving}
-                >
-                    Anuluj
-                </button>
-                <button
-                    onClick={handleComplete}
-                    disabled={uncategorizedProducts.length > 0 || isSaving}
-                    className="px-4 py-2 mt-7 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    {isSaving ? (
-                        <>
-                            <Loader2 className="h-4 w-4 animate-spin mr-2"/>
-                            Zapisywanie kategoryzacji...
-                        </>
-                    ) : (
-                        'Przejdź do podglądu'
+            {/* Floating action buttons */}
+            <div className="fixed bottom-6 right-6 flex gap-3 z-10">
+                <FloatingActionButtonGroup position="bottom-right">
+                    {showBackButton && onBack && (
+                        <FloatingActionButton
+                            label="Poprzedni krok"
+                            onClick={onBack}
+                            disabled={isSaving}
+                            variant="secondary"
+                            icon={<ArrowLeft className="h-5 w-5"/>}
+                        />
                     )}
-                </button>
+
+                    <FloatingActionButton
+                        label="Anuluj"
+                        onClick={onCancel}
+                        disabled={isSaving}
+                        variant="secondary"
+                    />
+
+                    <FloatingActionButton
+                        label="Przejdź do podglądu"
+                        onClick={handleComplete}
+                        disabled={uncategorizedProducts.length > 0 || isSaving}
+                        isLoading={isSaving}
+                        loadingLabel="Zapisywanie kategoryzacji..."
+                        icon={<ArrowRight className="h-5 w-5"/>}
+                        loadingIcon={<Loader2 className="h-5 w-5 animate-spin"/>}
+                        variant="primary"
+                    />
+                </FloatingActionButtonGroup>
             </div>
         </div>
     );

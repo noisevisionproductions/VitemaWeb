@@ -436,6 +436,7 @@ const ExcelUpload: React.FC<ExcelUploadProps> = ({onTabChange}) => {
                 onCancel={() => setPreviewData(null)}
                 selectedUserEmail={selectedUser?.email || ''}
                 fileName={file?.name}
+                skipCategorization={false}
             />
         );
     }

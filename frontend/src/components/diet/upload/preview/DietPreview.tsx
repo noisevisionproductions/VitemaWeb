@@ -13,6 +13,7 @@ interface DietPreviewProps {
     onCancel: () => void;
     selectedUserEmail: string;
     fileName: string | undefined;
+    skipCategorization?: boolean;
 }
 
 const DietPreview: React.FC<DietPreviewProps> = ({
@@ -20,10 +21,13 @@ const DietPreview: React.FC<DietPreviewProps> = ({
                                                      onConfirm,
                                                      onCancel,
                                                      selectedUserEmail,
-                                                     fileName
+                                                     fileName,
+                                                     skipCategorization = false
                                                  }) => {
     const [isSaving, setIsSaving] = useState(false);
-    const [step, setStep] = useState<'categorization' | 'preview'>('categorization');
+    const [step, setStep] = useState<'categorization' | 'preview'>(
+        skipCategorization ? 'preview' : 'categorization'
+    );
     const [previewProducts, setPreviewProducts] = useState<Record<string, ParsedProduct[]>>({});
 
     const {
@@ -79,7 +83,26 @@ const DietPreview: React.FC<DietPreviewProps> = ({
         }
     };
 
-    return step === 'categorization' ? (
+    if (skipCategorization || step === 'preview') {
+        const finalCategorizedProducts = skipCategorization
+            ? {}
+            : previewProducts;
+
+        return (
+            <PreviewSection
+                parsedData={parsedData}
+                categorizedProducts={finalCategorizedProducts}
+                onSave={handleConfirm}
+                onCancel={onCancel}
+                isSaving={isSaving}
+                selectedUserEmail={selectedUserEmail}
+                fileName={fileName}
+            />
+        );
+    }
+
+    // Krok kategoryzacji (tylko dla Excel upload)
+    return (
         <CategorySection
             uncategorizedProducts={uncategorizedProducts}
             categorizedProducts={categorizedProducts}
@@ -89,16 +112,6 @@ const DietPreview: React.FC<DietPreviewProps> = ({
             onComplete={handleCategorizeComplete}
             onCancel={onCancel}
             selectedUserEmail={selectedUserEmail}
-        />
-    ) : (
-        <PreviewSection
-            parsedData={parsedData}
-            categorizedProducts={previewProducts}
-            onSave={handleConfirm}
-            onCancel={onCancel}
-            isSaving={isSaving}
-            selectedUserEmail={selectedUserEmail}
-            fileName={fileName}
         />
     );
 };

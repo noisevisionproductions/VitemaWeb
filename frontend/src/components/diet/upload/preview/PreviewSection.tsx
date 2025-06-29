@@ -285,12 +285,14 @@ const PreviewSection: React.FC<PreviewSectionProps> = ({
 
                 {showShoppingList && (
                     <div className="p-4">
-                        {Object.entries(categorizedProducts).length === 0 ? (
+                        {Object.entries(categorizedProducts).length === 0 &&
+                        (!parsedData.categorizedProducts || Object.entries(parsedData.categorizedProducts).length === 0) ? (
                             <div className="text-center py-8 text-gray-500">
                                 Brak skategoryzowanych produktów
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Najpierw produkty z categorizedProducts (obiekt ParsedProduct[]) */}
                                 {Object.entries(categorizedProducts).map(([categoryId, products]) => {
                                     const category = categories.find(c => c.id === categoryId);
                                     const categoryName = category?.name || getCategoryLabel(categoryId);
@@ -312,9 +314,37 @@ const PreviewSection: React.FC<PreviewSectionProps> = ({
                                                             <div>
                                                                 <span className="font-medium">{product.name}</span>
                                                                 <span className="text-gray-600 ml-2">
-                                  {product.quantity} {product.unit}
-                                </span>
+                                                        {product.quantity} {product.unit}
+                                                    </span>
                                                             </div>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+
+                                {/* Potem produkty z parsedData.categorizedProducts (string[]) */}
+                                {parsedData.categorizedProducts && Object.entries(parsedData.categorizedProducts).map(([categoryId, productStrings]) => {
+                                    const category = categories.find(c => c.id === categoryId);
+                                    const categoryName = category?.name || getCategoryLabel(categoryId);
+                                    const categoryColor = category?.color || '#9e9e9e';
+
+                                    return (
+                                        <div key={`parsed-${categoryId}`} className="rounded-lg border overflow-hidden">
+                                            <div
+                                                className="font-medium px-4 py-3"
+                                                style={{backgroundColor: `${categoryColor}20`}}
+                                            >
+                                                {categoryName} ({productStrings.length})
+                                            </div>
+                                            <div className="p-4">
+                                                <ul className="space-y-2">
+                                                    {productStrings.map((productString, index) => (
+                                                        <li key={index} className="flex items-start gap-2">
+                                                            <span className="text-purple-600 mt-1">•</span>
+                                                            <span className="text-sm">{productString}</span>
                                                         </li>
                                                     ))}
                                                 </ul>

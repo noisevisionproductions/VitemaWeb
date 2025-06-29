@@ -15,6 +15,12 @@
     --color-fats: #FFD93D;           /* Żółty dla tłuszczy */
     --color-calories: #95A5A6;       /* Neutralny dla kalorii */
 
+    /* Focus ring colors for nutrition inputs */
+    --color-nutrition-protein-focus: #FF6B52;
+    --color-nutrition-carbs-focus: #3DBDB4;
+    --color-nutrition-fats-focus: #FFD119;
+    --color-nutrition-calories-focus: #7F8C8D;
+
     /* Status Colors */
     --color-success: #4CAF50;
     --color-warning: #FFC107;

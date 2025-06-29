@@ -51,6 +51,19 @@ export default {
                     },
                 },
             },
+            // Dodajemy focus ring i border colors dla nutrition
+            ringColor: {
+                'nutrition-protein': 'var(--color-nutrition-protein-focus)',
+                'nutrition-carbs': 'var(--color-nutrition-carbs-focus)',
+                'nutrition-fats': 'var(--color-nutrition-fats-focus)',
+                'nutrition-calories': 'var(--color-nutrition-calories-focus)',
+            },
+            borderColor: {
+                'nutrition-protein': 'var(--color-protein)',
+                'nutrition-carbs': 'var(--color-carbs)',
+                'nutrition-fats': 'var(--color-fats)',
+                'nutrition-calories': 'var(--color-calories)',
+            },
             fontFamily: {
                 primary: 'var(--font-primary)',
                 secondary: 'var(--font-secondary)',

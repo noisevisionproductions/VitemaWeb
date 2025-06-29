@@ -1,0 +1,413 @@
+import React, {useCallback, useMemo, useState} from "react";
+import {MainNav} from "../../../../../types/navigation";
+import {DayData, ManualDietData, MealType, ParsedDietData, ParsedMeal} from "../../../../../types";
+import {ParsedProduct} from "../../../../../types/product";
+import {toast} from "../../../../../utils/toast";
+import SectionHeader from "../../../../common/SectionHeader";
+import {FloatingActionButton, FloatingActionButtonGroup} from "../../../../common/FloatingActionButton";
+import {ArrowLeft, ArrowRight} from "lucide-react";
+import {Timestamp} from "firebase/firestore";
+import {DEFAULT_DIET_CONFIG} from "../../../../../types/diet-defaults";
+import MealPlanningStep from "./steps/MealPlanningSteps";
+import DietConfigurationStep from "./steps/DietConfigurationStep";
+import {ManualDietRequest, ManualDietService} from "../../../../../services/diet/ManualDietService";
+import {User} from "../../../../../types/user";
+import DietPreview from "../../../../diet/upload/preview/DietPreview";
+import {useCategorization} from "../../../../../hooks/shopping/useCategorization";
+import {DietCategorizationService} from "../../../../../services/diet/DietCategorizationService";
+import CategorySection from "../../../../diet/upload/preview/CategorySection";
+
+interface ManualDietCreatorProps {
+    onTabChange: (tab: MainNav) => void;
+    onBackToSelection: () => void;
+}
+
+type Step = 'configuration' | 'planning' | 'categorization' | 'preview';
+
+const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
+                                                                 onTabChange,
+                                                                 onBackToSelection
+                                                             }) => {
+    const [currentStep, setCurrentStep] = useState<Step>('configuration');
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [dietData, setDietData] = useState<ManualDietData>({
+        userId: '',
+        ...DEFAULT_DIET_CONFIG,
+        days: []
+    });
+    const [parsedPreviewData, setParsedPreviewData] = useState<ParsedDietData | null>(null);
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    const [shoppingListForCategorization, setShoppingListForCategorization] = useState<string[]>([]);
+
+    const updateDietData = useCallback((updates: Partial<ManualDietData>) => {
+        setDietData(prev => ({...prev, ...updates}));
+    }, []);
+
+    const currentShoppingListItems = useMemo(() => {
+        const items: string[] = [];
+
+        dietData.days.forEach(day => {
+            day.meals.forEach(meal => {
+                if (meal.ingredients) {
+                    meal.ingredients.forEach(ingredient => {
+                        const ingredientString = `${ingredient.name} ${ingredient.quantity} ${ingredient.unit}`;
+                        items.push(ingredientString);
+                    });
+                }
+            });
+        });
+
+        return items;
+    }, [dietData.days]);
+
+    const shouldUseCategorization = currentStep === 'categorization';
+    const {
+        categorizedProducts,
+        uncategorizedProducts,
+        handleProductDrop,
+        handleProductRemove,
+        handleProductEdit
+    } = useCategorization(shouldUseCategorization ? shoppingListForCategorization : []);
+
+    const updateMeal = useCallback((dayIndex: number, mealIndex: number, meal: ParsedMeal) => {
+        setDietData(prev => {
+            const newDays = [...prev.days];
+            newDays[dayIndex] = {
+                ...newDays[dayIndex],
+                meals: newDays[dayIndex].meals.map((m, i) => i === mealIndex ? meal : m)
+            };
+            return {...prev, days: newDays};
+        });
+    }, []);
+
+    const addIngredientToMeal = useCallback((dayIndex: number, mealIndex: number, ingredients: ParsedProduct) => {
+        setDietData(prev => {
+            const newDays = [...prev.days];
+            const meal = newDays[dayIndex].meals[mealIndex];
+            newDays[dayIndex].meals[mealIndex] = {
+                ...meal,
+                ingredients: [...(meal.ingredients || []), ingredients]
+            };
+            return {...prev, days: newDays};
+        });
+    }, []);
+
+    const removeIngredientFromMeal = useCallback((dayIndex: number, mealIndex: number, ingredientIndex: number) => {
+        setDietData(prev => {
+            const newDays = [...prev.days];
+            const meal = newDays[dayIndex].meals[mealIndex];
+            newDays[dayIndex].meals[mealIndex] = {
+                ...meal,
+                ingredients: meal.ingredients?.filter((_, i) => i !== ingredientIndex) || []
+            };
+            return {...prev, days: newDays};
+        });
+    }, []);
+
+    const initializeDays = useCallback(() => {
+        const days: DayData[] = [];
+        const startDate = new Date(dietData.startDate);
+
+        for (let i = 0; i < dietData.duration; i++) {
+            const currentDate = new Date(startDate);
+            currentDate.setDate(startDate.getDate() + i);
+
+            const meals: ParsedMeal[] = [];
+            for (let j = 0; j < dietData.mealsPerDay; j++) {
+                meals.push({
+                    name: '',
+                    instructions: '',
+                    ingredients: [],
+                    mealType: dietData.mealTypes[j] || MealType.BREAKFAST,
+                    time: dietData.mealTimes[`meal_${j}`] || '12:00',
+                    photos: []
+                });
+            }
+
+            days.push({
+                date: Timestamp.fromDate(currentDate),
+                meals
+            });
+        }
+
+        updateDietData({days});
+    }, [dietData.startDate, dietData.duration, dietData.mealsPerDay, dietData.mealTimes, dietData.mealTypes, updateDietData]);
+
+    const convertToPreviewData = useCallback((): ParsedDietData => {
+        const simplifiedCategorizedProducts: Record<string, string[]> = {};
+
+        Object.entries(categorizedProducts).forEach(([categoryId, products]) => {
+            simplifiedCategorizedProducts[categoryId] = products.map(product =>
+                product.original || `${product.name} ${product.quantity} ${product.unit}`
+            );
+        });
+
+        return {
+            days: dietData.days,
+            categorizedProducts: simplifiedCategorizedProducts,
+            shoppingList: shoppingListForCategorization,
+            mealTimes: dietData.mealTimes,
+            mealsPerDay: dietData.mealsPerDay,
+            startDate: Timestamp.fromDate(new Date(dietData.startDate)),
+            duration: dietData.duration,
+            mealTypes: dietData.mealTypes
+        };
+    }, [dietData, categorizedProducts, shoppingListForCategorization]);
+
+    const handleNext = useCallback(async () => {
+        if (currentStep === 'configuration') {
+            if (!dietData.userId || !selectedUser) {
+                toast.error('Wybierz użytkownika przed przejściem dalej');
+                return;
+            }
+            initializeDays();
+            setCurrentStep('planning');
+        } else if (currentStep === 'planning') {
+            const emptyMeals = dietData.days.some(day =>
+                day.meals.some(meal => !meal.name || meal.name.trim() === '')
+            );
+
+            if (emptyMeals) {
+                toast.error('Wszystkie posiłki muszą mieć nazwę');
+                return;
+            }
+
+            if (currentShoppingListItems.length === 0) {
+                toast.warning('Brak składników do kategoryzacji. Przechodzimy do podglądu.');
+                const previewData: ParsedDietData = {
+                    days: dietData.days,
+                    categorizedProducts: {},
+                    shoppingList: [],
+                    mealTimes: dietData.mealTimes,
+                    mealsPerDay: dietData.mealsPerDay,
+                    startDate: Timestamp.fromDate(new Date(dietData.startDate)),
+                    duration: dietData.duration,
+                    mealTypes: dietData.mealTypes
+                };
+                setParsedPreviewData(previewData);
+                setCurrentStep('preview');
+                return;
+            }
+
+            setShoppingListForCategorization(currentShoppingListItems);
+            setCurrentStep('categorization');
+        }
+    }, [currentStep, dietData, selectedUser, initializeDays, currentShoppingListItems]);
+
+
+    const handlePrevious = useCallback(() => {
+        if (currentStep === 'planning') {
+            setCurrentStep('configuration');
+        } else if (currentStep === 'categorization') {
+            setCurrentStep('planning');
+        } else if (currentStep === 'preview') {
+            if (shoppingListForCategorization.length > 0) {
+                setCurrentStep('categorization');
+            } else {
+                setCurrentStep('planning');
+            }
+            setParsedPreviewData(null);
+        }
+    }, [currentStep, shoppingListForCategorization.length]);
+
+    const handleCategorizationComplete = async () => {
+        if (uncategorizedProducts.length > 0) {
+            toast.error('Musisz skategoryzować wszystkie produkty');
+            return;
+        }
+
+        try {
+            setIsProcessing(true);
+            await DietCategorizationService.updateCategories(categorizedProducts);
+
+            const previewData = convertToPreviewData();
+            setParsedPreviewData(previewData);
+            setCurrentStep('preview');
+            toast.success('Kategoryzacja została zapisana');
+        } catch (error) {
+            console.error('Błąd podczas zapisywania kategoryzacji:', error);
+            toast.error('Wystąpił błąd podczas zapisywania kategoryzacji');
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
+    const handleSave = useCallback(async () => {
+        if (isProcessing) return;
+
+        setIsProcessing(true);
+        try {
+            const request: ManualDietRequest = {
+                userId: dietData.userId,
+                days: dietData.days.map(day => ({
+                    date: day.date,
+                    meals: day.meals
+                })),
+                mealsPerDay: dietData.mealsPerDay,
+                startDate: dietData.startDate,
+                duration: dietData.duration,
+                mealTimes: dietData.mealTimes,
+                mealTypes: dietData.mealTypes.map(type => type.toString())
+            };
+
+            await ManualDietService.saveManualDiet(request);
+            toast.success('Dieta została pomyślnie zapisana');
+            onTabChange('diets');
+        } catch (error) {
+            console.error('Błąd podczas zapisywania:', error);
+            toast.error('Wystąpił błąd podczas zapisywania diety');
+        } finally {
+            setIsProcessing(false);
+        }
+    }, [dietData, isProcessing, onTabChange]);
+
+    const handlePreviewCancel = useCallback(() => {
+        if (shoppingListForCategorization.length > 0) {
+            setCurrentStep('categorization');
+        } else {
+            setCurrentStep('planning');
+        }
+        setParsedPreviewData(null);
+    }, [shoppingListForCategorization.length]);
+
+    const getStepTitle = () => {
+        switch (currentStep) {
+            case "configuration":
+                return 'Konfiguracja diety';
+            case "planning":
+                return 'Planowanie posiłków';
+            case "categorization":
+                return 'Kategoryzacja składników';
+            case "preview":
+                return 'Podgląd diety przed zapisem';
+            default:
+                return 'Kreator diety';
+        }
+    };
+
+    const getStepDescription = () => {
+        switch (currentStep) {
+            case 'configuration':
+                return 'Ustaw podstawowe parametry diety';
+            case 'planning':
+                return 'Zaplanuj posiłki dla każdego dnia';
+            case 'categorization':
+                return 'Przypisz składniki do odpowiednich kategorii';
+            case 'preview':
+                return 'Sprawdź dietę przed zapisem';
+            default:
+                return '';
+        }
+    };
+
+    if (currentStep === 'preview' && parsedPreviewData) {
+        return (
+            <DietPreview
+                parsedData={parsedPreviewData}
+                onConfirm={handleSave}
+                onCancel={handlePreviewCancel}
+                selectedUserEmail={selectedUser?.email || ''}
+                fileName="Dieta ręczna"
+                skipCategorization={true}
+            />
+        );
+    }
+
+    return (
+        <div className="space-y-6 pb-16 relative">
+
+            {currentStep === 'configuration' && (
+                <div className="flex items-center space-x-4 mb-6">
+                    <button
+                        onClick={onBackToSelection}
+                        className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+                    >
+                        <ArrowLeft className="h-4 w-4 mr-2"/>
+                        Powrót do wyboru metody
+                    </button>
+                </div>
+            )}
+
+            <SectionHeader
+                title={getStepTitle()}
+                description={getStepDescription()}
+            />
+
+            {/* Progress bar */}
+            <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                    className="bg-primary h-2 rounded-full transition-all duration-300"
+                    style={{
+                        width: currentStep === 'configuration' ? '25%' :
+                            currentStep === 'planning' ? '50%' :
+                                currentStep === 'categorization' ? '75%' : '100%'
+                    }}
+                />
+            </div>
+
+            {/* Step content */}
+            <div className="min-h-[500px]">
+                {currentStep === 'configuration' && (
+                    <DietConfigurationStep
+                        dietData={dietData}
+                        onUpdate={updateDietData}
+                        selectedUser={selectedUser}
+                        onUserSelect={setSelectedUser}
+                    />
+                )}
+
+                {currentStep === 'planning' && (
+                    <MealPlanningStep
+                        dietData={dietData}
+                        onUpdateMeal={updateMeal}
+                        onAddIngredient={addIngredientToMeal}
+                        onRemoveIngredient={removeIngredientFromMeal}
+                    />
+                )}
+
+                {currentStep === 'categorization' && (
+                    <CategorySection
+                        uncategorizedProducts={uncategorizedProducts}
+                        categorizedProducts={categorizedProducts}
+                        onProductDrop={handleProductDrop}
+                        onProductRemove={handleProductRemove}
+                        onProductEdit={handleProductEdit}
+                        onComplete={handleCategorizationComplete}
+                        onCancel={handlePreviewCancel}
+                        selectedUserEmail={selectedUser?.email || ''}
+                        showBackButton={true}
+                        onBack={handlePrevious}
+                    />
+                )}
+            </div>
+
+            {/* Navigation buttons */}
+            {currentStep !== 'categorization' && currentStep !== 'preview' && (
+                <div className="fixed bottom-6 right-6 flex gap-3 z-10">
+                    <FloatingActionButtonGroup position="bottom-right">
+                        {currentStep !== 'configuration' && (
+                            <FloatingActionButton
+                                label="Poprzedni krok"
+                                onClick={handlePrevious}
+                                variant="secondary"
+                                icon={<ArrowLeft className="h-5 w-5"/>}
+                            />
+                        )}
+
+                        <FloatingActionButton
+                            label="Następny krok"
+                            onClick={handleNext}
+                            variant="primary"
+                            icon={<ArrowRight className="h-5 w-5"/>}
+                            isLoading={isProcessing && currentStep === 'planning'}
+                            loadingLabel="Przygotowywanie..."
+                        />
+                    </FloatingActionButtonGroup>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default ManualDietCreator;

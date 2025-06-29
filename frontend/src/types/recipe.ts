@@ -1,4 +1,4 @@
-import { Timestamp } from 'firebase/firestore';
+import {Timestamp} from 'firebase/firestore';
 
 export interface Recipe {
     id: string;
@@ -6,13 +6,13 @@ export interface Recipe {
     instructions: string;
     createdAt: Timestamp;
     photos: string[];
-    nutritionalValues: NutritionalValues;
+    nutritionalValues?: NutritionalValues;
     parentRecipeId: string | null;
 }
 
 export interface NutritionalValues {
-    calories: number;
-    protein: number;
-    fat: number;
-    carbs: number;
+    calories?: number;
+    protein?: number;
+    fat?: number;
+    carbs?: number;
 }

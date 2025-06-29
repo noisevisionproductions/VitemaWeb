@@ -11,6 +11,21 @@ export interface Diet {
     metadata: DietMetadata;
 }
 
+export interface ManualDietData {
+    userId: string;
+    mealsPerDay: number;
+    startDate: string;
+    duration: number;
+    mealTimes: Record<string, string>;
+    mealTypes: MealType[];
+    days: DayData[];
+}
+
+export interface DayData {
+    date: Timestamp;
+    meals: ParsedMeal[];
+}
+
 export interface DietMetadata {
     totalDays: number;
     fileName: string;
