@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useState, useEffect} from 'react';
-import {Category} from "../../types/product-categories";
+import {Category} from "../../types/productCategories";
 import {DietCategorizationService} from "../../services/diet/DietCategorizationService";
 import {toast} from "../../utils/toast";
 

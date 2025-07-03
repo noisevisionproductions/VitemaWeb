@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {ExternalRecipient} from '../../../../types/send-grid';
+import {ExternalRecipient} from '../../../../types/sendGrid';
 import {toast} from '../../../../utils/toast';
 import {SendGridService} from '../../../../services/newsletter/SendGridService';
 import {ExternalRecipientService} from '../../../../services/newsletter/ExternalRecipientService';

@@ -1,4 +1,4 @@
-import {Category} from '../types/product-categories';
+import {Category} from '../types/productCategories';
 
 export const DEFAULT_CATEGORIES: Category[] = [
     {

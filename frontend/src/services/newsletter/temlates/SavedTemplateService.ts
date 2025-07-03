@@ -1,4 +1,4 @@
-import {SavedEmailTemplate} from "../../../types/send-grid";
+import {SavedEmailTemplate} from "../../../types/sendGrid";
 import api from "../../../config/axios";
 import {toast} from "../../../utils/toast";
 

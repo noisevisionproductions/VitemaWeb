@@ -161,8 +161,6 @@ public class MealTemplateConverter {
         return values;
     }
 
-    // Metody pomocnicze (private)
-
     private NutritionalValues convertNutritionalValuesFromRequest(NutritionalValuesRequest request) {
         if (request == null) return null;
 

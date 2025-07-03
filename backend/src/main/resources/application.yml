@@ -11,7 +11,13 @@ spring:
       password: none
   cache:
     caffeine:
-      spec: maximumSize=1000,expireAfterWrite=30m
+      spec: maximumSize=10000,expireAfterWrite=15m,expireAfterAccess=30m,recordStats=true
+    cache-names:
+      - mealSuggestionCache
+      - mealTemplatesCache
+      - mealSearchCache
+      - ingredientsCache
+      - categoriesCache
 
   # Wspólne ustawienia JPA/Hibernate
   jpa:

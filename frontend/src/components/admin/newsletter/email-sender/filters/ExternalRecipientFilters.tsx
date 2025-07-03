@@ -6,7 +6,7 @@ import LoadingSpinner from '../../../../common/LoadingSpinner';
 import {
     ExternalRecipientService
 } from "../../../../../services/newsletter/ExternalRecipientService";
-import {ExternalRecipient} from '../../../../../types/send-grid';
+import {ExternalRecipient} from '../../../../../types/sendGrid';
 
 interface ExternalRecipientFiltersProps {
     filters: {

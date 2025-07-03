@@ -1,4 +1,4 @@
-import {SendgridEmailParams, SingleEmailRequest, TargetedEmailParams} from "../../types/send-grid";
+import {SendgridEmailParams, SingleEmailRequest, TargetedEmailParams} from "../../types/sendGrid";
 import api from "../../config/axios";
 
 /**

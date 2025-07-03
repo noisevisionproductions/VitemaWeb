@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {ExternalRecipient} from "../../../../types/send-grid";
+import {ExternalRecipient} from "../../../../types/sendGrid";
 import {toast} from "../../../../utils/toast";
 import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from "../../../ui/dialog";
 import {Edit2, Save, X} from "lucide-react";

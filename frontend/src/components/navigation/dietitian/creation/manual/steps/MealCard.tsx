@@ -45,20 +45,20 @@ const MealCard: React.FC<MealCardProps> = ({
             {/* Header */}
             <div className="p-3 border-b border-gray-100 bg-gray-50/50">
                 <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-4">
                         <div className={`p-1.5 rounded-full ${
                             hasContent ? 'bg-green-100' : 'bg-gray-200'
                         }`}>
-                            <Utensils className={`h-3 w-3 ${
+                            <Utensils className={`h-4 w-4 ${
                                 hasContent ? 'text-green-600' : 'text-gray-500'
                             }`}/>
                         </div>
                         <div>
-                            <div className="text-xs font-medium text-blue-700 mb-1">
+                            <div className="text-s font-medium text-blue-700 mb-1">
                                 {getMealTypeLabel(meal.mealType)}
                             </div>
-                            <div className="flex items-center gap-1 text-xs text-gray-600">
-                                <Clock className="h-3 w-3"/>
+                            <div className="flex items-center gap-1 text-s text-gray-600">
+                                <Clock className="h-4 w-4"/>
                                 {meal.time}
                             </div>
                         </div>

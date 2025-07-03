@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {Category} from "../../types/product-categories";
+import {Category} from "../../types/productCategories";
 import {ParsedProduct} from "../../types/product";
 import DraggableProduct from "./DraggableProduct";
 import {Tabs, TabsContent, TabsList} from "../ui/Tabs";

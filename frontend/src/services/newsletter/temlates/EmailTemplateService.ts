@@ -1,5 +1,5 @@
 import {SendGridService} from '../SendGridService';
-import {EmailTemplate, EmailTemplateType} from "../../../types/send-grid";
+import {EmailTemplate, EmailTemplateType} from "../../../types/sendGrid";
 import {toast} from "../../../utils/toast";
 
 /**

@@ -7,6 +7,8 @@ interface ImageGalleryProps {
     className?: string;
     emptyMessage?: string;
     itemAlt?: string;
+    onRemoveImage?: (index: number) => void;
+    showRemoveButton?: boolean;
 }
 
 const ImageGallery: React.FC<ImageGalleryProps> = ({
@@ -14,7 +16,9 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                                                        imageSize = 'md',
                                                        className = '',
                                                        emptyMessage = 'Brak zdjęć',
-                                                       itemAlt = 'Zdjęcie'
+                                                       itemAlt = 'Zdjęcie',
+                                                       onRemoveImage,
+                                                       showRemoveButton = false
                                                    }) => {
     if (!images || images.length === 0) {
         return (
@@ -33,6 +37,8 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({
                         src={imageUrl}
                         alt={`${itemAlt} ${index + 1}`}
                         previewSize={imageSize}
+                        onRemove={showRemoveButton && onRemoveImage ? () => onRemoveImage(index) : undefined}
+                        showRemoveButton={showRemoveButton}
                     />
                 ))}
             </div>

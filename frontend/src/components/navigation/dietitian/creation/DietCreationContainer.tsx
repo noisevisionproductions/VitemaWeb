@@ -26,23 +26,6 @@ const DietCreationContainer: React.FC<DietCreationContainerProps> = ({onTabChang
         navigateToSubPath('diet-creation');
     };
 
-    const renderManualCreation = () => {
-        return (
-            <div className="space-y-6 pb-8">
-                <div className="flex items-center space-x-4 mb-6">
-                    <button
-                        onClick={handleBackToSelection}
-                        className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                    >
-                        <ArrowLeft className="h-4 w-4 mr-2"/>
-                        Powrót do wyboru metody
-                    </button>
-                </div>
-                <ManualDietCreator onTabChange={onTabChange}/>
-            </div>
-        );
-    };
-
     return (
         <Routes>
 

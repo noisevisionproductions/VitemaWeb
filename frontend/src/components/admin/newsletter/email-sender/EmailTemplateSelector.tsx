@@ -1,6 +1,6 @@
 import React from 'react';
 import { Check } from 'lucide-react';
-import {EmailTemplate, EmailTemplateType} from "../../../../types/send-grid";
+import {EmailTemplate, EmailTemplateType} from "../../../../types/sendGrid";
 
 interface EmailTemplateSelectorProps {
     templates: EmailTemplate[];

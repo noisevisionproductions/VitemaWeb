@@ -15,6 +15,7 @@ import {
     convertParsedProductsToMealIngredients,
     convertMealIngredientsToParsedProducts
 } from "../../../../../utils/mealConverters";
+import ConfirmationDialog from "../../../../common/ConfirmationDialog";
 
 interface MealEditorProps {
     meal: ParsedMeal;
@@ -39,6 +40,8 @@ const MealEditor: React.FC<MealEditorProps> = ({
     const [isApplyingTemplate, setIsApplyingTemplate] = useState(false);
     const [saveAsTemplate, setSaveAsTemplate] = useState(true);
     const [isSavingTemplate, setIsSavingTemplate] = useState(false);
+    const [confirmDeleteImage, setConfirmDeleteImage] = useState(false);
+    const [imageToDelete, setImageToDelete] = useState<number | null>(null);
 
     const handleMealUpdate = useCallback((updates: Partial<ParsedMeal>) => {
         onUpdateMeal(dayIndex, mealIndex, {...meal, ...updates});
@@ -107,25 +110,26 @@ const MealEditor: React.FC<MealEditorProps> = ({
         try {
             const appliedMeal = await MealSuggestionService.applyMealTemplate(suggestion.id, meal);
 
-            const currentIngredients = meal.ingredients || [];
-            const templateIngredients = appliedMeal.ingredients ?
-                convertMealIngredientsToParsedProducts(appliedMeal.ingredients) : [];
+            const newMeal: Partial<ParsedMeal> = {
+                name: appliedMeal.name,
+                instructions: appliedMeal.instructions || '',
+                nutritionalValues: appliedMeal.nutritionalValues,
+                photos: appliedMeal.photos || [],
+                ingredients: appliedMeal.ingredients ?
+                    convertMealIngredientsToParsedProducts(appliedMeal.ingredients) : []
+            };
 
-            const mergedIngredients = MealSuggestionService.mergeMealIngredients(
-                convertParsedProductsToMealIngredients(currentIngredients),
-                convertParsedProductsToMealIngredients(templateIngredients)
-            );
-
-            handleMealUpdate({
-                ...appliedMeal,
-                ingredients: convertMealIngredientsToParsedProducts(mergedIngredients)
-            });
-
+            handleMealUpdate(newMeal);
             toast.success(`Zastosowano szablon "${suggestion.name}"`);
         } catch (error) {
             console.error('Błąd podczas aplikowania szablonu:', error);
             toast.error('Nie udało się zastosować szablonu');
-            handleMealUpdate({name: suggestion.name});
+            handleMealUpdate({
+                name: suggestion.name,
+                instructions: '',
+                photos: [],
+                ingredients: []
+            });
         } finally {
             setIsApplyingTemplate(false);
         }
@@ -147,13 +151,27 @@ const MealEditor: React.FC<MealEditorProps> = ({
         }
     }, [meal.photos, meal.recipeId, handleMealUpdate]);
 
+    const handleRemoveImage = useCallback((imageIndex: number) => {
+        setImageToDelete(imageIndex);
+        setConfirmDeleteImage(true);
+    }, []);
+
+    const confirmRemoveImage = useCallback(() => {
+        if (imageToDelete !== null) {
+            const updatedPhotos = (meal.photos || []).filter((_, index) => index !== imageToDelete);
+            handleMealUpdate({photos: updatedPhotos});
+            toast.success('Zdjęcie zostało usunięte');
+        }
+        setConfirmDeleteImage(false);
+        setImageToDelete(null);
+    }, [meal.photos, handleMealUpdate, imageToDelete]);
+
     const handleManualSaveTemplate = useCallback(async () => {
         if (!enableTemplateFeatures) return;
 
         try {
             setIsSavingTemplate(true);
 
-            // Konwertuj ParsedProduct[] na MealIngredient[] przed walidacją
             const mealForValidation = {
                 name: meal.name,
                 instructions: meal.instructions,
@@ -217,7 +235,7 @@ const MealEditor: React.FC<MealEditorProps> = ({
             <div>
                 <div className="flex items-center justify-between mb-1">
                     <label className="block text-sm font-medium text-gray-700">
-                        Nazwa posiłku *
+                        Nazwa posiłku
                     </label>
                     {enableTemplateFeatures && meal.name && meal.name.trim().length > 2 && (
                         <div className="flex items-center gap-2">
@@ -292,7 +310,7 @@ const MealEditor: React.FC<MealEditorProps> = ({
             <div>
                 <div className="flex items-center justify-between mb-2">
                     <label className="block text-sm font-medium text-gray-700">
-                        Zdjęcia posiłku
+                        Zdjęcia posiłku (opcjonalnie)
                     </label>
                     <button
                         onClick={() => setShowImageUpload(true)}
@@ -310,6 +328,8 @@ const MealEditor: React.FC<MealEditorProps> = ({
                         className="py-1"
                         emptyMessage="Brak zdjęć posiłku"
                         itemAlt={meal.name}
+                        onRemoveImage={handleRemoveImage}
+                        showRemoveButton={true}
                     />
                 ) : (
                     <div
@@ -358,7 +378,7 @@ const MealEditor: React.FC<MealEditorProps> = ({
 
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                     <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
+                        <label className="text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
                             <span className="w-2 h-2 bg-nutrition-calories rounded-full"></span>
                             Kalorie
                         </label>
@@ -373,7 +393,7 @@ const MealEditor: React.FC<MealEditorProps> = ({
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
+                        <label className=" text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
                             <span className="w-2 h-2 bg-nutrition-protein rounded-full"></span>
                             Białko
                         </label>
@@ -388,7 +408,7 @@ const MealEditor: React.FC<MealEditorProps> = ({
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
+                        <label className="text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
                             <span className="w-2 h-2 bg-nutrition-fats rounded-full"></span>
                             Tłuszcze
                         </label>
@@ -403,7 +423,7 @@ const MealEditor: React.FC<MealEditorProps> = ({
                         />
                     </div>
                     <div>
-                        <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
+                        <label className="text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
                             <span className="w-2 h-2 bg-nutrition-carbs rounded-full"></span>
                             Węglowodany
                         </label>
@@ -430,6 +450,22 @@ const MealEditor: React.FC<MealEditorProps> = ({
                     onSuccess={handleImageUploadSuccess}
                     localMode={true}
                     recipeId={meal.recipeId}
+                />
+            )}
+
+            {confirmDeleteImage && (
+                <ConfirmationDialog
+                    isOpen={confirmDeleteImage}
+                    onClose={() => {
+                        setConfirmDeleteImage(false);
+                        setImageToDelete(null);
+                    }}
+                    onConfirm={confirmRemoveImage}
+                    title="Usuń zdjęcie"
+                    description="Czy na pewno chcesz usunąć to zdjęcie?"
+                    confirmLabel="Usuń"
+                    cancelLabel="Anuluj"
+                    variant="destructive"
                 />
             )}
         </div>

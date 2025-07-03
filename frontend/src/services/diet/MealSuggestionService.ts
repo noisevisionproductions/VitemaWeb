@@ -78,7 +78,7 @@ export class MealSuggestionService {
                 name: template.name,
                 instructions: template.instructions || targetMeal.instructions,
                 nutritionalValues: template.nutritionalValues || targetMeal.nutritionalValues,
-                photos: [...(targetMeal.photos || []), ...(template.photos || [])],
+                photos: template.photos || [],
                 ingredients: template.ingredients || targetMeal.ingredients || []
             };
         } catch (error) {

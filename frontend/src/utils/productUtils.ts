@@ -1,6 +1,6 @@
-import { ParsedProduct } from '../types/product';
-import { DEFAULT_CATEGORIES } from '../data/productCategories';
-import {Category} from "../types/product-categories";
+import {ParsedProduct} from '../types/product';
+import {DEFAULT_CATEGORIES} from '../data/productCategories';
+import {Category} from "../types/productCategories";
 
 const cleanProductName = (name: string): string => {
     if (!name) return '';

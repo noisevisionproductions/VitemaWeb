@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react';
 import {toast} from "../../../../utils/toast";
 import {SendGridService} from "../../../../services/newsletter/SendGridService";
-import {TargetedEmailParams} from "../../../../types/send-grid";
+import {TargetedEmailParams} from "../../../../types/sendGrid";
 import LoadingSpinner from "../../../common/LoadingSpinner";
 import EmailContentEditor from "./EmailContentEditor";
 import EmailPreview from './EmailPreview';

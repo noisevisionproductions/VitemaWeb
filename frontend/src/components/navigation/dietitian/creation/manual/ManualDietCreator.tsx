@@ -7,7 +7,7 @@ import SectionHeader from "../../../../common/SectionHeader";
 import {FloatingActionButton, FloatingActionButtonGroup} from "../../../../common/FloatingActionButton";
 import {ArrowLeft, ArrowRight} from "lucide-react";
 import {Timestamp} from "firebase/firestore";
-import {DEFAULT_DIET_CONFIG} from "../../../../../types/diet-defaults";
+import {DEFAULT_DIET_CONFIG} from "../../../../../types/dietDefaults";
 import MealPlanningStep from "./steps/MealPlanningSteps";
 import DietConfigurationStep from "./steps/DietConfigurationStep";
 import {ManualDietRequest, ManualDietService} from "../../../../../services/diet/ManualDietService";
@@ -16,6 +16,7 @@ import DietPreview from "../../../../diet/upload/preview/DietPreview";
 import {useCategorization} from "../../../../../hooks/shopping/useCategorization";
 import {DietCategorizationService} from "../../../../../services/diet/DietCategorizationService";
 import CategorySection from "../../../../diet/upload/preview/CategorySection";
+import ManualDietGuide from "./components/ManualDietGuide";
 
 interface ManualDietCreatorProps {
     onTabChange: (tab: MainNav) => void;
@@ -340,6 +341,9 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
                 title={getStepTitle()}
                 description={getStepDescription()}
             />
+
+            {/* Guide */}
+            <ManualDietGuide className="mb-6"/>
 
             {/* Progress bar */}
             <div className="w-full bg-gray-200 rounded-full h-2">

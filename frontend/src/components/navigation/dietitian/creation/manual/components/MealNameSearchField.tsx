@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {MealSuggestion} from "../../../../../../types/mealSuggestions";
 import {useDebounce} from "../../../../../../hooks/useDebounce";
 import {MealSuggestionService} from "../../../../../../services/diet/MealSuggestionService";
@@ -35,10 +35,31 @@ const MealNameSearchField: React.FC<MealNameSearchFieldProps> = ({
 
     const inputRef = useRef<HTMLInputElement>(null);
     const suggestionsRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const isSelectingRef = useRef(false);
 
     const debouncedValue = useDebounce(value, 300);
 
     useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+                setShowSuggestions(false);
+                setSelectedIndex(-1);
+            }
+        };
+
+        if (showSuggestions) {
+            document.addEventListener("mousedown", handleClickOutside);
+            return () => document.removeEventListener('mousedown', handleClickOutside);
+        }
+    }, [showSuggestions]);
+
+    useEffect(() => {
+        if (isSelectingRef.current) {
+            isSelectingRef.current = false;
+            return;
+        }
+
         if (debouncedValue.trim().length >= 2) {
             searchMeals(debouncedValue.trim()).catch(console.error);
         } else {
@@ -55,10 +76,12 @@ const MealNameSearchField: React.FC<MealNameSearchFieldProps> = ({
             setShowSuggestions(results.length > 0);
             setSelectedIndex(-1);
 
-            if (showSaveOptions && results.length === 0) {
-                setShowSaveDialog(true);
-            } else if (showSaveOptions && !results.some(r => r.isExact)) {
-                setShowSaveDialog(true);
+            if (showSaveOptions) {
+                if (results.length === 0) {
+                    setShowSaveDialog(true);
+                } else {
+                    setShowSaveDialog(false);
+                }
             } else {
                 setShowSaveDialog(false);
             }
@@ -80,14 +103,20 @@ const MealNameSearchField: React.FC<MealNameSearchFieldProps> = ({
         }
     };
 
-    const handleSuggestionSelect = (suggestion: MealSuggestion) => {
-        onChange(suggestion.name);
+    const handleSuggestionSelect = useCallback((suggestion: MealSuggestion) => {
+        isSelectingRef.current = true;
+
         setShowSuggestions(false);
         setShowSaveDialog(false);
+        setSelectedIndex(-1);
+        setSuggestions([]);
+
+        onChange(suggestion.name);
+
         if (onMealSelect) {
             onMealSelect(suggestion);
         }
-    };
+    }, [onChange, onMealSelect]);
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (!showSuggestions || suggestions.length === 0) return;
@@ -112,7 +141,14 @@ const MealNameSearchField: React.FC<MealNameSearchFieldProps> = ({
             case 'Escape':
                 setShowSuggestions(false);
                 setSelectedIndex(-1);
+                setSuggestions([]);
                 break;
+        }
+    };
+
+    const handleInputFocus = () => {
+        if (suggestions.length > 0 && !isSelectingRef.current) {
+            setShowSuggestions(true);
         }
     };
 
@@ -154,7 +190,7 @@ const MealNameSearchField: React.FC<MealNameSearchFieldProps> = ({
     };
 
     return (
-        <div className={`relative ${className}`}>
+        <div ref={containerRef} className={`relative ${className}`}>
             {/* Input field */}
             <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4"/>
@@ -164,8 +200,7 @@ const MealNameSearchField: React.FC<MealNameSearchFieldProps> = ({
                     value={value}
                     onChange={handleInputChange}
                     onKeyDown={handleKeyDown}
-                    onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                    onFocus={handleInputFocus}
                     placeholder={placeholder}
                     className="w-full pl-10 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
                 />
@@ -218,83 +253,117 @@ const MealNameSearchField: React.FC<MealNameSearchFieldProps> = ({
                 </div>
             )}
 
-            {/* Suggestions dropdown */}
+            {/* ULEPSZONA LISTA ROZWIJANA */}
             {showSuggestions && suggestions.length > 0 && (
                 <div
                     ref={suggestionsRef}
-                    className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto"
+                    className="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-primary-light rounded-xl shadow-xl z-50 max-h-80 overflow-hidden"
+                    style={{
+                        background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
+                    }}
                 >
-                    {suggestions.map((suggestion, index) => (
-                        <div
-                            key={suggestion.id}
-                            onClick={() => handleSuggestionSelect(suggestion)}
-                            className={`p-3 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors ${
-                                index === selectedIndex ? 'bg-blue-50' : ''
-                            }`}
-                        >
-                            <div className="flex items-start justify-between gap-3">
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        {getSourceIcon(suggestion.source)}
-                                        <h4 className="font-medium text-gray-900 text-sm truncate">
-                                            {suggestion.name}
-                                        </h4>
-                                        {suggestion.isExact && (
-                                            <span
-                                                className="px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-full">
-                                                Dokładne
-                                            </span>
+                    {/* Header listy */}
+                    <div className="px-4 py-2 bg-primary-light/10 border-b border-primary-light/20">
+                        <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                            <span className="text-xs font-medium text-primary-dark">
+                                Znalezione posiłki ({suggestions.length})
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Lista wyników */}
+                    <div className="max-h-72 overflow-y-auto">
+                        {suggestions.map((suggestion, index) => (
+                            <div
+                                key={suggestion.id}
+                                onClick={() => handleSuggestionSelect(suggestion)}
+                                className={`p-3 cursor-pointer border-b border-gray-100 last:border-b-0 transition-all duration-150 ${
+                                    index === selectedIndex
+                                        ? 'bg-primary-light/20 border-l-4 border-l-primary transform scale-[1.02]'
+                                        : 'hover:bg-gray-50 hover:border-l-4 hover:border-l-primary-light'
+                                }`}
+                            >
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            {getSourceIcon(suggestion.source)}
+                                            <h4 className="font-medium text-gray-900 text-sm truncate">
+                                                {suggestion.name}
+                                            </h4>
+                                            {suggestion.isExact && (
+                                                <span
+                                                    className="px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-full font-medium">
+                                                    Dokładne
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        {suggestion.instructions && (
+                                            <p className="text-xs text-gray-600 line-clamp-2 mb-1">
+                                                {suggestion.instructions}
+                                            </p>
                                         )}
+
+                                        {suggestion.nutritionalValues && (
+                                            <div className="mb-2">
+                                                <ColoredNutritionBadges
+                                                    nutritionalValues={suggestion.nutritionalValues}
+                                                    size="sm"
+                                                    layout="horizontal"
+                                                />
+                                            </div>
+                                        )}
+
+                                        <div className="flex items-center gap-3 text-xs text-gray-500">
+                                            {suggestion.usageCount > 0 && (
+                                                <span className="flex items-center gap-1">
+                                                    <Users className="h-3 w-3"/>
+                                                    {suggestion.usageCount}x użyte
+                                                </span>
+                                            )}
+                                            {suggestion.lastUsed && (
+                                                <span className="flex items-center gap-1">
+                                                    <Clock className="h-3 w-3"/>
+                                                    {formatLastUsed(suggestion.lastUsed)}
+                                                </span>
+                                            )}
+                                            <span
+                                                className="px-1.5 py-0.5 bg-primary-light/20 text-primary-dark rounded-full text-xs font-medium">
+                                                {Math.round(suggestion.similarity * 100)}% podobne
+                                            </span>
+                                        </div>
                                     </div>
 
-                                    {suggestion.instructions && (
-                                        <p className="text-xs text-gray-600 line-clamp-2 mb-1">
-                                            {suggestion.instructions}
-                                        </p>
-                                    )}
-
-                                    {suggestion.nutritionalValues && (
-                                        <div className="mb-2">
-                                            <ColoredNutritionBadges
-                                                nutritionalValues={suggestion.nutritionalValues}
-                                                size="sm"
-                                                layout="horizontal"
+                                    {suggestion.photos && suggestion.photos.length > 0 && (
+                                        <div className="relative">
+                                            <img
+                                                src={suggestion.photos[0]}
+                                                alt={suggestion.name}
+                                                className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-gray-200"
+                                                onError={(e) => {
+                                                    e.currentTarget.style.display = 'none';
+                                                }}
                                             />
+                                            {suggestion.photos.length > 1 && (
+                                                <span
+                                                    className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-xs rounded-full flex items-center justify-center font-bold">
+                                                    {suggestion.photos.length}
+                                                </span>
+                                            )}
                                         </div>
                                     )}
-
-                                    <div className="flex items-center gap-3 text-xs text-gray-500">
-                                        {suggestion.usageCount > 0 && (
-                                            <span className="flex items-center gap-1">
-                                                <Users className="h-3 w-3"/>
-                                                {suggestion.usageCount}x użyte
-                                            </span>
-                                        )}
-                                        {suggestion.lastUsed && (
-                                            <span className="flex items-center gap-1">
-                                                <Clock className="h-3 w-3"/>
-                                                {formatLastUsed(suggestion.lastUsed)}
-                                            </span>
-                                        )}
-                                        <span className="px-1.5 py-0.5 bg-gray-100 rounded text-xs">
-                                            {Math.round(suggestion.similarity * 100)}% podobne
-                                        </span>
-                                    </div>
                                 </div>
-
-                                {suggestion.photos && suggestion.photos.length > 0 && (
-                                    <img
-                                        src={suggestion.photos[0]}
-                                        alt={suggestion.name}
-                                        className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-                                        onError={(e) => {
-                                            e.currentTarget.style.display = 'none';
-                                        }}
-                                    />
-                                )}
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
+
+                    {/* Footer listy */}
+                    <div className="px-4 py-2 bg-gray-50 border-t border-gray-100">
+                        <p className="text-xs text-gray-500 text-center">
+                            Użyj strzałek ↑↓ do nawigacji, Enter aby wybrać
+                        </p>
+                    </div>
                 </div>
             )}
         </div>

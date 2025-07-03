@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {ExternalRecipient} from "../../../../types/send-grid";
+import {ExternalRecipient} from "../../../../types/sendGrid";
 import {toast} from "../../../../utils/toast";
 import {PlusCircle} from "lucide-react";
 import LoadingSpinner from "../../../common/LoadingSpinner";

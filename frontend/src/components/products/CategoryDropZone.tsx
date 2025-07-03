@@ -1,5 +1,5 @@
 import React from "react";
-import {Category} from "../../types/product-categories";
+import {Category} from "../../types/productCategories";
 import {useDrop} from "react-dnd";
 import DraggableProduct from "./DraggableProduct";
 import {ParsedProduct} from "../../types/product";
