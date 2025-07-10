@@ -5,6 +5,7 @@ import {MainNav} from '../types/navigation';
 const navToUrlMap: Record<MainNav, string> = {
     'dietitianDashboard': '',
     'dietCreation': 'diet-creation',
+    'dietTemplates': 'diet-templates',
     'upload': 'upload',
     'diets': 'diets',
     'users': 'users',
@@ -29,6 +30,7 @@ const getNavFromPath = (pathname: string): MainNav => {
     const directMapping: Record<string, MainNav> = {
         '': 'dietitianDashboard',
         'upload': 'upload',
+        'diet-templates': 'dietTemplates',
         'diets': 'diets',
         'users': 'users',
         'stats': 'stats',
@@ -72,7 +74,6 @@ export const useDietitianNavigation = () => {
         const url = navToUrlMap[tab];
         return url === '' ? '/dashboard' : `/dashboard/${url}`;
     };
-
 
     // Sprawdź, czy jesteś w pod ścieżce (np. /dashboard/diet-creation/excel)
     const isInSubPath = (): boolean => {

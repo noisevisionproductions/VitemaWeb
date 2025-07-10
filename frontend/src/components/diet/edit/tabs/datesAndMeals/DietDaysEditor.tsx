@@ -1,5 +1,5 @@
 import React, {useState, useCallback} from "react";
-import {Diet, DietTemplate, Recipe, ShoppingList} from "../../../../../types";
+import {Diet, DietExcelTemplate, Recipe, ShoppingList} from "../../../../../types";
 import {toast} from "../../../../../utils/toast";
 import {useMealConfiguration} from "../../../../../hooks/diet/useMealConfiguration";
 import {useConfirmation} from "../../../../../hooks/useConfirmation";
@@ -38,7 +38,7 @@ const DietDaysEditor: React.FC<DietDaysEditorProps> = ({
                                                            onUpdate
                                                        }) => {
     const [expandedDays, setExpandedDays] = useState<number[]>([0]);
-    const [mealConfig, setMealConfig] = useState<DietTemplate>({
+    const [mealConfig, setMealConfig] = useState<DietExcelTemplate>({
         mealsPerDay: diet.days[0].meals.length,
         startDate: diet.days[0].date,
         duration: diet.days.length,

@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { MealType, DietTemplate } from '../../types';
+import { MealType, DietExcelTemplate } from '../../types';
 
 interface MealTimeConfig {
     time: string;
@@ -22,8 +22,8 @@ interface UseMealConfigurationReturn {
 }
 
 export const useMealConfiguration = (
-    config: DietTemplate,
-    onConfigChange: (newConfig: DietTemplate) => void
+    config: DietExcelTemplate,
+    onConfigChange: (newConfig: DietExcelTemplate) => void
 ): UseMealConfigurationReturn => {
     const handleMealsPerDayChange = useCallback((value: number) => {
         const mealTimes: { [key: string]: string } = {};

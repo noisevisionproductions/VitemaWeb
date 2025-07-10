@@ -1,7 +1,7 @@
 package com.noisevisionsoftware.nutrilog.service.diet.manual;
 
 import com.google.cloud.Timestamp;
-import com.noisevisionsoftware.nutrilog.dto.request.diet.ManualDietRequest;
+import com.noisevisionsoftware.nutrilog.dto.request.diet.manual.ManualDietRequest;
 import com.noisevisionsoftware.nutrilog.dto.request.diet.manual.PreviewMealSaveRequest;
 import com.noisevisionsoftware.nutrilog.dto.request.diet.manual.SaveMealTemplateRequest;
 import com.noisevisionsoftware.nutrilog.dto.response.diet.manual.MealSavePreviewResponse;

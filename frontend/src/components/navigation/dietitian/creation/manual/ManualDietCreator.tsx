@@ -5,10 +5,10 @@ import {ParsedProduct} from "../../../../../types/product";
 import {toast} from "../../../../../utils/toast";
 import SectionHeader from "../../../../common/SectionHeader";
 import {FloatingActionButton, FloatingActionButtonGroup} from "../../../../common/FloatingActionButton";
-import {ArrowLeft, ArrowRight} from "lucide-react";
+import {ArrowLeft, ArrowRight, BookAudio} from "lucide-react";
 import {Timestamp} from "firebase/firestore";
 import {DEFAULT_DIET_CONFIG} from "../../../../../types/dietDefaults";
-import MealPlanningStep from "./steps/MealPlanningSteps";
+import MealPlanningStep from "./steps/MealPlanningStep";
 import DietConfigurationStep from "./steps/DietConfigurationStep";
 import {ManualDietRequest, ManualDietService} from "../../../../../services/diet/manual/ManualDietService";
 import {User} from "../../../../../types/user";
@@ -17,19 +17,23 @@ import {useCategorization} from "../../../../../hooks/shopping/useCategorization
 import {DietCategorizationService} from "../../../../../services/diet/DietCategorizationService";
 import CategorySection from "../../../../diet/upload/preview/CategorySection";
 import ManualDietGuide from "./components/ManualDietGuide";
+import {CreateDietTemplateRequest, DietTemplate} from "../../../../../types/DietTemplate";
+import CreateTemplateDialog from "../../../../diet/templates/CreateTemplateDialog";
+import {useTemplateLoader} from "../../../../../hooks/diet/templates/useTemplateLoader";
+import TemplateSelectionStep from "./templates/TemplateSelectionStep";
 
 interface ManualDietCreatorProps {
     onTabChange: (tab: MainNav) => void;
     onBackToSelection: () => void;
 }
 
-type Step = 'configuration' | 'planning' | 'categorization' | 'preview';
+type Step = 'templateSelection' | 'configuration' | 'planning' | 'categorization' | 'preview';
 
 const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
                                                                  onTabChange,
                                                                  onBackToSelection
                                                              }) => {
-    const [currentStep, setCurrentStep] = useState<Step>('configuration');
+    const [currentStep, setCurrentStep] = useState<Step>('templateSelection');
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [dietData, setDietData] = useState<ManualDietData>({
         userId: '',
@@ -38,6 +42,10 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
     });
     const [parsedPreviewData, setParsedPreviewData] = useState<ParsedDietData | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [showSaveAsTemplate, setShowSaveAsTemplate] = useState(false);
+    const [templateData, setTemplateData] = useState<CreateDietTemplateRequest | null>(null);
+    const [selectedTemplate, setSelectedTemplate] = useState<DietTemplate | null>(null);
+    const {loadTemplateIntoDiet, loading: templateLoading} = useTemplateLoader();
 
     const shoppingListRef = useRef<string[]>([]);
 
@@ -165,7 +173,9 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
     }, [dietData, categorizedProducts]);
 
     const handleNext = useCallback(async () => {
-        if (currentStep === 'configuration') {
+        if (currentStep === 'templateSelection') {
+            return;
+        } else if (currentStep === 'configuration') {
             if (!dietData.userId || !selectedUser) {
                 toast.error('Wybierz użytkownika przed przejściem dalej');
                 return;
@@ -203,17 +213,14 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
         }
     }, [currentStep, dietData, selectedUser, initializeDays, currentShoppingListItems]);
 
-
     const handlePrevious = useCallback(() => {
-        if (currentStep === 'planning') {
-            setCurrentStep('configuration');
-        } else if (currentStep === 'categorization') {
-            setCurrentStep('planning');
-        } else if (currentStep === 'preview') {
-            if (shoppingListRef.current.length > 0) {
-                setCurrentStep('categorization');
+        if (currentStep === 'configuration') {
+            setCurrentStep('templateSelection');
+        } else if (currentStep === 'planning') {
+            if (selectedTemplate) {
+                setCurrentStep('templateSelection');
             } else {
-                setCurrentStep('planning');
+                setCurrentStep('configuration');
             }
             setParsedPreviewData(null);
         }
@@ -240,6 +247,62 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
             setIsProcessing(false);
         }
     };
+
+    const handleSaveAsTemplate = useCallback(() => {
+        const templateData: CreateDietTemplateRequest = {
+            name: `Szablon diety - ${new Date().toLocaleDateString('pl-PL')}`,
+            description: '',
+            category: 'CUSTOM',
+            duration: dietData.duration,
+            mealsPerDay: dietData.mealsPerDay,
+            mealTimes: dietData.mealTimes,
+            mealTypes: dietData.mealTypes.map(type => type.toString()),
+            dietData: {
+                userId: dietData.userId,
+                days: dietData.days.map(day => ({
+                    date: day.date,
+                    meals: day.meals
+                })),
+                mealsPerDay: dietData.mealsPerDay,
+                startDate: dietData.startDate,
+                duration: dietData.duration,
+                mealTimes: dietData.mealTimes,
+                mealTypes: dietData.mealTypes.map(type => type.toString())
+            }
+        };
+
+        setTemplateData(templateData);
+        setShowSaveAsTemplate(true);
+    }, [dietData]);
+
+    const handleTemplateSelect = useCallback(async (template: DietTemplate | null) => {
+        setSelectedTemplate(template);
+
+        if (template && selectedUser) {
+            try {
+                setIsProcessing(true);
+                const loadedDietData = await loadTemplateIntoDiet(
+                    template,
+                    selectedUser.id,
+                    dietData.startDate
+                );
+                setDietData(loadedDietData);
+                setCurrentStep('planning');
+            } catch (error) {
+                console.error('Error loading template:', error);
+                setCurrentStep('configuration');
+            } finally {
+                setIsProcessing(false);
+            }
+        } else {
+            setCurrentStep('configuration');
+        }
+    }, [selectedUser, dietData.startDate, loadTemplateIntoDiet]);
+
+    const handleContinueWithoutTemplate = useCallback(() => {
+        setSelectedTemplate(null);
+        setCurrentStep('configuration');
+    }, []);
 
     const handleSave = useCallback(async () => {
         if (isProcessing) return;
@@ -281,10 +344,14 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
 
     const getStepTitle = () => {
         switch (currentStep) {
+            case "templateSelection":
+                return 'Wybór szablonu diety';
             case "configuration":
                 return 'Konfiguracja diety';
             case "planning":
-                return 'Planowanie posiłków';
+                return selectedTemplate
+                    ? `Planowanie posiłków - ${selectedTemplate.name}`
+                    : 'Planowanie posiłków';
             case "categorization":
                 return 'Kategoryzacja składników';
             case "preview":
@@ -296,10 +363,14 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
 
     const getStepDescription = () => {
         switch (currentStep) {
+            case 'templateSelection':
+                return 'Wybierz gotowy szablon diety lub utwórz nową od zera';
             case 'configuration':
                 return 'Ustaw podstawowe parametry diety';
             case 'planning':
-                return 'Zaplanuj posiłki dla każdego dnia';
+                return selectedTemplate
+                    ? 'Zmodyfikuj posiłki z szablonu według potrzeb'
+                    : 'Zaplanuj posiłki dla każdego dnia';
             case 'categorization':
                 return 'Przypisz składniki do odpowiednich kategorii';
             case 'preview':
@@ -350,15 +421,25 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
                 <div
                     className="bg-primary h-2 rounded-full transition-all duration-300"
                     style={{
-                        width: currentStep === 'configuration' ? '25%' :
-                            currentStep === 'planning' ? '50%' :
-                                currentStep === 'categorization' ? '75%' : '100%'
+                        width: currentStep === 'templateSelection' ? '20%' :
+                            currentStep === 'configuration' ? '40%' :
+                                currentStep === 'planning' ? '60%' :
+                                    currentStep === 'categorization' ? '80%' : '100%'
                     }}
                 />
             </div>
 
             {/* Step content */}
             <div className="min-h-[500px]">
+                {currentStep === 'templateSelection' && (
+                    <TemplateSelectionStep
+                        onTemplateSelect={handleTemplateSelect}
+                        onContinueWithoutTemplate={handleContinueWithoutTemplate}
+                        selectedUser={selectedUser}
+                        isLoading={templateLoading || isProcessing}
+                    />
+                )}
+
                 {currentStep === 'configuration' && (
                     <DietConfigurationStep
                         dietData={dietData}
@@ -369,12 +450,29 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
                 )}
 
                 {currentStep === 'planning' && (
-                    <MealPlanningStep
-                        dietData={dietData}
-                        onUpdateMeal={updateMeal}
-                        onAddIngredient={addIngredientToMeal}
-                        onRemoveIngredient={removeIngredientFromMeal}
-                    />
+                    <div className="relative">
+                        <MealPlanningStep
+                            dietData={dietData}
+                            selectedTemplate={selectedTemplate}
+                            onRemoveTemplate={() => {
+                                setSelectedTemplate(null);
+                            }}
+                            onUpdateMeal={updateMeal}
+                            onAddIngredient={addIngredientToMeal}
+                            onRemoveIngredient={removeIngredientFromMeal}
+                        />
+
+                        {/* Przycisk zapisywania szablonu */}
+                        <div className="mt-6 flex justify-center">
+                            <button
+                                onClick={handleSaveAsTemplate}
+                                className="flex items-center gap-2 px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary-dark transition-colors"
+                            >
+                                <BookAudio className="h-4 w-4"/>
+                                Zapisz jako szablon
+                            </button>
+                        </div>
+                    </div>
                 )}
 
                 {currentStep === 'categorization' && (
@@ -394,7 +492,7 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
             </div>
 
             {/* Navigation buttons */}
-            {currentStep !== 'categorization' && currentStep !== 'preview' && (
+            {currentStep !== 'categorization' && currentStep !== 'preview' && currentStep !== 'templateSelection' && (
                 <div className="fixed bottom-6 right-6 flex gap-3 z-10">
                     <FloatingActionButtonGroup position="bottom-right">
                         {currentStep !== 'configuration' && (
@@ -416,6 +514,22 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
                         />
                     </FloatingActionButtonGroup>
                 </div>
+            )}
+
+            {showSaveAsTemplate && templateData && (
+                <CreateTemplateDialog
+                    isOpen={showSaveAsTemplate}
+                    onClose={() => {
+                        setShowSaveAsTemplate(false);
+                        setTemplateData(null);
+                    }}
+                    onSuccess={() => {
+                        setShowSaveAsTemplate(false);
+                        setTemplateData(null);
+                        toast.success('Szablon został zapisany i można go użyć w przyszłości');
+                    }}
+                    initialData={templateData}
+                />
             )}
         </div>
     );

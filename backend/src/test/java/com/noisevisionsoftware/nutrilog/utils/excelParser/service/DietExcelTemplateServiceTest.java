@@ -1,6 +1,6 @@
 package com.noisevisionsoftware.nutrilog.utils.excelParser.service;
 
-import com.noisevisionsoftware.nutrilog.dto.request.diet.DietTemplateRequest;
+import com.noisevisionsoftware.nutrilog.dto.request.diet.DietTemplateExcelRequest;
 import com.noisevisionsoftware.nutrilog.dto.response.ValidationResponse;
 import com.noisevisionsoftware.nutrilog.model.meal.MealType;
 import com.noisevisionsoftware.nutrilog.utils.excelParser.model.ParsedMeal;
@@ -24,7 +24,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class DietTemplateServiceTest {
+class DietExcelTemplateServiceTest {
 
     @Mock
     private ExcelStructureValidator excelStructureValidator;
@@ -45,9 +45,9 @@ class DietTemplateServiceTest {
     private ValidationCacheService cacheService;
 
     @InjectMocks
-    private DietTemplateService dietTemplateService;
+    private DietExcelTemplateService dietExcelTemplateService;
 
-    private DietTemplateRequest validRequest;
+    private DietTemplateExcelRequest validRequest;
 
     @BeforeEach
     void setUp() {
@@ -69,7 +69,7 @@ class DietTemplateServiceTest {
                 MealType.DINNER
         );
 
-        validRequest = new DietTemplateRequest();
+        validRequest = new DietTemplateExcelRequest();
         validRequest.setFile(mockFile);
         validRequest.setMealsPerDay(3);
         validRequest.setDuration(30);
@@ -90,7 +90,7 @@ class DietTemplateServiceTest {
         when(cacheService.getFromCache(cacheKey)).thenReturn(Optional.of(cachedResponse));
 
         // when
-        ValidationResponse result = dietTemplateService.validateDietTemplate(validRequest);
+        ValidationResponse result = dietExcelTemplateService.validateDietTemplate(validRequest);
 
         // then
         assertThat(result).isNotNull();
@@ -103,7 +103,7 @@ class DietTemplateServiceTest {
         validRequest.setFile(new MockMultipartFile("file", new byte[0]));
 
         // when
-        ValidationResponse result = dietTemplateService.validateDietTemplate(validRequest);
+        ValidationResponse result = dietExcelTemplateService.validateDietTemplate(validRequest);
 
         // then
         assertThat(result).isNotNull();
@@ -118,7 +118,7 @@ class DietTemplateServiceTest {
         validRequest.setMealsPerDay(11); // przekroczony limit 10 posiłków
 
         // when
-        ValidationResponse result = dietTemplateService.validateDietTemplate(validRequest);
+        ValidationResponse result = dietExcelTemplateService.validateDietTemplate(validRequest);
 
         // then
         assertThat(result).isNotNull();
@@ -156,7 +156,7 @@ class DietTemplateServiceTest {
                 .thenReturn(Collections.singletonList(new ValidationResult(true, "OK", ValidationSeverity.SUCCESS)));
 
         // when
-        ValidationResponse result = dietTemplateService.validateDietTemplate(validRequest);
+        ValidationResponse result = dietExcelTemplateService.validateDietTemplate(validRequest);
 
         // then
         assertThat(result).isNotNull();
@@ -174,7 +174,7 @@ class DietTemplateServiceTest {
                 ));
 
         // when
-        ValidationResponse result = dietTemplateService.validateDietTemplate(validRequest);
+        ValidationResponse result = dietExcelTemplateService.validateDietTemplate(validRequest);
 
         // then
         assertThat(result).isNotNull();
@@ -190,7 +190,7 @@ class DietTemplateServiceTest {
                 .thenThrow(new RuntimeException("Nieoczekiwany błąd"));
 
         // when
-        ValidationResponse result = dietTemplateService.validateDietTemplate(validRequest);
+        ValidationResponse result = dietExcelTemplateService.validateDietTemplate(validRequest);
 
         // then
         assertThat(result).isNotNull();

@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {DietTemplate} from "../../../../types";
+import {DietExcelTemplate} from "../../../../types";
 import ValidationMessage, {ValidationErrorType} from './ValidationMessage';
 import {DietUploadService} from "../../../../services/diet/DietUploadService";
 import LoadingSpinner from "../../../common/LoadingSpinner";
@@ -8,7 +8,7 @@ import {AxiosError} from "axios";
 
 interface ValidationSectionProps {
     file: File;
-    template: DietTemplate;
+    template: DietExcelTemplate;
     totalMeals: number;
     userId?: string;
     skipColumnsCount: number;

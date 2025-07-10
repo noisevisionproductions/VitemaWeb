@@ -1,7 +1,7 @@
 package com.noisevisionsoftware.nutrilog.controller.diet;
 
 import com.noisevisionsoftware.nutrilog.dto.request.diet.CalorieValidationRequest;
-import com.noisevisionsoftware.nutrilog.dto.request.diet.DietTemplateRequest;
+import com.noisevisionsoftware.nutrilog.dto.request.diet.DietTemplateExcelRequest;
 import com.noisevisionsoftware.nutrilog.dto.response.DietPreviewResponse;
 import com.noisevisionsoftware.nutrilog.dto.response.ErrorResponse;
 import com.noisevisionsoftware.nutrilog.dto.response.ValidationResponse;
@@ -12,7 +12,7 @@ import com.noisevisionsoftware.nutrilog.utils.excelParser.model.ParsedMeal;
 import com.noisevisionsoftware.nutrilog.utils.excelParser.model.ParsedProduct;
 import com.noisevisionsoftware.nutrilog.utils.excelParser.model.validation.ValidationResult;
 import com.noisevisionsoftware.nutrilog.utils.excelParser.model.validation.ValidationSeverity;
-import com.noisevisionsoftware.nutrilog.utils.excelParser.service.DietTemplateService;
+import com.noisevisionsoftware.nutrilog.utils.excelParser.service.DietExcelTemplateService;
 import com.noisevisionsoftware.nutrilog.utils.excelParser.service.ExcelParserService;
 import com.noisevisionsoftware.nutrilog.utils.excelParser.service.validation.CalorieValidator;
 import com.noisevisionsoftware.nutrilog.utils.excelParser.service.validation.ExcelStructureValidator;
@@ -41,7 +41,7 @@ public class DietUploadController {
 
     private final ExcelStructureValidator excelStructureValidator;
     private final ExcelParserService excelParserService;
-    private final DietTemplateService dietTemplateService;
+    private final DietExcelTemplateService dietExcelTemplateService;
     private final CalorieValidator calorieValidator;
 
     @InitBinder
@@ -120,9 +120,9 @@ public class DietUploadController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ValidationResponse> validateDietTemplate(
-            @ModelAttribute DietTemplateRequest request) {
+            @ModelAttribute DietTemplateExcelRequest request) {
         try {
-            ValidationResponse response = dietTemplateService.validateDietTemplate(request);
+            ValidationResponse response = dietExcelTemplateService.validateDietTemplate(request);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Błąd podczas walidacji szablonu diety", e);
@@ -144,10 +144,10 @@ public class DietUploadController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ValidationResponse> validateDietTemplateWithUser(
-            @ModelAttribute DietTemplateRequest request,
+            @ModelAttribute DietTemplateExcelRequest request,
             @RequestParam(required = false) String userId) {
         try {
-            ValidationResponse response = dietTemplateService.validateDietTemplate(request, userId);
+            ValidationResponse response = dietExcelTemplateService.validateDietTemplate(request, userId);
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {

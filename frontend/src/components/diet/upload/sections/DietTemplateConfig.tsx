@@ -1,13 +1,13 @@
 import React from "react";
 import {getMealTypeLabel} from "../../../../utils/diet/mealTypeUtils";
-import {DietTemplate, MealType} from "../../../../types";
+import {DietExcelTemplate, MealType} from "../../../../types";
 import {stringToTimestamp, toISODate} from "../../../../utils/dateFormatters";
 import {Calendar, Clock} from "react-feather";
 import {ClipboardList} from "lucide-react";
 
 interface DietTemplateConfigProps {
-    template: DietTemplate;
-    onTemplateChange: (template: DietTemplate) => void;
+    template: DietExcelTemplate;
+    onTemplateChange: (template: DietExcelTemplate) => void;
     refs?: {
         mealsPerDayRef?: React.RefObject<HTMLDivElement>;
         dateConfigRef?: React.RefObject<HTMLDivElement>;

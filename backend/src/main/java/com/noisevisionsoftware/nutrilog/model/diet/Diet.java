@@ -1,15 +1,15 @@
 package com.noisevisionsoftware.nutrilog.model.diet;
 
 import com.google.cloud.Timestamp;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
 @Data
 @Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Diet {
     private String id;
     private String userId;

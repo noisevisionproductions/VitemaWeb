@@ -1,4 +1,4 @@
-package com.noisevisionsoftware.nutrilog.dto.request.diet;
+package com.noisevisionsoftware.nutrilog.dto.request.diet.manual;
 
 import com.noisevisionsoftware.nutrilog.utils.excelParser.model.ParsedDay;
 import lombok.AllArgsConstructor;

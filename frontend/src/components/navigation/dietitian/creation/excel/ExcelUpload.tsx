@@ -5,7 +5,7 @@ import {DietUploadService} from "../../../../../services/diet/DietUploadService"
 import DietPreview from "../../../../diet/upload/preview/DietPreview";
 import {Timestamp} from "firebase/firestore";
 import ValidationSection from "../../../../diet/upload/validation/ValidationSection";
-import {DietTemplate, MealType, ParsedDietData} from "../../../../../types";
+import {DietExcelTemplate, MealType, ParsedDietData} from "../../../../../types";
 import {MainNav} from "../../../../../types/navigation";
 import {ValidationErrorType} from "../../../../diet/upload/validation/ValidationMessage";
 import SectionHeader from "../../../../common/SectionHeader";
@@ -73,7 +73,7 @@ const ExcelUpload: React.FC<ExcelUploadProps> = ({onTabChange}) => {
     const calorieValidationRef = useRef<HTMLDivElement>(null);
 
     // Inicjalizacja szablonu diety
-    const [template, setTemplate] = useState<DietTemplate>({
+    const [template, setTemplate] = useState<DietExcelTemplate>({
         mealsPerDay: 5,
         startDate: Timestamp.fromDate(new Date()),
         duration: 7,
@@ -118,7 +118,7 @@ const ExcelUpload: React.FC<ExcelUploadProps> = ({onTabChange}) => {
     }, [selectedUser]);
 
     // Obsługa zmiany szablonu diety
-    const handleTemplateChange = useCallback((newTemplate: DietTemplate) => {
+    const handleTemplateChange = useCallback((newTemplate: DietExcelTemplate) => {
         setTemplate(newTemplate);
     }, []);
 

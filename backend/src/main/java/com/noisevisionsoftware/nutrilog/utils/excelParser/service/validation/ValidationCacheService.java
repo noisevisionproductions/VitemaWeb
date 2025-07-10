@@ -1,6 +1,6 @@
 package com.noisevisionsoftware.nutrilog.utils.excelParser.service.validation;
 
-import com.noisevisionsoftware.nutrilog.dto.request.diet.DietTemplateRequest;
+import com.noisevisionsoftware.nutrilog.dto.request.diet.DietTemplateExcelRequest;
 import com.noisevisionsoftware.nutrilog.dto.response.ValidationResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,7 +34,7 @@ public class ValidationCacheService {
         }
     }
 
-    public String generateCacheKey(DietTemplateRequest request, String userId) {
+    public String generateCacheKey(DietTemplateExcelRequest request, String userId) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
 

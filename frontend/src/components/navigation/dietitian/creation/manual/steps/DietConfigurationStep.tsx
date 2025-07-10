@@ -1,5 +1,5 @@
 import React from "react";
-import {DietTemplate, ManualDietData} from "../../../../../../types";
+import {DietExcelTemplate, ManualDietData} from "../../../../../../types";
 import {User} from "../../../../../../types/user";
 import UserSelectionSection from "../../../../../diet/upload/sections/user/UserSelectionSection";
 import {Timestamp} from "firebase/firestore";
@@ -18,7 +18,7 @@ const DietConfigurationStep: React.FC<DietConfigurationStepProps> = ({
                                                                          selectedUser,
                                                                          onUserSelect
                                                                      }) => {
-    const template: DietTemplate = {
+    const template: DietExcelTemplate = {
         mealsPerDay: dietData.mealsPerDay,
         startDate: Timestamp.fromDate(new Date(dietData.startDate)),
         duration: dietData.duration,
@@ -31,7 +31,7 @@ const DietConfigurationStep: React.FC<DietConfigurationStepProps> = ({
         onUpdate({userId: user?.id || ''});
     };
 
-    const handleTemplateChange = (newTemplate: DietTemplate) => {
+    const handleTemplateChange = (newTemplate: DietExcelTemplate) => {
         onUpdate({
             mealsPerDay: newTemplate.mealsPerDay,
             startDate: newTemplate.startDate.toDate().toISOString().split('T')[0],

@@ -1,6 +1,6 @@
 package com.noisevisionsoftware.nutrilog.utils.excelParser.service.validation;
 
-import com.noisevisionsoftware.nutrilog.dto.request.diet.DietTemplateRequest;
+import com.noisevisionsoftware.nutrilog.dto.request.diet.DietTemplateExcelRequest;
 import com.noisevisionsoftware.nutrilog.dto.response.ValidationResponse;
 import com.noisevisionsoftware.nutrilog.utils.excelParser.model.validation.ValidationResult;
 import com.noisevisionsoftware.nutrilog.utils.excelParser.model.validation.ValidationSeverity;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.*;
 class ValidationCacheServiceTest {
 
     private ValidationCacheService cacheService;
-    private DietTemplateRequest mockRequest;
+    private DietTemplateExcelRequest mockRequest;
     private MockMultipartFile mockFile;
 
     @BeforeEach
@@ -38,7 +38,7 @@ class ValidationCacheServiceTest {
                 "test data".getBytes()
         );
 
-        mockRequest = mock(DietTemplateRequest.class);
+        mockRequest = mock(DietTemplateExcelRequest.class);
         when(mockRequest.getFile()).thenReturn(mockFile);
         when(mockRequest.getMealsPerDay()).thenReturn(3);
         when(mockRequest.getDuration()).thenReturn(7);
@@ -49,13 +49,13 @@ class ValidationCacheServiceTest {
     @DisplayName("Powinien generować unikalny klucz cache dla danego żądania")
     void generateCacheKey_shouldGenerateUniqueKeyForRequest() {
         // given
-        DietTemplateRequest request1 = mock(DietTemplateRequest.class);
+        DietTemplateExcelRequest request1 = mock(DietTemplateExcelRequest.class);
         when(request1.getFile()).thenReturn(mockFile);
         when(request1.getMealsPerDay()).thenReturn(3);
         when(request1.getDuration()).thenReturn(7);
         when(request1.getStartDate()).thenReturn("2023-10-15");
 
-        DietTemplateRequest request2 = mock(DietTemplateRequest.class);
+        DietTemplateExcelRequest request2 = mock(DietTemplateExcelRequest.class);
         when(request2.getFile()).thenReturn(mockFile);
         when(request2.getMealsPerDay()).thenReturn(4);
         when(request2.getDuration()).thenReturn(7);

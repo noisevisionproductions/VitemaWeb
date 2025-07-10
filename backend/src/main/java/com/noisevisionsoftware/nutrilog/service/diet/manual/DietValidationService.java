@@ -1,6 +1,6 @@
 package com.noisevisionsoftware.nutrilog.service.diet.manual;
 
-import com.noisevisionsoftware.nutrilog.dto.request.diet.ManualDietRequest;
+import com.noisevisionsoftware.nutrilog.dto.request.diet.manual.ManualDietRequest;
 import com.noisevisionsoftware.nutrilog.utils.excelParser.model.ParsedDay;
 import com.noisevisionsoftware.nutrilog.utils.excelParser.model.ParsedMeal;
 import com.noisevisionsoftware.nutrilog.utils.excelParser.model.ParsedProduct;

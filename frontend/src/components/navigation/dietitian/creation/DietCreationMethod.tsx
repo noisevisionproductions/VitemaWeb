@@ -29,6 +29,7 @@ const DietCreationMethod: React.FC<DietCreationMethodProps> = ({onMethodSelect})
             description: 'Utwórz dietę krok po kroku używając wbudowanego kreatora. Idealne dla tworzenia spersonalizowanych planów.',
             icon: PenTool,
             benefits: [
+                'Możliwość użycia gotowych szablonów diet',
                 'Pełna kontrola nad każdym elementem',
                 'Kreator krok po kroku',
                 'Dostosowanie do indywidualnych potrzeb',

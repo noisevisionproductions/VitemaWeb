@@ -1,6 +1,7 @@
 export type MainNav =
     | 'dietitianDashboard'
     | 'dietCreation'
+    | 'dietTemplates'
     | 'upload'
     | 'diets'
     | 'users'

@@ -1,7 +1,7 @@
 package com.noisevisionsoftware.nutrilog.utils.excelParser.service;
 
 import com.noisevisionsoftware.nutrilog.dto.request.diet.CalorieValidationRequest;
-import com.noisevisionsoftware.nutrilog.dto.request.diet.DietTemplateRequest;
+import com.noisevisionsoftware.nutrilog.dto.request.diet.DietTemplateExcelRequest;
 import com.noisevisionsoftware.nutrilog.dto.response.ValidationResponse;
 import com.noisevisionsoftware.nutrilog.utils.excelParser.model.validation.ValidationResult;
 import com.noisevisionsoftware.nutrilog.utils.excelParser.model.validation.ValidationSeverity;
@@ -16,7 +16,7 @@ import java.util.*;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class DietTemplateService {
+public class DietExcelTemplateService {
 
     private final ExcelStructureValidator excelStructureValidator;
     private final MealsPerDayValidator mealsPerDayValidator;
@@ -30,7 +30,7 @@ public class DietTemplateService {
     /**
      * Waliduje szablon diety na podstawie przesłanych parametrów.
      */
-    public ValidationResponse validateDietTemplate(DietTemplateRequest request, String userId) {
+    public ValidationResponse validateDietTemplate(DietTemplateExcelRequest request, String userId) {
         String cacheKey = cacheService.generateCacheKey(request, userId);
 
         // Sprawdź cache
@@ -164,11 +164,11 @@ public class DietTemplateService {
         }
     }
 
-    public ValidationResponse validateDietTemplate(DietTemplateRequest request) {
+    public ValidationResponse validateDietTemplate(DietTemplateExcelRequest request) {
         return validateDietTemplate(request, null);
     }
 
-    private ValidationResult validateBasicParameters(DietTemplateRequest request) {
+    private ValidationResult validateBasicParameters(DietTemplateExcelRequest request) {
         if (request.getFile() == null || request.getFile().isEmpty()) {
             return new ValidationResult(false, "Plik jest wymagany", ValidationSeverity.ERROR);
         }
@@ -239,7 +239,7 @@ public class DietTemplateService {
     }
 
     private ExcelParserService.ParsedExcelResult parseExcelFile(
-            DietTemplateRequest request,
+            DietTemplateExcelRequest request,
             List<ValidationResult> allValidations,
             Map<String, Object> additionalData) {
 
@@ -270,7 +270,7 @@ public class DietTemplateService {
     }
 
     private ValidationResult validateMealsCount(
-            DietTemplateRequest request,
+            DietTemplateExcelRequest request,
             ExcelParserService.ParsedExcelResult parseResult,
             List<ValidationResult> allValidations) {
 
@@ -284,7 +284,7 @@ public class DietTemplateService {
     }
 
     private ValidationResult validateDates(
-            DietTemplateRequest request,
+            DietTemplateExcelRequest request,
             ExcelParserService.ParsedExcelResult parseResult,
             List<ValidationResult> allValidations) {
 
@@ -300,7 +300,7 @@ public class DietTemplateService {
     }
 
     private List<ValidationResult> validateMealsConfig(
-            DietTemplateRequest request,
+            DietTemplateExcelRequest request,
             List<ValidationResult> allValidations) {
 
         List<ValidationResult> validations = mealsConfigValidator.validateMealConfig(

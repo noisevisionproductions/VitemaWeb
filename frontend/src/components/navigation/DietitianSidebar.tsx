@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import {MainNav} from "../../types/navigation";
 import {
+    BookAudio,
     BookOpen,
     ChevronLeft,
     ChevronRight,
@@ -80,6 +81,7 @@ interface SidebarProps {
 const navigationItems = [
     {id: 'dietitianDashboard', label: 'Pulpit', icon: LayoutDashboard},
     {id: 'dietCreation', label: 'Tworzenie diety', icon: PlusCircle},
+    {id: 'dietTemplates', label: 'Szablony diet', icon: BookAudio},
     {id: 'diets', label: 'Zarządzanie diet', icon: FileSpreadsheet},
     {id: 'recipes', label: 'Przepisy', icon: BookOpen},
     {id: 'users', label: 'Użytkownicy', icon: Users},

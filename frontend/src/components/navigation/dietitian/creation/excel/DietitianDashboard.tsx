@@ -1,11 +1,8 @@
 import React from 'react';
 import {Link, useNavigate} from 'react-router-dom';
-import {
-    ChartBarIcon,
-    BookOpenIcon
-} from '@heroicons/react/24/outline';
+import {BookOpenIcon, ChartBarIcon} from '@heroicons/react/24/outline';
 import {useAuth} from "../../../../../contexts/AuthContext";
-import {ClipboardList, ClipboardListIcon, HelpCircle, PlusCircle, Users} from "lucide-react";
+import {BookAudio, ClipboardList, ClipboardListIcon, HelpCircle, PlusCircle, Users} from "lucide-react";
 import {toast} from "../../../../../utils/toast";
 import SectionHeader from "../../../../common/SectionHeader";
 
@@ -19,6 +16,12 @@ const DietitianDashboard: React.FC = () => {
             description: 'Utwórz nową dietę dla klienta - wybierz między importem z Excel a tworzeniem ręcznym.',
             icon: PlusCircle,
             tabName: 'dietCreation'
+        },
+        {
+            name: 'Gotowe szablony diet',
+            description: 'Przeglądaj stworzone wcześniej szablony całych diet.',
+            icon: BookAudio,
+            tabName: 'dietTemplates'
         },
         {
             name: 'Zarządzanie dietami',

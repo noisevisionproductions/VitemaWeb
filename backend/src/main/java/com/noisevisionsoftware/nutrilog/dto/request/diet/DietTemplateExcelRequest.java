@@ -12,7 +12,7 @@ import java.util.Map;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DietTemplateRequest {
+public class DietTemplateExcelRequest {
     private MultipartFile file;
     private int mealsPerDay;
     private String startDate;

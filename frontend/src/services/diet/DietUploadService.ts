@@ -1,5 +1,5 @@
 import api from "../../config/axios";
-import {DietTemplate, ParsedDietData} from "../../types";
+import {DietExcelTemplate, ParsedDietData} from "../../types";
 import axios, {AxiosError} from 'axios';
 import {ParsedProduct} from "../../types/product";
 import {toast} from "../../utils/toast";
@@ -177,7 +177,7 @@ export class DietUploadService {
 
     static async previewDiet(
         file: File,
-        template: DietTemplate,
+        template: DietExcelTemplate,
         skipColumnsCount?: number,
         extraParams?: Record<string, any>
     ): Promise<ParsedDietData> {
@@ -219,7 +219,7 @@ export class DietUploadService {
 
     static async validateDietTemplateWithUser(
         file: File,
-        template: DietTemplate,
+        template: DietExcelTemplate,
         userId?: string,
         skipColumnsCount?: number,
         extraParams?: Record<string, any>
@@ -262,7 +262,7 @@ export class DietUploadService {
 
     private static prepareDietTemplateFormData(
         file: File,
-        template: DietTemplate,
+        template: DietExcelTemplate,
         skipColumnsCounts?: number
     ): FormData {
         const formData = new FormData();
@@ -310,7 +310,7 @@ export class DietUploadService {
         }
     }
 
-    private static sanitizeParsedDietData(data: any, template: DietTemplate): ParsedDietData {
+    private static sanitizeParsedDietData(data: any, template: DietExcelTemplate): ParsedDietData {
         return {
             ...data,
             shoppingList: Array.isArray(data.shoppingList) ? data.shoppingList : [],

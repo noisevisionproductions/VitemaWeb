@@ -13,6 +13,7 @@ import DietitianSidebar from "../../components/navigation/DietitianSidebar";
 import DietCreationContainer from "../../components/navigation/dietitian/creation/DietCreationContainer";
 import {useDietitianNavigation} from "../../hooks/useDietitianNavigation";
 import {MainNav} from "../../types/navigation";
+import DietTemplatesManager from "../../components/diet/templates/DietTemplatesManager";
 
 const DietitianPanel: React.FC = () => {
     const {currentTab, navigateToTab} = useDietitianNavigation();
@@ -20,6 +21,7 @@ const DietitianPanel: React.FC = () => {
     const titleMap: Record<MainNav, string> = {
         dietitianDashboard: 'Pulpit',
         dietCreation: 'Tworzenie diety',
+        dietTemplates: 'Gotowe szablony diet',
         upload: 'Import Excel',
         diets: 'Zarządzanie dietami',
         users: 'Klienci',
@@ -60,6 +62,7 @@ const DietitianPanel: React.FC = () => {
                 <Route path="upload" element={<ExcelUpload onTabChange={navigateToTab}/>}/>
 
                 <Route path="diets" element={<DietManagement/>}/>
+                <Route path="diet-templates" element={<DietTemplatesManager/>}/>
                 <Route path="users" element={<UsersManagement/>}/>
                 <Route path="stats" element={<StatsPanel/>}/>
                 <Route path="guide" element={<DietGuide/>}/>

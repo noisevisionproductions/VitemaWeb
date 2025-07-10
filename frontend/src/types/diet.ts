@@ -32,7 +32,7 @@ export interface DietMetadata {
     fileUrl: string;
 }
 
-export interface DietTemplate {
+export interface DietExcelTemplate {
     mealsPerDay: number;
     startDate: Timestamp;
     duration: number;

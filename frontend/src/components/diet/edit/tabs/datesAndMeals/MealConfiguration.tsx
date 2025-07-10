@@ -1,9 +1,9 @@
-import {DietTemplate, MealType} from "../../../../../types";
+import {DietExcelTemplate, MealType} from "../../../../../types";
 import {getMealTypeLabel} from "../../../../../utils/diet/mealTypeUtils";
 import React from "react";
 
 interface MealConfigSectionProps {
-    mealConfig: DietTemplate;
+    mealConfig: DietExcelTemplate;
     onMealTypeChange: (index: number, type: MealType) => void;
     onMealTimeChange: (index: number, time: string) => void;
     onApplyConfig: () => void;

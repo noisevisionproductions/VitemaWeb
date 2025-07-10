@@ -4,16 +4,23 @@ import {ParsedProduct} from "../../../../../../types/product";
 import {toast} from "../../../../../../utils/toast";
 import {ChevronDown, ChevronUp} from "lucide-react";
 import DayPlanningCard from "./DayPlanningCard";
+import {DietTemplate} from "../../../../../../types/DietTemplate";
+import TemplateInfoBanner from "../templates/TemplateInfoBanner";
 
 interface MealPlanningStepsProps {
     dietData: ManualDietData;
+    selectedTemplate?: DietTemplate | null;
+    onRemoveTemplate?: () => void;
     onUpdateMeal: (dayIndex: number, mealIndex: number, meal: ParsedMeal) => void;
     onAddIngredient: (dayIndex: number, mealIndex: number, ingredient: ParsedProduct) => void;
     onRemoveIngredient: (dayIndex: number, mealIndex: number, ingredientIndex: number) => void;
 }
 
+
 const MealPlanningStep: React.FC<MealPlanningStepsProps> = ({
                                                                 dietData,
+                                                                selectedTemplate,
+                                                                onRemoveTemplate,
                                                                 onUpdateMeal,
                                                                 onAddIngredient,
                                                                 onRemoveIngredient
@@ -77,6 +84,14 @@ const MealPlanningStep: React.FC<MealPlanningStepsProps> = ({
 
     return (
         <div className="space-y-6">
+            {/* Banner szablonu */}
+            {selectedTemplate && onRemoveTemplate && (
+                <TemplateInfoBanner
+                    template={selectedTemplate}
+                    onRemoveTemplate={onRemoveTemplate}
+                />
+            )}
+
             {/* Główny nagłówek z postępem */}
             <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
                 {/* Sekcja postępu i kontrolek */}
