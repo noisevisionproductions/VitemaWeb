@@ -17,7 +17,7 @@ const SSProtectedRoute: React.FC<ProtectedRouteProps> = ({
     const {currentApplication} = useApplication();
 
     // Only protect routes for Scandal Shuffle
-    if (currentApplication !== ApplicationType.YOUR_NEW_APP) {
+    if (currentApplication !== ApplicationType.SCANDAL_SHUFFLE) {
         return <>{children}</>;
     }
 

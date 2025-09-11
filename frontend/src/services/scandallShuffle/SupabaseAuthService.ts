@@ -1,4 +1,5 @@
 import {supabase} from '../../config/supabase';
+import {Session} from '@supabase/supabase-js';
 
 export interface SupabaseUser {
     id: string;
@@ -82,33 +83,38 @@ export class SupabaseAuthService {
     /**
      * Listen for auth state changes
      */
-    static onAuthStateChange(callback: (user: SupabaseUser | null) => void) {
+    static onAuthStateChange(callback: (user: SupabaseUser | null, session: Session | null) => void) {
         return supabase.auth.onAuthStateChange(async (_event, session) => {
             if (session?.user) {
                 try {
                     const user = await this.getCurrentUser();
-                    callback(user);
+                    callback(user, session);
                 } catch (error) {
                     console.error('Error getting current user:', error);
-                    callback(null);
+                    callback(null, null);
                 }
             } else {
-                callback(null);
+                callback(null, null);
             }
         });
+    }
+
+    static async getSession() {
+        return supabase.auth.getSession();
     }
 
     /**
      * Initialize user session on app start
      */
-    static async initializeSession(): Promise<SupabaseUser | null> {
+    static async initializeSession(): Promise<{ user: SupabaseUser, session: Session } | null> {
         try {
             const {data: {session}} = await supabase.auth.getSession();
-
             if (session?.user) {
-                return await this.getCurrentUser();
+                const user = await this.getCurrentUser();
+                if (user) {
+                    return { user, session };
+                }
             }
-
             return null;
         } catch (error) {
             console.error('Error initializing session:', error);

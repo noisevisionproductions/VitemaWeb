@@ -86,8 +86,8 @@ export class ScenarioValidationService {
         if (cards.length < 15) {
             generalErrors.push(`At least 15 cards are required (currently ${cards.length})`);
         }
-        if (cards.length > 50) {
-            generalErrors.push('Too many cards (maximum 50)');
+        if (cards.length > 100) {
+            generalErrors.push('Too many cards (maximum 100)');
         }
         if (questions.length === 0) {
             generalErrors.push('At least one question is required');

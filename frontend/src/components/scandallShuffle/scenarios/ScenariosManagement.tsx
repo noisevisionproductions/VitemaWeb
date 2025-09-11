@@ -79,11 +79,11 @@ const ScenariosManagement: React.FC = () => {
         }
     };
 
-    const filteredScenarios = scenarios.filter(scenario => {
+ /*   const filteredScenarios = scenarios.filter(scenario => {
         if (statusFilter === 'all') return true;
         return scenario.status === statusFilter;
     });
-
+*/
     if (viewMode === 'create') {
         return (
             <CreateScenarioPage

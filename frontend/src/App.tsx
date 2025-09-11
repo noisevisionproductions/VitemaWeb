@@ -23,6 +23,8 @@ import SSProtectedRoute from "./components/scandallShuffle/auth/SSProtectedRoute
 import {ApplicationProvider} from "./contexts/ApplicationContext";
 import {lazy, Suspense} from "react";
 import LoadingSpinner from "./components/shared/common/LoadingSpinner";
+import ResetPasswordPage from "./pages/scandal-shuffle/ResetPasswordPage";
+import EmailVerifiedPage from "./pages/scandal-shuffle/EmailVerifiedPage";
 
 const DietitianPanel = lazy(() => import('./pages/panel/DietitianPanel'));
 const AdminPanel = lazy(() => import('./pages/panel/AdminPanel'));
@@ -67,6 +69,12 @@ function App() {
                                             <PrivacyPolicy/>
                                         </LandingLayout>
                                     }/>
+
+                                    <Route path="/reset-password" element={
+                                        <ResetPasswordPage/>
+                                    }/>
+
+                                    <Route path="/auth/callback" element={<EmailVerifiedPage/>}/>
 
                                     {/* Newsletter routes */}
                                     <Route path="/verify-email" element={<VerifyEmail/>}/>

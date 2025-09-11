@@ -1,10 +1,11 @@
 import axios from 'axios';
 import {auth} from './firebase';
 import {toast} from "../utils/toast";
+import {ApplicationType} from "../types/application";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+const SUPABASE_TOKEN_KEY = 'supabase_token';
 
-const RATE_LIMIT_DELAY = 100; // 100ms między żądaniami
 let lastRequestTime = 0;
 
 const api = axios.create({
@@ -15,26 +16,40 @@ const api = axios.create({
     withCredentials: true
 });
 
-// Jeden interceptor request - obsługuje auth i rate limiting
 api.interceptors.request.use(
     async (config) => {
+        console.log(`[Interceptor] Starting request to: ${config.url}`);
+
         try {
             const now = Date.now();
             const timeSinceLastRequest = now - lastRequestTime;
-            if (timeSinceLastRequest < RATE_LIMIT_DELAY) {
+            if (timeSinceLastRequest < 100) {
                 await new Promise(resolve =>
-                    setTimeout(resolve, RATE_LIMIT_DELAY - timeSinceLastRequest)
+                    setTimeout(resolve, 100 - timeSinceLastRequest)
                 );
             }
             lastRequestTime = Date.now();
 
-            // Dodaj token autoryzacji
-            const user = auth.currentUser;
-            if (user) {
-                const token = await user.getIdToken();
-                config.headers.Authorization = `Bearer ${token}`;
+            const currentApplication = localStorage.getItem('selectedApplication') as ApplicationType | null;
+
+            if (currentApplication === ApplicationType.NUTRILOG) {
+                const user = auth.currentUser;
+                if (user) {
+                    const token = await user.getIdToken();
+                    config.headers.Authorization = `Bearer ${token}`;
+                    console.log('[Interceptor] Attached Firebase token.');
+                }
+            } else if (currentApplication === ApplicationType.SCANDAL_SHUFFLE) {
+                const token = localStorage.getItem(SUPABASE_TOKEN_KEY);
+                if (token) {
+                    config.headers.Authorization = `Bearer ${token}`;
+                    console.log('[Interceptor] Attached Supabase token from localStorage.');
+                } else {
+                    console.warn('[Interceptor] Supabase token not found in localStorage.');
+                }
             }
 
+            console.log(`[Interceptor] Finishing request to: ${config.url}`);
             return config;
         } catch (error) {
             console.error('Request interceptor error:', error);
@@ -57,10 +72,8 @@ api.interceptors.response.use(
             }
         });
 
-        // Obsługa błędów rate limiting
         if (error.response?.status === 429) {
             toast.error('Za dużo żądań. Spróbuj ponownie za chwilę.');
-            // Automatyczne ponowienie po opóźnieniu
             return new Promise((resolve) => {
                 setTimeout(() => {
                     resolve(api.request(error.config));

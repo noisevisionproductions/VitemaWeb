@@ -1,4 +1,4 @@
-import {onAuthStateChanged, signInWithEmailAndPassword, signOut, User as FirebaseUser} from 'firebase/auth';
+import {signInWithEmailAndPassword, signOut, User as FirebaseUser} from 'firebase/auth';
 import React, {createContext, useContext, useEffect, useState} from "react";
 import {auth} from '../config/firebase';
 import {User, UserRole} from '../types/nutrilog/user';
@@ -26,6 +26,7 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
+const SUPABASE_TOKEN_KEY = 'supabase_token';
 
 export const useAuth = () => {
     const context = useContext(AuthContext);
@@ -46,59 +47,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
     const {clearSavedRoute} = useRouteRestoration();
     const {setApplication} = useApplication();
 
-
     useEffect(() => {
         let firebaseUnsubscribe: (() => void) | undefined;
         let supabaseUnsubscribe: { unsubscribe: () => void } | undefined;
 
         const initializeAuth = async () => {
             try {
-                // Wait for application context to be loaded
                 if (currentApplication === null) {
                     setLoading(false);
                     return;
                 }
 
                 if (currentApplication === ApplicationType.NUTRILOG) {
-                    // Firebase auth listener
-                    firebaseUnsubscribe = onAuthStateChanged(auth, async (user) => {
-                        setCurrentUser(user);
-
-                        if (user) {
-                            try {
-                                const tokenResult = await user.getIdTokenResult();
-                                setUserClaims(tokenResult.claims);
-                                await validateTokenAndSetUserData(user);
-                            } catch (error) {
-                                console.error("Token validation failed:", error);
-                                await logout();
-                            }
-                        } else {
-                            setUserData(null);
-                            setUserClaims(null);
-                        }
-
-                        setLoading(false);
-                    });
-                } else if (currentApplication === ApplicationType.YOUR_NEW_APP) {
-                    // Initialize Supabase session
-                    const supabaseUser = await SupabaseAuthService.initializeSession();
-
-                    if (supabaseUser) {
-                        setSupabaseUser(supabaseUser);
-                        const userData = mapSupabaseUserToUser(supabaseUser);
-                        setUserData(userData);
+                } else if (currentApplication === ApplicationType.SCANDAL_SHUFFLE) {
+                    const initialData = await SupabaseAuthService.initializeSession();
+                    if (initialData) {
+                        setSupabaseUser(initialData.user);
+                        setUserData(mapSupabaseUserToUser(initialData.user));
+                        localStorage.setItem(SUPABASE_TOKEN_KEY, initialData.session.access_token);
                     }
 
-                    // Listen for Supabase auth changes
-                    const {data: {subscription}} = SupabaseAuthService.onAuthStateChange((user) => {
+                    const {data: {subscription}} = SupabaseAuthService.onAuthStateChange((user, session) => {
                         setSupabaseUser(user);
-
-                        if (user) {
-                            const userData = mapSupabaseUserToUser(user);
-                            setUserData(userData);
+                        if (user && session) {
+                            setUserData(mapSupabaseUserToUser(user));
+                            localStorage.setItem(SUPABASE_TOKEN_KEY, session.access_token);
                         } else {
                             setUserData(null);
+                            localStorage.removeItem(SUPABASE_TOKEN_KEY);
                         }
                     });
 
@@ -113,14 +89,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
 
         initializeAuth().catch(console.error);
 
-        // Cleanup function
         return () => {
-            if (firebaseUnsubscribe) {
-                firebaseUnsubscribe();
-            }
-            if (supabaseUnsubscribe) {
-                supabaseUnsubscribe.unsubscribe();
-            }
+            if (firebaseUnsubscribe) firebaseUnsubscribe();
+            if (supabaseUnsubscribe) supabaseUnsubscribe.unsubscribe();
         };
     }, [currentApplication]);
 
@@ -154,7 +125,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
 
     const login = async (email: string, password: string): Promise<User> => {
         try {
-            if (currentApplication === ApplicationType.YOUR_NEW_APP) {
+            if (currentApplication === ApplicationType.SCANDAL_SHUFFLE) {
                 const supabaseUser = await SupabaseAuthService.login(email, password);
                 setSupabaseUser(supabaseUser);
 
@@ -247,6 +218,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
                 await SupabaseAuthService.logout();
                 setSupabaseUser(null);
                 setUserData(null);
+                localStorage.removeItem(SUPABASE_TOKEN_KEY);
             }
         } catch (error) {
             console.error('Błąd wylogowania:', error);
@@ -285,7 +257,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
             return userRoleLevel >= requiredRoleLevel;
         }
 
-        if (currentApplication === ApplicationType.YOUR_NEW_APP) {
+        if (currentApplication === ApplicationType.SCANDAL_SHUFFLE) {
             if (!supabaseUser) return false;
 
             const userRole = supabaseUser.role;
@@ -301,7 +273,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
         if (currentApplication === ApplicationType.NUTRILOG) {
             return !!currentUser && !!userData;
         }
-        if (currentApplication === ApplicationType.YOUR_NEW_APP) {
+        if (currentApplication === ApplicationType.SCANDAL_SHUFFLE) {
             return !!supabaseUser;
         }
         return false;

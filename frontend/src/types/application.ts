@@ -1,6 +1,6 @@
 export enum ApplicationType {
     NUTRILOG = 'nutrilog',
-    YOUR_NEW_APP = 'scandal-shuffle'
+    SCANDAL_SHUFFLE = 'scandal-shuffle'
 }
 
 export interface ApplicationConfig {
@@ -15,8 +15,8 @@ export const APPLICATION_CONFIGS: Record<ApplicationType, ApplicationConfig> = {
         name: 'NutriLog',
         authMethod: 'firebase'
     },
-    [ApplicationType.YOUR_NEW_APP]: {
-        type: ApplicationType.YOUR_NEW_APP,
+    [ApplicationType.SCANDAL_SHUFFLE]: {
+        type: ApplicationType.SCANDAL_SHUFFLE,
         name: 'Scandal Shuffle',
         authMethod: 'supabase'
     }
