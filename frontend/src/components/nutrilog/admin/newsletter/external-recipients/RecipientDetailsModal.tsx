@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {ExternalRecipient} from "../../../../../types/nutrilog/sendGrid";
 import {toast} from "../../../../../utils/toast";
-import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from "../../../../shared/ui/dialog";
+import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from "../../../../shared/ui/Dialog";
 import {Edit2, Save, X} from "lucide-react";
 import {ExternalRecipientService} from "../../../../../services/nutrilog/newsletter/ExternalRecipientService";
 import {formatPostgresTimestamp} from "../../../../../utils/dateFormatters";

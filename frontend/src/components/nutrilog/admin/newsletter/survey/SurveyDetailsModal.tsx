@@ -1,5 +1,5 @@
 import React from 'react';
-import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from "../../../../shared/ui/dialog";
+import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from "../../../../shared/ui/Dialog";
 import {NewsletterSubscriber} from "../../../../../types/nutrilog/newsletter";
 import {formatPostgresTimestamp} from "../../../../../utils/dateFormatters";
 

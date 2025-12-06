@@ -1,7 +1,15 @@
 import {motion} from 'framer-motion';
 import {Feature} from './featuresData';
+import {useTranslation} from "react-i18next";
 
-const FeatureCard = ({icon: Icon, title, description, status}: Feature) => {
+interface FeatureCardProps extends Feature {
+    title: string;
+    description: string;
+}
+
+const FeatureCard = ({icon: Icon, title, description, status}: FeatureCardProps) => {
+    const {t} = useTranslation();
+
     return (
         <motion.div
             whileHover={{y: -5}}
@@ -14,8 +22,9 @@ const FeatureCard = ({icon: Icon, title, description, status}: Feature) => {
                 {title}
             </h3>
             {status === 'coming_soon' && (
-                <span className="absolute top-6 right-6 px-2 py-1 bg-secondary/10 text-secondary text-xs font-medium rounded-md">
-                    Wkrótce
+                <span
+                    className="absolute top-6 right-6 px-2 py-1 bg-secondary/10 text-secondary text-xs font-medium rounded-md">
+                    {t('features.status.comingSoon')}
                 </span>
             )}
             <p className="text-text-secondary">

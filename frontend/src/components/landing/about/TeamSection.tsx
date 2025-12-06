@@ -1,7 +1,10 @@
 import Container from "../../shared/ui/landing/Container";
 import {motion} from "framer-motion";
+import {useTranslation} from "react-i18next";
 
 const TeamSection = () => {
+    const {t} = useTranslation();
+
     return (
         <section className="py-20 bg-background">
             <Container>
@@ -12,27 +15,24 @@ const TeamSection = () => {
                     className="max-w-3xl mx-auto text-center"
                 >
                     <h2 className="text-3xl font-bold text-text-primary mb-8">
-                        Zespół
+                        {t('team.title')}
                     </h2>
                     <div className="bg-surface p-8 rounded-xl border border-border">
-                        <div
-                            className="w-40 h-40 mx-auto rounded-full overflow-hidden mb-6">
+                        <div className="w-40 h-40 mx-auto rounded-full overflow-hidden mb-6">
                             <img
                                 src="/images/noisevisionselfie.jpg"
-                                alt="Tomasz Jurczyk - Założyciel NutriLog"
+                                alt={t('team.photoAlt')}
                                 className="w-full h-full object-cover"
                             />
                         </div>
                         <h3 className="text-xl font-semibold text-text-primary mb-2">
-                            Założyciel NutriLog
+                            {t('team.founderRole')}
                         </h3>
                         <p className="text-text-secondary mb-4">
                             Tomasz Jurczyk
                         </p>
                         <p className="text-text-secondary">
-                            Z pasją do technologii i wizją usprawnienia pracy dietetyków, prowadzi rozwój NutriLog,
-                            łącząc doświadczenie w tworzeniu oprogramowania z głębokim zrozumieniem potrzeb
-                            branży dietetycznej.
+                            {t('team.founderDesc')}
                         </p>
                     </div>
                 </motion.div>

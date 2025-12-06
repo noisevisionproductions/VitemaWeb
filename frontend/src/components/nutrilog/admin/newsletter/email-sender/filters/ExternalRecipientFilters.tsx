@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {FilterIcon, List, Tag, X, Search} from 'lucide-react';
-import {Button} from '../../../../../shared/ui/button';
-import {Dialog, DialogContent, DialogHeader, DialogTitle} from '../../../../../shared/ui/dialog';
+import {Button} from '../../../../../shared/ui/Button';
+import {Dialog, DialogContent, DialogHeader, DialogTitle} from '../../../../../shared/ui/Dialog';
 import LoadingSpinner from '../../../../../shared/common/LoadingSpinner';
 import {
     ExternalRecipientService

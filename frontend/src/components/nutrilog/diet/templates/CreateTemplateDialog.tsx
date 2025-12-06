@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {X} from 'lucide-react';
-import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from '../../../shared/ui/dialog';
+import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from '../../../shared/ui/Dialog';
 import {CreateDietTemplateRequest} from "../../../../types/nutrilog/DietTemplate";
 import {toast} from '../../../../utils/toast';
 import LoadingSpinner from '../../../shared/common/LoadingSpinner';

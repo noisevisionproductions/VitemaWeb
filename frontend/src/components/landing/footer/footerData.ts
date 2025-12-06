@@ -1,41 +1,33 @@
 interface FooterLink {
-    text: string;
+    textKey: string;
     href: string;
 }
 
 interface FooterSection {
-    title: string;
+    titleKey: string;
     links: FooterLink[];
 }
 
 export const footerLinks: FooterSection[] = [
     {
-        title: "Produkt",
+        titleKey: "product",
         links: [
-            {text: "Funkcje", href: "/#features"},
-            {text: "Dla kogo", href: "/#for-who"},
-            {text: "FAQ", href: "/#faq"},
+            {textKey: "features", href: "/#features"},
+            {textKey: "forWho", href: "/#for-who"},
+            {textKey: "faq", href: "/#faq"},
         ]
     },
     {
-        title: "Firma",
+        titleKey: "company",
         links: [
-            {text: "O nas", href: "/about"},
-            {text: "Kontakt", href: "/#contact"},
+            {textKey: "about", href: "/about"},
+            {textKey: "contact", href: "/#contact"},
         ]
     },
     {
-        title: "Inne",
+        titleKey: "other",
         links: [
-            {text: "Polityka prywatności", href: "/privacy-policy"}
+            {textKey: "privacy", href: "/privacy-policy"}
         ]
     }
-   /* {
-        /!* //TODO czesc dla zalogowanych uzytkownikow, a czesc publiczna*!/
-        title: "Pomoc",
-        links: [
-            {text: "Centrum pomocy", href: "/help"},
-            {text: "Zgłoś problem", href: "/support"}
-        ]
-    }*/
 ];

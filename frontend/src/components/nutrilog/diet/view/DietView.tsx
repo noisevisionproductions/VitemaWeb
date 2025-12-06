@@ -1,5 +1,5 @@
 import React from "react";
-import {Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle,} from "../../../shared/ui/sheet"
+import {Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle,} from "../../../shared/ui/Sheet"
 import LoadingSpinner from "../../../shared/common/LoadingSpinner";
 import {useShoppingList} from "../../../../hooks/nutrilog/shopping/useShoppingList";
 import {formatTimestamp} from "../../../../utils/dateFormatters";

@@ -3,37 +3,38 @@ import SectionHeader from "../../shared/ui/landing/SectionHeader";
 import ContactCard from "./ContactCard";
 import {EnvelopeIcon, PhoneIcon} from "@heroicons/react/16/solid";
 import ContactForm from "./ContactForm";
+import {useTranslation} from "react-i18next";
 
 const Contact = () => {
+    const {t} = useTranslation();
+
     return (
         <section id="contact" className="py-20 bg-surface">
             <Container>
                 <SectionHeader
-                    title="Skontaktuj się z nami"
-                    subtitle="Chętnie odpowiemy na Twoje pytania i pomożemy w rozpoczęciu pracy z NutriLog"
+                    title={t('contact.title')}
+                    subtitle={t('contact.subtitle')}
                 />
 
                 <div className="mt-12 grid lg:grid-cols-2 gap-12">
-                    {/* Lewa kolumna-karty kontaktowe */}
                     <div className="space-y-6">
                         <ContactCard
                             icon={PhoneIcon}
-                            title="Zadzwoń do nas"
-                            description="Porozmawiaj z nami bezpośrednio o Twoich potrzebach"
+                            title={t('contact.cards.phone.title')}
+                            description={t('contact.cards.phone.desc')}
                             content="+48 880 172 098"
                             action="tel:+48880172098"
                         />
 
                         <ContactCard
                             icon={EnvelopeIcon}
-                            title="Napisz email"
-                            description="Odpowiemy na Twoją wiadomość w ciągu 24 godzin"
+                            title={t('contact.cards.email.title')}
+                            description={t('contact.cards.email.desc')}
                             content="kontakt@nutriLog.pl"
                             action="mailto:kontakt@nutriLog.pl"
                         />
                     </div>
 
-                    {/* Prawa kolumna-formularz */}
                     <ContactForm/>
                 </div>
             </Container>

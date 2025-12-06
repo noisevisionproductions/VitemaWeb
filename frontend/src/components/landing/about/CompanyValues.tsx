@@ -1,36 +1,35 @@
 import {Lightbulb, Shield, Users, Zap} from "lucide-react";
 import Container from "../../shared/ui/landing/Container";
 import {motion} from "framer-motion";
-
-const values = [
-    {
-        icon: Lightbulb,
-        title: "Innowacyjność",
-        description: "Nieustannie poszukujemy nowych rozwiązań i możliwości rozwoju naszej platformy."
-    },
-    {
-        icon: Users,
-        title: "Zorientowanie na użytkownika",
-        description: "Wsłuchujemy się w potrzeby naszych klientów i dostosowujemy nasze rozwiązania do ich wymagań."
-    },
-    {
-        icon: Shield,
-        title: "Bezpieczeństwo",
-        description: "Priorytetowo traktujemy ochronę danych i prywatność użytkowników naszej platformy."
-    },
-    {
-        icon: Zap,
-        title: "Efektywność",
-        description: "Tworzymy narzędzia, które realnie oszczędzają czas i zwiększają produktywność."
-    }
-];
+import {useTranslation} from "react-i18next";
 
 const CompanyValues = () => {
+    const {t} = useTranslation();
+
+    const values = [
+        {
+            icon: Lightbulb,
+            key: "innovation"
+        },
+        {
+            icon: Users,
+            key: "userFocus"
+        },
+        {
+            icon: Shield,
+            key: "security"
+        },
+        {
+            icon: Zap,
+            key: "efficiency"
+        }
+    ];
+
     return (
         <section className="py-20 bg-surface">
             <Container>
                 <h2 className="text-3xl font-bold text-text-primary mb-12 text-center">
-                    Nasze wartości
+                    {t('values.title')}
                 </h2>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -47,10 +46,10 @@ const CompanyValues = () => {
                                 <value.icon className="w-6 h-6 text-primary"/>
                             </div>
                             <h3 className="text-xl font-semibold text-text-primary mb-2">
-                                {value.title}
+                                {t(`values.items.${value.key}.title`)}
                             </h3>
                             <p className="text-text-secondary">
-                                {value.description}
+                                {t(`values.items.${value.key}.description`)}
                             </p>
                         </motion.div>
                     ))}

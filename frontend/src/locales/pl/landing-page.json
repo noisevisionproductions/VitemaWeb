@@ -1,0 +1,306 @@
+{
+  "nav": {
+    "features": "Funkcje",
+    "forWho": "Dla kogo",
+    "faq": "FAQ",
+    "contact": "Kontakt",
+    "login": "Logowanie",
+    "join": "Dołącz do nas",
+    "panel": "Panel"
+  },
+  "aria": {
+    "switchLanguage": "Zmień język"
+  },
+  "mission": {
+    "title": "Nasza misja",
+    "description": "W Noise Vision Software wierzymy, że technologia może znacząco usprawnić pracę specjalistów z branży dietetycznej i zdrowotnej. Naszą misją jest tworzenie innowacyjnych rozwiązań, które pomagają dietetykom skupić się na tym, co najważniejsze - na zdrowiu ich pacjentów.",
+    "logoAlt": "Logo NutriLog"
+  },
+  "values": {
+    "title": "Nasze wartości",
+    "items": {
+      "innovation": {
+        "title": "Innowacyjność",
+        "description": "Nieustannie poszukujemy nowych rozwiązań i możliwości rozwoju naszej platformy."
+      },
+      "userFocus": {
+        "title": "Zorientowanie na użytkownika",
+        "description": "Wsłuchujemy się w potrzeby naszych klientów i dostosowujemy nasze rozwiązania do ich wymagań."
+      },
+      "security": {
+        "title": "Bezpieczeństwo",
+        "description": "Priorytetowo traktujemy ochronę danych i prywatność użytkowników naszej platformy."
+      },
+      "efficiency": {
+        "title": "Efektywność",
+        "description": "Tworzymy narzędzia, które realnie oszczędzają czas i zwiększają produktywność."
+      }
+    }
+  },
+  "team": {
+    "title": "Zespół",
+    "founderRole": "Założyciel NutriLog",
+    "founderDesc": "Z pasją do technologii i wizją usprawnienia pracy dietetyków, prowadzi rozwój NutriLog, łącząc doświadczenie w tworzeniu oprogramowania z głębokim zrozumieniem potrzeb branży dietetycznej.",
+    "photoAlt": "Tomasz Jurczyk - Założyciel NutriLog"
+  },
+  "history": {
+    "title": "Nasza historia",
+    "stage1": {
+      "title": "Od pojedynczego projektu do kompleksowego rozwiązania",
+      "desc": "Wszystko zaczęło się od współpracy z lokalnym dietetykiem, dla którego stworzyliśmy aplikację mobilną umożliwiającą jego klientom łatwy dostęp do diet i automatyczne tworzenie list zakupów. Sukces tego rozwiązania zainspirował nas do stworzenia Zdrowego Panelu - kompleksowej platformy dostępnej dla wszystkich specjalistów z branży dietetycznej."
+    },
+    "stage2": {
+      "title": "Dziś i jutro",
+      "desc": "Obecnie, jako dynamicznie rozwijający się startup, koncentrujemy się na tworzeniu innowacyjnych rozwiązań, które odpowiadają na realne potrzeby dietetyków i ich klientów. Nasz zespół, prowadzony przez założyciela firmy, nieustannie pracuje nad rozwojem platformy, wsłuchując się w feedback użytkowników i implementując nowe funkcjonalności."
+    }
+  },
+  "download": {
+    "titlePart1": "Twój dietetyk zawsze",
+    "titlePart2": "w Twojej kieszeni",
+    "description": "Pobierz naszą aplikację mobilną i zyskaj natychmiastowy dostęp do swoich planów żywieniowych, listy zakupów i komunikacji z dietetykiem, gdziekolwiek jesteś.",
+    "googlePlay": "Pobierz z",
+    "googlePlayAlt": "Pobierz aplikację z Google Play",
+    "requirements": "Dostępna dla urządzeń z systemem Android 8.0+"
+  },
+  "contact": {
+    "title": "Skontaktuj się z nami",
+    "subtitle": "Chętnie odpowiemy na Twoje pytania i pomożemy w rozpoczęciu pracy z NutriLog",
+    "cards": {
+      "phone": {
+        "title": "Zadzwoń do nas",
+        "desc": "Porozmawiaj z nami bezpośrednio o Twoich potrzebach"
+      },
+      "email": {
+        "title": "Napisz email",
+        "desc": "Odpowiemy na Twoją wiadomość w ciągu 24 godzin"
+      }
+    },
+    "form": {
+      "title": "Wyślij wiadomość",
+      "success": "Twoja wiadomość została wysłana. Skontaktujemy się wkrótce.",
+      "error": "Wystąpił błąd podczas wysyłania wiadomości. Spróbuj ponownie później.",
+      "submit": "Wyślij wiadomość",
+      "sending": "Wysyłanie...",
+      "labels": {
+        "name": "Imię lub nazwa firmy",
+        "email": "Email",
+        "phone": "Telefon (opcjonalnie)",
+        "message": "Wiadomość"
+      },
+      "validation": {
+        "required": "To pole jest wymagane",
+        "emailInvalid": "Nieprawidłowy adres email"
+      }
+    }
+  },
+  "features": {
+    "title": "Oszczędzaj czas dzięki automatyzacji",
+    "subtitle": "Skoncentruj się na pracy z klientami, a rutynowe zadania zostaw naszemu systemowi",
+    "footer": "Stale rozwijamy naszą platformę o nowe funkcje na podstawie potrzeb dietetyków.",
+    "footerLinkPrefix": "Masz pomysł?",
+    "footerLink": "Daj nam znać!",
+    "status": {
+      "comingSoon": "Wkrótce"
+    },
+    "items": {
+      "1": {
+        "title": "Import diet z plików Excel",
+        "description": "Automatycznie przetwarzaj istniejące plany dietetyczne z Excela do formatu cyfrowego bez ręcznego przepisywania."
+      },
+      "2": {
+        "title": "Gotowe listy zakupów",
+        "description": "System automatycznie generuje listy zakupów na podstawie diet, oszczędzając czas Tobie i Twoim klientom."
+      },
+      "3": {
+        "title": "Zarządzanie klientami",
+        "description": "Przypisuj diety do klientów, śledź ich postępy i zarządzaj danymi w jednym miejscu."
+      },
+      "4": {
+        "title": "Aplikacja mobilna dla klientów",
+        "description": "Twoi klienci mają stały dostęp do swoich diet, przepisów i list zakupów w intuicyjnej aplikacji mobilnej."
+      },
+      "5": {
+        "title": "Raporty i statystyki",
+        "description": "Podstawowe statystyki dotyczące klientów i ich diet, pomagające podejmować lepsze decyzje biznesowe."
+      },
+      "6": {
+        "title": "Baza wiedzy i szablony",
+        "description": "Rozwijana baza wiedzy z szablonami diet i materiałami edukacyjnymi dla dietetyków."
+      }
+    }
+  },
+  "faq": {
+    "title": "Często zadawane pytania",
+    "subtitle": "Znajdź odpowiedzi na najczęściej zadawane pytania dotyczące NutriLog",
+    "items": {
+      "1": {
+        "question": "Jak mogę rozpocząć korzystanie z NutriLog?",
+        "answer": "Obecnie zbieramy listę zainteresowanych osób, aby dostosować system do potrzeb rynku. Zapisz się do newslettera, a poinformujemy Cię o starcie platformy i damy dostęp do wersji beta z dodatkowymi korzyściami dla pierwszych użytkowników."
+      },
+      "2": {
+        "question": "Czy mogę dostosować system do mojej marki?",
+        "answer": "Tak, NutriLog będzie oferował możliwość white-label, co oznacza, że możesz dostosować wygląd systemu do swojej marki - włączając logo, kolory i domenę."
+      },
+      "3": {
+        "question": "Czy system będzie działał na urządzeniach mobilnych?",
+        "answer": "Tak, NutriLog jest projektowany z myślą o responsywności. Zarówno panel dietetyka jak i interfejs klienta będą w pełni funkcjonalne na wszystkich urządzeniach - komputerach, tabletach i telefonach."
+      },
+      "4": {
+        "question": "Jakie wsparcie techniczne będzie dostępne?",
+        "answer": "Planujemy zapewnić kompleksowe wsparcie techniczne poprzez czat, email oraz bazę wiedzy z tutorialami. Dla większych klientów przewidujemy dedykowane wsparcie i szkolenia."
+      },
+      "5": {
+        "question": "Czy będzie możliwość importu danych z innych systemów?",
+        "answer": "Tak, planujemy funkcję importu danych klientów i diet z popularnych formatów (CSV, Excel) oraz integracje z najpopularniejszymi systemami do zarządzania dietami."
+      },
+      "6": {
+        "question": "Jak wygląda kwestia bezpieczeństwa danych?",
+        "answer": "Bezpieczeństwo danych jest naszym priorytetem. System będzie zgodny z RODO, a dane będą szyfrowane i przechowywane na bezpiecznych serwerach w UE. Nie będziemy mieli możliwości wglądu do wrażliwych danych dietetyków i ich klientów."
+      },
+      "7": {
+        "question": "Czym NutriLog wyróżnia się na tle konkurencji?",
+        "answer": "NutriLog wyróżnia się wykorzystaniem najnowocześniejszych technologii zarówno w panelu dietetyka, jak i aplikacji dla klientów. Cały system jest zoptymalizowany pod kątem wydajności, co zapewnia płynne działanie bez zawieszania się czy crashów, nawet przy dużym obciążeniu."
+      }
+    }
+  },
+  "cta": {
+    "title": "Rozpocznij transformację swojej praktyki dietetycznej",
+    "subtitle": "Dołącz do grona pierwszych użytkowników i zyskaj 6 miesięcy dostępu za darmo",
+    "disclaimer": "Dołączając do listy, zgadzasz się na otrzymywanie informacji o produkcie. Możesz zrezygnować w każdej chwili."
+  },
+  "forWho": {
+    "title": "Dla kogo jest NutriLog?",
+    "subtitle": "Kompleksowe rozwiązanie dla wszystkich uczestników procesu dietetycznego",
+    "footer": "NutriLog łączy dietetyków z ich klientami w jednym ekosystemie, zapewniając płynną komunikację i efektywną współpracę.",
+    "items": {
+      "1": {
+        "title": "Indywidualni dietetycy",
+        "description": "Prowadzisz własną praktykę dietetyczną i szukasz narzędzia do efektywnej pracy z klientami?",
+        "benefits": [
+          "Automatyzacja rutynowych zadań",
+          "Profesjonalny wizerunek",
+          "Łatwe zarządzanie dietami",
+          "Więcej czasu na pracę z klientami",
+          "Monitorowanie postępów klientów"
+        ]
+      },
+      "2": {
+        "title": "Gabinety i kliniki",
+        "description": "Zarządzasz zespołem dietetyków i potrzebujesz systemu do koordynacji ich pracy?",
+        "benefits": [
+          "Zarządzanie zespołem dietetyków",
+          "Centralna baza klientów",
+          "Raportowanie i analityka",
+          "Współdzielenie materiałów",
+          "Spójny system pracy"
+        ]
+      },
+      "3": {
+        "title": "Sieci dietetyczne",
+        "description": "Prowadzisz sieć gabinetów lub franczyzę i potrzebujesz skalowalnego rozwiązania?",
+        "benefits": [
+          "White label rozwiązanie",
+          "Zarządzanie wieloma lokalizacjami",
+          "Zaawansowana analityka",
+          "Integracje z systemami",
+          "Dostosowanie do marki"
+        ]
+      },
+      "4": {
+        "title": "Klienci dietetyków",
+        "description": "Pracujesz z dietetykiem i potrzebujesz wygodnego dostępu do swoich planów żywieniowych?",
+        "benefits": [
+          "Wygodny dostęp do diety w aplikacji mobilnej",
+          "Gotowe listy zakupów na każdy dzień",
+          "Monitorowanie postępów",
+          "Łatwa komunikacja z dietetykiem",
+          "Dostęp do przepisów i materiałów edukacyjnych"
+        ]
+      }
+    }
+  },
+  "newsletter": {
+    "placeholder": "Twój adres email",
+    "submit": "Zapisz się do listy oczekujących",
+    "submitting": "Zapisywanie...",
+    "successTitle": "Dziękujemy za zapisanie się!",
+    "successMsg": "Sprawdź swoją skrzynkę email, aby potwierdzić zapis do newslettera.",
+    "validation": {
+      "emailRequired": "Email jest wymagany",
+      "emailInvalid": "Nieprawidłowy adres email",
+      "roleRequired": "Wybierz kim jesteś"
+    },
+    "roles": {
+      "dietitian": "Jestem dietetykiem",
+      "company": "Reprezentuję firmę dietetyczną"
+    }
+  },
+  "footer": {
+    "description": "Kompleksowy system do zarządzania praktyką dietetyczną i komunikacji z klientami.",
+    "copyright": "© {{year}} NutriLog. Wszystkie prawa zastrzeżone.",
+    "sections": {
+      "product": "Produkt",
+      "company": "Firma",
+      "other": "Inne"
+    },
+    "links": {
+      "features": "Funkcje",
+      "forWho": "Dla kogo",
+      "faq": "FAQ",
+      "about": "O nas",
+      "contact": "Kontakt",
+      "privacy": "Polityka prywatności"
+    }
+  },
+  "hero": {
+    "titlePart1": "Stwórz i zarządzaj",
+    "titlePart2": "spersonalizowanymi dietami",
+    "subtitle": "Kompleksowe narzędzie do zarządzania dietami i komunikacji z klientami. Oszczędź czas, zwiększ efektywność i rozwijaj swoją praktykę, wybierając najnowocześniejsze rozwiązanie.",
+    "offer": {
+      "label": "Oferta specjalna:",
+      "textPart1": "Pierwszych",
+      "highlight": "50 użytkowników",
+      "textPart2": "otrzyma 6 miesięcy dostępu za darmo! Zapisz się na listę oczekujących."
+    },
+    "mockup": {
+      "panelAlt": "Panel dietetyka - zarządzanie dietami",
+      "appAlt": "Aplikacja mobilna dla klientów"
+    }
+  },
+  "stats": {
+    "title": "Trudności, które rozwiązuje nasza platforma",
+    "subtitle": "Codzienne wyzwania dietetyków, które pomagamy przezwyciężyć",
+    "note": "* Dane na podstawie badań przeprowadzonych wśród dietetyków i ich klientów w 2023 roku",
+    "items": {
+      "1": {
+        "label": "tygodniowo tracone na ręczne zarządzanie dietami",
+        "description": "Dietetycy marnują średnio 12 godzin tygodniowo na przygotowywanie dokumentacji, układanie planów i ręczne obliczanie wartości odżywczych."
+      },
+      "2": {
+        "label": "klientów rezygnuje z powodu braku wygodnego dostępu do diety",
+        "description": "Brak łatwego dostępu do planów żywieniowych i komunikacji z dietetykiem jest głównym powodem rezygnacji klientów z kontynuacji współpracy."
+      },
+      "3": {
+        "label": "klientów preferuje aplikację mobilną do kontaktu z dietetykiem",
+        "description": "Większość klientów oczekuje możliwości sprawdzenia swojej diety, postępów i komunikacji z dietetykiem przez aplikację mobilną."
+      }
+    }
+  },
+  "auth": {
+    "backToHome": "Powrót do strony głównej",
+    "welcomeTitle": "Panel Dietetyka",
+    "welcomeGreeting": "Witaj w NutriLog!",
+    "featureDietManagement": "Kompleksowe zarządzanie dietami",
+    "loginTitle": "Zaloguj się do panelu",
+    "noAccess": "Nie masz dostępu?",
+    "contactAdmin": "Skontaktuj się z administratorem",
+    "form": {
+      "emailLabel": "Email",
+      "emailPlaceholder": "twoj@email.com",
+      "passwordLabel": "Hasło",
+      "submit": "Zaloguj się",
+      "loading": "Logowanie...",
+      "error": "Nieprawidłowy email lub hasło"
+    }
+  }
+}

@@ -2,26 +2,29 @@ import {ClockIcon, UsersIcon} from "lucide-react";
 import {ChartBarIcon} from "@heroicons/react/24/outline";
 import Container from "../../shared/ui/landing/Container";
 import SectionHeader from "../../shared/ui/landing/SectionHeader";
+import {useTranslation} from "react-i18next";
 
 const MarketStats = () => {
+    const {t} = useTranslation();
+
     const statistics = [
         {
             icon: ClockIcon,
             value: "12h",
-            label: "tygodniowo tracone na ręczne zarządzanie dietami",
-            description: "Dietetycy marnują średnio 12 godzin tygodniowo na przygotowywanie dokumentacji, układanie planów i ręczne obliczanie wartości odżywczych."
+            label: t('stats.items.1.label'),
+            description: t('stats.items.1.description')
         },
         {
             icon: UsersIcon,
             value: "35%",
-            label: "klientów rezygnuje z powodu braku wygodnego dostępu do diety",
-            description: "Brak łatwego dostępu do planów żywieniowych i komunikacji z dietetykiem jest głównym powodem rezygnacji klientów z kontynuacji współpracy."
+            label: t('stats.items.2.label'),
+            description: t('stats.items.2.description')
         },
         {
             icon: ChartBarIcon,
             value: "68%",
-            label: "klientów preferuje aplikację mobilną do kontaktu z dietetykiem",
-            description: "Większość klientów oczekuje możliwości sprawdzenia swojej diety, postępów i komunikacji z dietetykiem przez aplikację mobilną."
+            label: t('stats.items.3.label'),
+            description: t('stats.items.3.description')
         }
     ];
 
@@ -29,8 +32,8 @@ const MarketStats = () => {
         <section className="py-20 bg-surface">
             <Container>
                 <SectionHeader
-                    title="Trudności, które rozwiązuje nasza platforma"
-                    subtitle="Codzienne wyzwania dietetyków, które pomagamy przezwyciężyć"
+                    title={t('stats.title')}
+                    subtitle={t('stats.subtitle')}
                 />
 
                 <div className="mt-12 grid md:grid-cols-3 gap-8">
@@ -60,7 +63,7 @@ const MarketStats = () => {
 
                 <div className="mt-12 text-xs text-center">
                     <p className="text-text-secondary">
-                        * Dane na podstawie badań przeprowadzonych wśród dietetyków i ich klientów w 2023 roku
+                        {t('stats.note')}
                     </p>
                 </div>
             </Container>

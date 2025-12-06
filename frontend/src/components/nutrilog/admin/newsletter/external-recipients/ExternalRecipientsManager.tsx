@@ -3,7 +3,7 @@ import {ExternalRecipient} from "../../../../../types/nutrilog/sendGrid";
 import {toast} from "../../../../../utils/toast";
 import {PlusCircle} from "lucide-react";
 import LoadingSpinner from "../../../../shared/common/LoadingSpinner";
-import {DialogContent, Dialog, DialogHeader, DialogTitle, DialogDescription} from "../../../../shared/ui/dialog";
+import {DialogContent, Dialog, DialogHeader, DialogTitle, DialogDescription} from "../../../../shared/ui/Dialog";
 import RecipientsList from "./RecipientsList";
 import AddRecipientForm from "./AddRecipientForm";
 import {ExternalRecipientService} from "../../../../../services/nutrilog/newsletter/ExternalRecipientService";

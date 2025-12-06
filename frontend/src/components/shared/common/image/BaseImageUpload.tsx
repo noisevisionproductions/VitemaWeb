@@ -1,8 +1,8 @@
 import React, {useState, useRef} from 'react';
 import {toast} from 'sonner';
 import {Upload, X, Image as ImageIcon, AlertCircle} from 'lucide-react';
-import {Button} from "../../ui/button";
-import {Card, CardContent} from "../../ui/card";
+import {Button} from "../../ui/Button";
+import {Card, CardContent} from "../../ui/Card";
 import LoadingSpinner from "../LoadingSpinner";
 
 interface BaseImageUploadProps {

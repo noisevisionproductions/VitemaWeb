@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {CardContent} from "../../../../../shared/ui/card";
+import {CardContent} from "../../../../../shared/ui/Card";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "../../../../../shared/ui/Tabs";
 import {AlertTriangle, Clock, FileSpreadsheet, ListChecks} from "lucide-react";
 import ExcelGuide from "./ExcelGuide";

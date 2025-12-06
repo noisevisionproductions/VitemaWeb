@@ -4,7 +4,7 @@ import {Recipe} from "../../../types/nutrilog";
 import {RecipeService} from "../../../services/nutrilog/RecipeService";
 import {toast} from "../../../utils/toast";
 import LoadingSpinner from "../../shared/common/LoadingSpinner";
-import {Button} from "../../shared/ui/button";
+import {Button} from "../../shared/ui/Button";
 import {Input} from "../../shared/ui/Input";
 import {Textarea} from "../../shared/ui/Textarea";
 import {Label} from "../../shared/ui/Label";
@@ -16,8 +16,8 @@ import {
     DialogTitle,
     DialogFooter,
     DialogDescription,
-} from "../../shared/ui/dialog";
-import {ScrollArea} from "../../shared/ui/scroll-area";
+} from "../../shared/ui/Dialog";
+import {ScrollArea} from "../../shared/ui/ScrollArea";
 import NutritionalValues from "../../shared/common/NutritionalValues";
 import RecipeImageGallery from "./RecipeImageGallery";
 import ImageUploadDialog from "../../shared/common/image/ImageUploadDialog";

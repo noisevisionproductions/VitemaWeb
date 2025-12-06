@@ -2,7 +2,13 @@ import {UserType} from "./forWhoData";
 import {motion} from "framer-motion";
 import {CheckCircleIcon} from "@heroicons/react/16/solid";
 
-const UserTypeCard = ({title, description, benefits, icon: Icon, primary}: UserType) => {
+interface UserTypeCardProps extends UserType {
+    title: string;
+    description: string;
+    benefits: string[];
+}
+
+const UserTypeCard = ({title, description, benefits, icon: Icon, primary}: UserTypeCardProps) => {
     return (
         <motion.div
             whileHover={{scale: 1.02}}

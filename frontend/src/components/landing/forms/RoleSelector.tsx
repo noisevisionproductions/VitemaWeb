@@ -1,5 +1,6 @@
 import {UseFormRegister} from 'react-hook-form';
 import {CheckCircle} from 'lucide-react';
+import {useTranslation} from "react-i18next";
 
 interface RoleSelectorProps {
     selectedRole: 'dietetyk' | 'firma' | undefined;
@@ -8,6 +9,8 @@ interface RoleSelectorProps {
 }
 
 const RoleSelector = ({selectedRole, register, error}: RoleSelectorProps) => {
+    const {t} = useTranslation();
+
     return (
         <div className="flex flex-wrap gap-4">
             <label className="relative flex items-center gap-2 cursor-pointer group">
@@ -23,7 +26,7 @@ const RoleSelector = ({selectedRole, register, error}: RoleSelectorProps) => {
                     : 'border-border hover:bg-white/50 hover:border-primary/30'}`}
                 >
                     <span className="text-text-primary font-medium">
-                        👩‍⚕️ Jestem dietetykiem
+                        👩‍⚕️ {t('newsletter.roles.dietitian')}
                     </span>
                     {selectedRole === 'dietetyk' && (
                         <CheckCircle className="w-5 h-5 text-primary"/>
@@ -43,7 +46,7 @@ const RoleSelector = ({selectedRole, register, error}: RoleSelectorProps) => {
                     : 'border-border hover:bg-white/50 hover:border-primary/30'}`}
                 >
                     <span className="text-text-primary font-medium">
-                        🏢 Reprezentuję firmę dietetyczną
+                        🏢 {t('newsletter.roles.company')}
                     </span>
                     {selectedRole === 'firma' && (
                         <CheckCircle className="w-5 h-5 text-primary"/>
@@ -52,7 +55,7 @@ const RoleSelector = ({selectedRole, register, error}: RoleSelectorProps) => {
             </label>
             {error && (
                 <p className="w-full mt-2 text-sm text-status-error">
-                    Wybierz kim jesteś
+                    {t('newsletter.validation.roleRequired')}
                 </p>
             )}
         </div>

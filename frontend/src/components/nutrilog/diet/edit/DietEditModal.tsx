@@ -1,5 +1,5 @@
 import React from 'react';
-import {Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription} from "../../../shared/ui/sheet";
+import {Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription} from "../../../shared/ui/Sheet";
 import {Diet} from "../../../../types/nutrilog";
 import DietEditTabs from "./DietEditTabs";
 import {useDietEditor} from "../../../../hooks/nutrilog/diet/useDietEditor";

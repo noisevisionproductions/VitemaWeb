@@ -3,23 +3,27 @@ import Container from "../shared/ui/landing/Container";
 import {Bars3Icon, XMarkIcon} from "@heroicons/react/16/solid";
 import Logo from "../shared/ui/landing/Logo";
 import * as React from "react";
-import {useLocation} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {useAuth} from "../../contexts/AuthContext";
 import {Link} from 'react-router-dom';
 import {AnimatePresence, motion} from "framer-motion";
+import {useTranslation} from "react-i18next";
+import LanguageSwitcher from "../shared/ui/landing/LanguageSwitcher";
 
 const Header: FC = () => {
+    const {t} = useTranslation();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [isOverCTA, setIsOverCTA] = useState(false);
     const location = useLocation();
+    const navigate = useNavigate();
     const {currentUser} = useAuth();
 
     const navigation = [
-        {name: 'Funkcje', href: '#features'},
-        {name: 'Dla kogo', href: '#for-who'},
-        {name: 'FAQ', href: '#faq'},
-        {name: 'Kontakt', href: '#contact'},
+        {name: t('nav.features'), href: '#features'},
+        {name: t('nav.forWho'), href: '#for-who'},
+        {name: t('nav.faq'), href: '#faq'},
+        {name: t('nav.contact'), href: '#contact'},
     ];
 
     useEffect(() => {
@@ -41,8 +45,10 @@ const Header: FC = () => {
 
     const handleScrollToSection = (event: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>, sectionId: string) => {
         event.preventDefault();
+
         if (location.pathname !== '/') {
-            window.location.href = `/${sectionId}`;
+            navigate('/', {state: {scrollTo: sectionId}});
+            setIsMobileMenuOpen(false);
             return;
         }
 
@@ -111,7 +117,7 @@ const Header: FC = () => {
                                 to="/dashboard"
                                 className={adminButtonClassName}
                             >
-                                Panel
+                                {t('nav.panel')}
                             </Link>
                         ) : (
                             <>
@@ -119,16 +125,22 @@ const Header: FC = () => {
                                     to="/login"
                                     className={linkClassName}
                                 >
-                                    Logowanie
+                                    {t('nav.login')}
                                 </Link>
                                 <button
                                     onClick={(e) => handleScrollToSection(e, 'cta-section')}
                                     className={buttonClassName}
                                 >
-                                    Dołącz do nas
+                                    {t('nav.join')}
                                 </button>
                             </>
                         )}
+
+                        {/* Language Switcher Desktop */}
+                        <div className="px-2 border-l border-gray-300/30">
+                            <LanguageSwitcher className={linkClassName}/>
+                        </div>
+
                     </nav>
 
                     {/* Mobile Menu Button */}
@@ -164,12 +176,17 @@ const Header: FC = () => {
                                 </a>
                             ))}
 
+                            {/* Language Switcher Mobile */}
+                            <div className="border-t border-b border-gray-100 py-2">
+                                <LanguageSwitcher isMobile={true}/>
+                            </div>
+
                             {currentUser ? (
                                 <Link
                                     to="/dashboard"
                                     className="block w-full bg-secondary text-white px-6 py-3 rounded-lg hover:bg-secondary/90 text-center"
                                 >
-                                    Panel
+                                    {t('nav.panel')}
                                 </Link>
                             ) : (
                                 <>
@@ -177,13 +194,13 @@ const Header: FC = () => {
                                         to="/login"
                                         className="block text-text-secondary hover:text-primary py-2 font-medium w-full text-left"
                                     >
-                                        Logowanie
+                                        {t('nav.login')}
                                     </Link>
                                     <button
                                         onClick={(e) => handleScrollToSection(e, 'cta-section')}
                                         className="w-full bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dark mt-2"
                                     >
-                                        Dołącz do nas
+                                        {t('nav.join')}
                                     </button>
                                 </>
                             )}

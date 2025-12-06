@@ -2,10 +2,10 @@ import React, {useRef, useState} from "react";
 import RecipesList, {RecipesListRef} from "../../../../recipes/RecipesList";
 import RecipeModal from "../../../../recipes/RecipeModal";
 import SectionHeader from "../../../../../shared/common/SectionHeader";
-import {Button} from "../../../../../shared/ui/button";
+import {Button} from "../../../../../shared/ui/Button";
 import {FileImage, FileX, RefreshCcw, Search, Filter, ChevronDown} from "lucide-react";
 import {Input} from "../../../../../shared/ui/Input";
-import {Badge} from "../../../../../shared/ui/badge";
+import {Badge} from "../../../../../shared/ui/Badge";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -13,7 +13,7 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "../../../../../shared/ui/dropdown-menu";
+} from "../../../../../shared/ui/DropdownMenu";
 import LoadingSpinner from "../../../../../shared/common/LoadingSpinner";
 import {Recipe} from "../../../../../../types/nutrilog";
 

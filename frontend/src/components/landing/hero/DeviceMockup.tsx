@@ -1,6 +1,9 @@
 import {motion} from 'framer-motion';
+import {useTranslation} from "react-i18next";
 
 const DeviceMockup = () => {
+    const {t} = useTranslation();
+
     return (
         <div className="relative w-full max-w-[600px] mx-auto">
             {/* Desktop/laptop mockup */}
@@ -13,7 +16,7 @@ const DeviceMockup = () => {
                 >
                     <img
                         src="/images/panel_photo.png"
-                        alt="Panel dietetyka - zarządzanie dietami"
+                        alt={t('hero.mockup.panelAlt')}
                         className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
@@ -28,7 +31,7 @@ const DeviceMockup = () => {
                 >
                     <img
                         src="/images/app_photo.jpg"
-                        alt="Aplikacja mobilna dla klientów"
+                        alt={t('hero.mockup.appAlt')}
                         className="w-full"
                     />
                 </motion.div>

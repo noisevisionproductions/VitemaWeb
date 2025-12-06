@@ -2,8 +2,11 @@ import Logo from '../components/shared/ui/landing/Logo';
 import {Link} from 'react-router-dom';
 import {ArrowLeftIcon} from '@heroicons/react/24/outline';
 import LoginForm from "../components/nutrilog/auth/LoginForm";
+import {useTranslation} from "react-i18next";
 
 const Login = () => {
+    const {t} = useTranslation();
+
     return (
         <div className="min-h-screen flex flex-col md:flex-row relative">
             <Link
@@ -11,25 +14,21 @@ const Login = () => {
                 className="absolute top-6 left-6 flex items-center gap-2 bg-white/90 px-4 py-2 rounded-lg text-primary hover:bg-white transition-colors group z-10"
             >
                 <ArrowLeftIcon className="h-5 w-5 group-hover:-translate-x-1 transition-transform"/>
-                <span>Powrót do strony głównej</span>
+                <span>{t('auth.backToHome')}</span>
             </Link>
 
             <div
                 className="hidden md:flex md:w-1/2 bg-gradient-to-br from-primary to-primary-dark p-12 text-white items-center justify-center">
                 <div className="max-w-md">
-                    <h1 className="text-4xl font-bold mb-6">Panel Administratora</h1>
+                    <h1 className="text-4xl font-bold mb-6">{t('auth.welcomeTitle')}</h1>
                     <p className="text-lg text-white/90 mb-6">
-                        Witaj!
+                        {t('auth.welcomeGreeting')}
                     </p>
                     <div className="space-y-3 text-sm text-white/80">
                         <div className="flex items-center gap-2">
                             <div className="w-2 h-2 bg-white/60 rounded-full"></div>
-                            <span>NutriLog - Zarządzanie dietami</span>
+                            <span>{t('auth.featureDietManagement')}</span>
                         </div>
-                       {/* <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 bg-white/60 rounded-full"></div>
-                            <span>Scandal Shuffle - Zarządzanie grą</span>
-                        </div>*/}
                     </div>
                 </div>
             </div>
@@ -41,11 +40,8 @@ const Login = () => {
                             <Logo asLink={false}/>
                         </Link>
                         <h2 className="mt-2 text-2xl font-bold text-gray-900">
-                            Zaloguj się do panelu
+                            {t('auth.loginTitle')}
                         </h2>
-                   {/*     <p className="mt-2 text-sm text-gray-600 text-center">
-                            Wybierz aplikację i wprowadź dane logowania
-                        </p>*/}
                     </div>
 
                     <div className="bg-white p-8 rounded-xl shadow-sm">
@@ -53,9 +49,9 @@ const Login = () => {
                     </div>
 
                     <p className="text-center text-sm text-gray-600">
-                        Nie masz dostępu? {' '}
+                        {t('auth.noAccess')} {' '}
                         <a href="mailto:kontakt@szytadieta.pl" className="text-primary hover:text-primary-dark">
-                            Skontaktuj się z administratorem
+                            {t('auth.contactAdmin')}
                         </a>
                     </p>
                 </div>

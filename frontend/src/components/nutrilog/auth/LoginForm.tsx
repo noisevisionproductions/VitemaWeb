@@ -4,8 +4,10 @@ import {useNavigate} from "react-router-dom";
 import {EnvelopeIcon, LockClosedIcon} from "@heroicons/react/24/outline";
 import InputField from "../../shared/ui/InputField";
 import {ApplicationType} from "../../../types/application";
+import {useTranslation} from "react-i18next";
 
 const LoginForm = () => {
+    const {t} = useTranslation();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
@@ -21,11 +23,10 @@ const LoginForm = () => {
 
         try {
             await loginWithApplication(email, password, ApplicationType.NUTRILOG);
-
             navigate('/dashboard');
         } catch (error) {
             console.error('Login failed:', error);
-            setError("Nieprawidłowy email lub hasło");
+            setError(t('auth.form.error'));
         } finally {
             setIsSubmitting(false);
         }
@@ -41,18 +42,18 @@ const LoginForm = () => {
 
             <InputField
                 id="email"
-                label="Email"
+                label={t('auth.form.emailLabel')}
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 icon={<EnvelopeIcon className="h-5 w-5 text-gray-400"/>}
-                placeholder="twoj@email.com"
+                placeholder={t('auth.form.emailPlaceholder')}
                 required
             />
 
             <InputField
                 id="password"
-                label="Hasło"
+                label={t('auth.form.passwordLabel')}
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -74,10 +75,10 @@ const LoginForm = () => {
                            <path className="opacity-75" fill="currentColor"
                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
                        </svg>
-                       Logowanie...
+                        {t('auth.form.loading')}
                    </span>
                 ) : (
-                    `Zaloguj się do NutriLog`
+                    t('auth.form.submit')
                 )}
             </button>
         </form>

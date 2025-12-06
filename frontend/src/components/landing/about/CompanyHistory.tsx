@@ -1,7 +1,10 @@
 import Container from "../../shared/ui/landing/Container";
 import {motion} from "framer-motion";
+import {useTranslation} from "react-i18next";
 
 const CompanyHistory = () => {
+    const {t} = useTranslation();
+
     return (
         <section className="py-20 bg-background">
             <Container>
@@ -12,32 +15,25 @@ const CompanyHistory = () => {
                     className="max-w-4xl mx-auto"
                 >
                     <h2 className="text-3xl font-bold text-text-primary mb-8 text-center">
-                        Nasza historia
+                        {t('history.title')}
                     </h2>
 
                     <div className="space-y-8">
                         <div className="bg-surface p-6 rounded-xl border border-border">
                             <h3 className="text-xl font-semibold text-text-primary mb-4">
-                                Od pojedynczego projektu do kompleksowego rozwiązania
+                                {t('history.stage1.title')}
                             </h3>
                             <p className="text-text-secondary">
-                                Wszystko zaczęło się od współpracy z lokalnym dietetykiem, dla którego stworzyliśmy
-                                aplikację mobilną umożliwiającą jego klientom łatwy dostęp do diet i automatyczne
-                                tworzenie list zakupów. Sukces tego rozwiązania zainspirował nas do stworzenia Zdrowego
-                                Panelu - kompleksowej platformy dostępnej dla wszystkich specjalistów z branży
-                                dietetycznej.
+                                {t('history.stage1.desc')}
                             </p>
                         </div>
 
                         <div className="bg-surface p-6 rounded-xl border border-border">
                             <h3 className="text-xl font-semibold text-text-primary mb-4">
-                                Dziś i jutro
+                                {t('history.stage2.title')}
                             </h3>
                             <p className="text-text-secondary">
-                                Obecnie, jako dynamicznie rozwijający się startup, koncentrujemy się na tworzeniu
-                                innowacyjnych rozwiązań, które odpowiadają na realne potrzeby dietetyków i ich klientów.
-                                Nasz zespół, prowadzony przez założyciela firmy, nieustannie pracuje nad rozwojem
-                                platformy, wsłuchując się w feedback użytkowników i implementując nowe funkcjonalności.
+                                {t('history.stage2.desc')}
                             </p>
                         </div>
                     </div>

@@ -3,7 +3,7 @@ import {ParsedMeal} from "../../../../../types/nutrilog";
 import {getMealTypeLabel} from "../../../../../utils/diet/mealTypeUtils";
 import {Clock, Image, Plus} from "lucide-react";
 import ImageUploadDialog from "../../../../shared/common/image/ImageUploadDialog";
-import {Button} from "../../../../shared/ui/button";
+import {Button} from "../../../../shared/ui/Button";
 import api from "../../../../../config/axios";
 import {toast} from "../../../../../utils/toast";
 import ImageGallery from "../../../../shared/common/image/ImageGallery";
