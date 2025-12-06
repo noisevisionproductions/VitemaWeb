@@ -39,7 +39,7 @@ dependencies {
     implementation 'org.springframework:spring-test:6.1.4'
 
     // PostgreSQL
-    implementation 'org.postgresql:postgresql:42.7.5'
+    implementation 'org.postgresql:postgresql:42.7.7'
 
     // Flyway z obsługą PostgreSQL 16
     implementation 'org.flywaydb:flyway-core:11.4.0'
