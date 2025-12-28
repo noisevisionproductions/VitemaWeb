@@ -3,7 +3,6 @@ import {useAuth} from "../../../contexts/AuthContext";
 import {useNavigate} from "react-router-dom";
 import {EnvelopeIcon, LockClosedIcon} from "@heroicons/react/24/outline";
 import InputField from "../../shared/ui/InputField";
-import {ApplicationType} from "../../../types/application";
 import {useTranslation} from "react-i18next";
 
 const LoginForm = () => {
@@ -13,7 +12,7 @@ const LoginForm = () => {
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const {loginWithApplication} = useAuth();
+    const {login} = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -22,7 +21,7 @@ const LoginForm = () => {
         setError(null);
 
         try {
-            await loginWithApplication(email, password, ApplicationType.NUTRILOG);
+            await login(email, password);
             navigate('/dashboard');
         } catch (error) {
             console.error('Login failed:', error);

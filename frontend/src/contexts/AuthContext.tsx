@@ -5,10 +5,6 @@ import {User, UserRole} from '../types/nutrilog/user';
 import api from "../config/axios";
 import axios from 'axios';
 import {useRouteRestoration} from "./RouteRestorationContext";
-import {ApplicationType} from "../types/application";
-import {SupabaseAuthService, SupabaseUser} from "../services/scandallShuffle/SupabaseAuthService";
-import {useApplication} from "./ApplicationContext";
-import {supabase} from "../config/supabase";
 
 interface AuthContextType {
     currentUser: FirebaseUser | null;
@@ -21,13 +17,10 @@ interface AuthContextType {
     isAdmin: () => boolean;
     isOwner: () => boolean;
     hasRole: (requiredRole: UserRole) => boolean;
-    supabaseUser: SupabaseUser | null;
-    loginWithApplication: (email: string, password: string, applicationType: ApplicationType) => Promise<any>;
     isAuthenticated: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
-const SUPABASE_TOKEN_KEY = 'supabase_token';
 
 export const useAuth = () => {
     const context = useContext(AuthContext);
@@ -42,66 +35,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
     const [userData, setUserData] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [userClaims, setUserClaims] = useState<Record<string, any> | null>(null);
-    const [supabaseUser, setSupabaseUser] = useState<SupabaseUser | null>(null);
 
-    const {currentApplication} = useApplication();
     const {clearSavedRoute} = useRouteRestoration();
-    const {setApplication} = useApplication();
-
-    useEffect(() => {
-        let firebaseUnsubscribe: (() => void) | undefined;
-        let supabaseSubscription: any;
-
-        setLoading(true);
-
-        if (currentApplication === ApplicationType.SCANDAL_SHUFFLE) {
-
-            supabaseSubscription = SupabaseAuthService.onAuthStateChange(async (event, session) => {
-                if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
-                    const user = session?.user;
-                    if (user) {
-                        const {data: profile} = await supabase
-                            .from('profiles')
-                            .select('role, display_name')
-                            .eq('user_id', user.id)
-                            .single();
-
-                        const appUser: SupabaseUser = {
-                            id: user.id,
-                            email: user.email!,
-                            role: profile?.role || 'user',
-                            displayName: profile?.display_name || user.email,
-                        };
-
-                        setSupabaseUser(appUser);
-                        setUserData(mapSupabaseUserToUser(appUser));
-                        if (session?.access_token) {
-                            localStorage.setItem(SUPABASE_TOKEN_KEY, session.access_token);
-                        }
-                    }
-                } else if (event === 'SIGNED_OUT') {
-                    setSupabaseUser(null);
-                    setUserData(null);
-                    localStorage.removeItem(SUPABASE_TOKEN_KEY);
-                }
-
-                setLoading(false);
-            });
-
-        } else if (currentApplication === ApplicationType.NUTRILOG) {
-            setLoading(false);
-        } else {
-            setLoading(false);
-        }
-
-        return () => {
-            if (firebaseUnsubscribe) firebaseUnsubscribe();
-            if (supabaseSubscription) {
-                console.log('[AuthContext] Cleanup: Unsubscribing from Supabase auth state changes.');
-                supabaseSubscription.unsubscribe();
-            }
-        };
-    }, [currentApplication]);
 
     const validateTokenAndSetUserData = async (user: FirebaseUser) => {
         try {
@@ -119,6 +54,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
         }
     };
 
+    useEffect(() => {
+        setLoading(true);
+        const unsubscribe = auth.onAuthStateChanged(async (user) => {
+            setCurrentUser(user);
+
+            if (user) {
+                try {
+                    await validateTokenAndSetUserData(user);
+                } catch (error) {
+                    console.error("Failed to fetch user data on restoration", error);
+                }
+            } else {
+                setUserData(null);
+                setUserClaims(null);
+            }
+
+            setLoading(false);
+        });
+
+        return () => {
+            unsubscribe();
+        };
+    }, []);
+
     const refreshUserData = async () => {
         if (!currentUser) return;
 
@@ -133,41 +92,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
 
     const login = async (email: string, password: string): Promise<User> => {
         try {
-            if (currentApplication === ApplicationType.SCANDAL_SHUFFLE) {
-                const supabaseUser = await SupabaseAuthService.login(email, password);
-                setSupabaseUser(supabaseUser);
+            const credential = await signInWithEmailAndPassword(auth, email, password);
+            const token = await credential.user.getIdToken(true);
 
-                const userData: User = {
-                    id: supabaseUser.id,
-                    email: supabaseUser.email,
-                    nickname: supabaseUser.displayName || supabaseUser.email.split('@')[0],
-                    role: supabaseUser.role as any,
-                    gender: null,
-                    birthDate: null,
-                    storedAge: 0,
-                    profileCompleted: false,
-                    note: '',
-                    createdAt: Date.now()
-                };
+            const response = await api.post('/auth/login', {email}, {
+                headers: {'Authorization': `Bearer ${token}`}
+            });
 
-                setUserData(userData);
-                return userData;
-            } else {
-                const credential = await signInWithEmailAndPassword(auth, email, password);
-                const token = await credential.user.getIdToken(true);
+            const userData = response.data as User;
+            setUserData(userData);
+            setCurrentUser(credential.user);
 
-                const response = await api.post('/auth/login', {email}, {
-                    headers: {'Authorization': `Bearer ${token}`}
-                });
+            const tokenResult = await credential.user.getIdTokenResult();
+            setUserClaims(tokenResult.claims);
 
-                const userData = response.data as User;
-                setUserData(userData);
-
-                const tokenResult = await credential.user.getIdTokenResult();
-                setUserClaims(tokenResult.claims);
-
-                return userData;
-            }
+            return userData;
         } catch (error) {
             console.error('Authentication error:', error);
             await logout();
@@ -175,38 +114,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
             if (axios.isAxiosError(error)) {
                 throw new Error(error.response?.data?.message || 'Błąd uwierzytelniania');
             }
-            throw error;
-        }
-    };
-
-    const loginWithApplication = async (email: string, password: string, applicationType: ApplicationType) => {
-        try {
-            setApplication(applicationType);
-
-            if (applicationType === ApplicationType.NUTRILOG) {
-                return await login(email, password);
-            } else {
-                const user = await SupabaseAuthService.login(email, password);
-                setSupabaseUser(user);
-
-                const userData: User = {
-                    id: user.id,
-                    email: user.email,
-                    nickname: user.displayName || user.email.split('@')[0],
-                    role: user.role as any,
-                    gender: null,
-                    birthDate: null,
-                    storedAge: 0,
-                    profileCompleted: false,
-                    note: '',
-                    createdAt: Date.now()
-                };
-
-                setUserData(userData);
-                return user;
-            }
-        } catch (error) {
-            console.error('Login with application error:', error);
             throw error;
         }
     };
@@ -221,13 +128,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
                 setUserData(null);
                 setUserClaims(null);
             }
-
-            if (supabaseUser) {
-                await SupabaseAuthService.logout();
-                setSupabaseUser(null);
-                setUserData(null);
-                localStorage.removeItem(SUPABASE_TOKEN_KEY);
-            }
         } catch (error) {
             console.error('Błąd wylogowania:', error);
             throw error;
@@ -235,71 +135,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
     };
 
     const isOwner = (): boolean => {
-        if (currentApplication === ApplicationType.NUTRILOG) {
-            return userClaims?.owner === true || userData?.role === UserRole.OWNER;
-        }
-        return supabaseUser?.role === 'owner';
+        return userClaims?.owner === true || userData?.role === UserRole.OWNER;
     };
 
     const isAdmin = (): boolean => {
-        if (currentApplication === ApplicationType.NUTRILOG) {
-            return isOwner() || userClaims?.admin === true || userData?.role === UserRole.ADMIN;
-        }
-        return supabaseUser?.role === 'admin' || supabaseUser?.role === 'owner';
+        return isOwner() || userClaims?.admin === true || userData?.role === UserRole.ADMIN;
     };
 
-    const hasRole = (requiredRole: UserRole | string): boolean => {
-        if (currentApplication === ApplicationType.NUTRILOG) {
-            if (!userData) return false;
+    const hasRole = (requiredRole: UserRole): boolean => {
+        if (!userData) return false;
 
-            const roleHierarchy: Record<UserRole, number> = {
-                [UserRole.USER]: 1,
-                [UserRole.ADMIN]: 2,
-                [UserRole.OWNER]: 3
-            };
+        const roleHierarchy: Record<UserRole, number> = {
+            [UserRole.USER]: 1,
+            [UserRole.ADMIN]: 2,
+            [UserRole.OWNER]: 3
+        };
 
-            const userRole = userData.role as UserRole;
-            const userRoleLevel = roleHierarchy[userRole] || 0;
-            const requiredRoleLevel = roleHierarchy[requiredRole as UserRole] || 0;
+        const userRole = userData.role as UserRole;
+        const userRoleLevel = roleHierarchy[userRole] || 0;
+        const requiredRoleLevel = roleHierarchy[requiredRole] || 0;
 
-            return userRoleLevel >= requiredRoleLevel;
-        }
-
-        if (currentApplication === ApplicationType.SCANDAL_SHUFFLE) {
-            if (!supabaseUser) return false;
-
-            const userRole = supabaseUser.role;
-            if (requiredRole === 'owner') return userRole === 'owner';
-            if (requiredRole === 'admin') return userRole === 'admin' || userRole === 'owner';
-            return requiredRole === 'user';
-        }
-
-        return false;
+        return userRoleLevel >= requiredRoleLevel;
     };
 
     const isAuthenticated = (): boolean => {
-        if (currentApplication === ApplicationType.NUTRILOG) {
-            return !!currentUser && !!userData;
-        }
-        if (currentApplication === ApplicationType.SCANDAL_SHUFFLE) {
-            return !!supabaseUser;
-        }
-        return false;
-    };
-
-    const mapSupabaseUserToUser = (supabaseUser: SupabaseUser): User => {
-        return {
-            id: supabaseUser.id,
-            email: supabaseUser.email,
-            nickname: supabaseUser.displayName || supabaseUser.email.split('@')[0],
-            role: supabaseUser.role as any,
-            gender: null,
-            birthDate: null,
-            storedAge: 0,
-            profileCompleted: false,
-            note: '',
-            createdAt: Date.now()
-        };
+        return !!currentUser && !!userData;
     };
 
     const value = {
@@ -313,8 +173,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
         isAdmin,
         isOwner,
         hasRole,
-        supabaseUser,
-        loginWithApplication,
         isAuthenticated
     };
 

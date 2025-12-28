@@ -19,16 +19,12 @@ import {UserRole} from "./types/nutrilog/user";
 import Newsletter from './pages/Newsletter';
 import {SettingsProvider} from './contexts/SettingsContextType';
 import {RouteRestorationProvider} from "./contexts/RouteRestorationContext";
-import SSProtectedRoute from "./components/scandallShuffle/auth/SSProtectedRoute";
 import {ApplicationProvider} from "./contexts/ApplicationContext";
 import {lazy, Suspense, useEffect} from "react";
 import LoadingSpinner from "./components/shared/common/LoadingSpinner";
-import ResetPasswordPage from "./pages/scandal-shuffle/ResetPasswordPage";
-import AuthCallbackPage from "./pages/scandal-shuffle/AuthCallbackPage";
 
 const DietitianPanel = lazy(() => import('./pages/panel/DietitianPanel'));
 const AdminPanel = lazy(() => import('./pages/panel/AdminPanel'));
-const ScandalShufflePanel = lazy(() => import('./components/scandallShuffle/panel/ScandalShufflePanel'));
 
 const AuthRedirectHandler = () => {
     const location = useLocation();
@@ -85,12 +81,6 @@ function App() {
                                         </LandingLayout>
                                     }/>
 
-                                    <Route path="/reset-password" element={
-                                        <ResetPasswordPage/>
-                                    }/>
-
-                                    <Route path="/auth/callback" element={<AuthCallbackPage/>}/>
-
                                     {/* Newsletter routes */}
                                     <Route path="/verify-email" element={<VerifyEmail/>}/>
                                     <Route path="/unsubscribe" element={<Unsubscribe/>}/>
@@ -128,16 +118,6 @@ function App() {
                                             <ProtectedRoute requiredRole={UserRole.OWNER}>
                                                 <AdminPanel/>
                                             </ProtectedRoute>
-                                        }
-                                    />
-
-                                    {/* Scandal Shuffle Dashboard */}
-                                    <Route
-                                        path="/scandal-shuffle/dashboard/*"
-                                        element={
-                                            <SSProtectedRoute requiredRole="admin">
-                                                <ScandalShufflePanel/>
-                                            </SSProtectedRoute>
                                         }
                                     />
 

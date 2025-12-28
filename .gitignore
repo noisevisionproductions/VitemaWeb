@@ -2,6 +2,7 @@
 *.iml
 .idea/
 .DS_Store
+.cache*
 
 # Gradle files (jeśli projekt używa Gradle, np. w Firebase Hosting)
 .gradle

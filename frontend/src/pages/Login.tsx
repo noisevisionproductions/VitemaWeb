@@ -24,12 +24,6 @@ const Login = () => {
                     <p className="text-lg text-white/90 mb-6">
                         {t('auth.welcomeGreeting')}
                     </p>
-                    <div className="space-y-3 text-sm text-white/80">
-                        <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 bg-white/60 rounded-full"></div>
-                            <span>{t('auth.featureDietManagement')}</span>
-                        </div>
-                    </div>
                 </div>
             </div>
 

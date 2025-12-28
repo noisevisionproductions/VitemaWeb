@@ -1,10 +1,8 @@
 import axios from 'axios';
 import {auth} from './firebase';
 import {toast} from "../utils/toast";
-import {ApplicationType} from "../types/application";
 
 const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
-const SUPABASE_TOKEN_KEY = 'supabase_token';
 
 let lastRequestTime = 0;
 
@@ -18,8 +16,6 @@ const api = axios.create({
 
 api.interceptors.request.use(
     async (config) => {
-        console.log(`[Interceptor] Starting request to: ${config.url}`);
-
         try {
             const now = Date.now();
             const timeSinceLastRequest = now - lastRequestTime;
@@ -30,26 +26,13 @@ api.interceptors.request.use(
             }
             lastRequestTime = Date.now();
 
-            const currentApplication = localStorage.getItem('selectedApplication') as ApplicationType | null;
-
-            if (currentApplication === ApplicationType.NUTRILOG) {
-                const user = auth.currentUser;
-                if (user) {
-                    const token = await user.getIdToken();
-                    config.headers.Authorization = `Bearer ${token}`;
-                    console.log('[Interceptor] Attached Firebase token.');
-                }
-            } else if (currentApplication === ApplicationType.SCANDAL_SHUFFLE) {
-                const token = localStorage.getItem(SUPABASE_TOKEN_KEY);
-                if (token) {
-                    config.headers.Authorization = `Bearer ${token}`;
-                    console.log('[Interceptor] Attached Supabase token from localStorage.');
-                } else {
-                    console.warn('[Interceptor] Supabase token not found in localStorage.');
-                }
+            const user = auth.currentUser;
+            if (user) {
+                const token = await user.getIdToken();
+                config.headers.Authorization = `Bearer ${token}`;
+                console.log('[Interceptor] Attached Firebase token.');
             }
 
-            console.log(`[Interceptor] Finishing request to: ${config.url}`);
             return config;
         } catch (error) {
             console.error('Request interceptor error:', error);
