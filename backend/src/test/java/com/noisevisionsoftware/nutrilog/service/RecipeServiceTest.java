@@ -463,7 +463,6 @@ class RecipeServiceTest {
         Blob blob = mock(Blob.class);
         when(storage.create(any(BlobInfo.class), any(byte[].class))).thenReturn(blob);
 
-        // Mockujemy generowanie UUID, aby test był deterministyczny
         try (MockedStatic<UUID> mockedUuid = Mockito.mockStatic(UUID.class)) {
             UUID mockUuid = UUID.fromString("12345678-1234-1234-1234-123456789012");
             mockedUuid.when(UUID::randomUUID).thenReturn(mockUuid);
@@ -493,7 +492,6 @@ class RecipeServiceTest {
                     .contains("photo1.jpg", "photo2.jpg")
                     .contains("https://storage.googleapis.com/test-bucket/recipes/test-recipe-id/images/12345678-1234-1234-1234-123456789012.jpg");
 
-            // Sprawdzenie referencji obrazu
             assertThat(capturedReference.getImageUrl()).isEqualTo(
                     "https://storage.googleapis.com/test-bucket/recipes/test-recipe-id/images/12345678-1234-1234-1234-123456789012.jpg");
             assertThat(capturedReference.getStoragePath()).isEqualTo(
@@ -531,7 +529,6 @@ class RecipeServiceTest {
         Blob blob = mock(Blob.class);
         when(storage.create(any(BlobInfo.class), any(byte[].class))).thenReturn(blob);
 
-        // Mockujemy generowanie UUID, aby test był deterministyczny
         try (MockedStatic<UUID> mockedUuid = Mockito.mockStatic(UUID.class)) {
             UUID mockUuid = UUID.fromString("12345678-1234-1234-1234-123456789012");
             mockedUuid.when(UUID::randomUUID).thenReturn(mockUuid);
@@ -555,15 +552,14 @@ class RecipeServiceTest {
         recipe.setPhotos(Arrays.asList("photo1.jpg", TEST_IMAGE_URL));
         when(recipeRepository.findById(TEST_RECIPE_ID)).thenReturn(Optional.of(recipe));
 
-        // Symulujemy, że obraz jest używany przez inne przepisy (referenceCount > 1)
-        when(recipeImageRepository.decrementReferenceCount(TEST_IMAGE_URL)).thenReturn(1); // zwraca nową wartość po dekrementacji
+        when(recipeImageRepository.decrementReferenceCount(TEST_IMAGE_URL)).thenReturn(1);
 
         // when
         recipeService.deleteImage(TEST_RECIPE_ID, TEST_IMAGE_URL);
 
         // then
         verify(recipeImageRepository).decrementReferenceCount(TEST_IMAGE_URL);
-        verify(storage, never()).delete(any(BlobId.class)); // Obraz nie powinien być fizycznie usunięty
+        verify(storage, never()).delete(any(BlobId.class));
 
         verify(recipeRepository).update(eq(TEST_RECIPE_ID), recipeCaptor.capture());
         Recipe capturedRecipe = recipeCaptor.getValue();

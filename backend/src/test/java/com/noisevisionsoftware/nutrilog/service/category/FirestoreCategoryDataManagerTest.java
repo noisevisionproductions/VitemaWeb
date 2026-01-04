@@ -195,7 +195,7 @@ class FirestoreCategoryDataManagerTest {
         ParsedProduct newProduct = ParsedProduct.builder()
                 .name("nowy_produkt")
                 .original("Nowy produkt 500g")
-                .quantity(500)
+                .quantity(500.0)
                 .unit("g")
                 .categoryId("kategoria1")
                 .build();
@@ -231,7 +231,7 @@ class FirestoreCategoryDataManagerTest {
         ParsedProduct newProduct = ParsedProduct.builder()
                 .name("istniejacy_produkt")
                 .original("Istniejący produkt 300g")
-                .quantity(300)
+                .quantity(300.0)
                 .unit("g")
                 .categoryId("kategoria1")
                 .build();
@@ -276,7 +276,7 @@ class FirestoreCategoryDataManagerTest {
         ParsedProduct newProduct = ParsedProduct.builder()
                 .name("produkt")
                 .original("Nowa wariacja produktu")
-                .quantity(100)
+                .quantity(100.0)
                 .unit("g")
                 .build();
 
@@ -319,7 +319,7 @@ class FirestoreCategoryDataManagerTest {
         ParsedProduct newProduct = ParsedProduct.builder()
                 .name("produkt")
                 .original("Istniejąca wariacja")
-                .quantity(100)
+                .quantity(100.0)
                 .unit("g")
                 .build();
 

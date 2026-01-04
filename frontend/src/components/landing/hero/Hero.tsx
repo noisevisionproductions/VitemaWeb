@@ -25,7 +25,7 @@ const Hero = () => {
                             </span>
                         </h1>
                         <p className="text-text-secondary text-lg mb-8">
-                            {t('hero.subtitle')}
+                            Test
                         </p>
                         <NewsletterForm/>
                         <div className="mt-4 flex items-start space-x-2">
