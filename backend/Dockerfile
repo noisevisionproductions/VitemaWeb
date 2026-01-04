@@ -4,7 +4,7 @@ COPY --chown=gradle:gradle . .
 RUN chmod +x gradlew
 RUN ./gradlew clean bootJar -x test --no-daemon
 
-FROM openjdk:21-jdk-slim
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
 
