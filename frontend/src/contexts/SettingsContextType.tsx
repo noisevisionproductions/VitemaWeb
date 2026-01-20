@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useState, useEffect, ReactNode} from 'react';
-import {ParserSettingsService} from "../services/nutrilog/diet/ParserSettingsService";
+import {ParserSettingsService} from "../services/diet/ParserSettingsService";
 import {useAuth} from './AuthContext'; // Dodajemy kontekst autoryzacji
 
 interface SettingsContextType {

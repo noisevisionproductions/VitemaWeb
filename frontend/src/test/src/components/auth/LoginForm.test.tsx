@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent} from "@testing-library/react";
-import LoginForm from "../../../../components/nutrilog/auth/LoginForm";
+import LoginForm from "../../../../components/vitema/auth/LoginForm";
 import { useAuth} from "../../../../contexts/AuthContext";
 
 vi.mock('../../../../contexts/AuthContext', () => ({

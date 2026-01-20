@@ -1,4 +1,4 @@
-import {Category} from '../types/nutrilog/productCategories';
+import {Category} from '../types/productCategories';
 
 export const DEFAULT_CATEGORIES: Category[] = [
     {

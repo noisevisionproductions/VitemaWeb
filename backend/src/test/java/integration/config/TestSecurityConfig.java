@@ -1,7 +1,7 @@
 package integration.config;
 
-import com.noisevisionsoftware.nutrilog.security.filter.FirebaseAuthenticationFilter;
-import com.noisevisionsoftware.nutrilog.service.auth.FirebaseAuthenticationService;
+import com.noisevisionsoftware.vitema.security.filter.FirebaseAuthenticationFilter;
+import com.noisevisionsoftware.vitema.service.auth.FirebaseAuthenticationService;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;

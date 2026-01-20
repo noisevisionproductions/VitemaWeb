@@ -1,7 +1,7 @@
 import {signInWithEmailAndPassword, signOut, User as FirebaseUser} from 'firebase/auth';
 import React, {createContext, useContext, useEffect, useState} from "react";
 import {auth} from '../config/firebase';
-import {User, UserRole} from '../types/nutrilog/user';
+import {User, UserRole} from '../types/user';
 import api from "../config/axios";
 import axios from 'axios';
 import {useRouteRestoration} from "./RouteRestorationContext";

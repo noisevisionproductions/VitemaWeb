@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
-import NewsletterStats from "../../components/nutrilog/admin/newsletter/NewsletterStats";
-import BulkEmailSender from "../../components/nutrilog/admin/newsletter/email-sender/BulkEmailSender";
-import SubscribersList from "../../components/nutrilog/admin/newsletter/SubscribersList";
-import SurveyResults from "../../components/nutrilog/admin/newsletter/survey/SurveyResults";
-import ExternalRecipientsManager from "../../components/nutrilog/admin/newsletter/external-recipients/ExternalRecipientsManager";
-import SingleEmailSender from "../../components/nutrilog/admin/newsletter/email-sender/SingleEmailSender";
+import NewsletterStats from "../../components/vitema/admin/newsletter/NewsletterStats";
+import BulkEmailSender from "../../components/vitema/admin/newsletter/email-sender/BulkEmailSender";
+import SubscribersList from "../../components/vitema/admin/newsletter/SubscribersList";
+import SurveyResults from "../../components/vitema/admin/newsletter/survey/SurveyResults";
+import ExternalRecipientsManager from "../../components/vitema/admin/newsletter/external-recipients/ExternalRecipientsManager";
+import SingleEmailSender from "../../components/vitema/admin/newsletter/email-sender/SingleEmailSender";
 
 type NewsletterTabType = 'stats' | 'subscribers' | 'bulkEmail' | 'singleEmail' | 'externalRecipients' | 'surveys';
 

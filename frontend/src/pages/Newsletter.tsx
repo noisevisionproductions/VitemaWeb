@@ -7,7 +7,7 @@ const Newsletter = () => {
             <Container>
                 <div className="max-w-3xl mx-auto text-center">
                     <h1 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                        Dołącz do NutriLog
+                        Dołącz do Vitema
                     </h1>
                     <p className="text-lg text-white/90 mb-8">
                         Zapisz się do newslettera i zyskaj 6 miesięcy dostępu za darmo

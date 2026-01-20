@@ -30,8 +30,8 @@ const Contact = () => {
                             icon={EnvelopeIcon}
                             title={t('contact.cards.email.title')}
                             description={t('contact.cards.email.desc')}
-                            content="kontakt@nutriLog.pl"
-                            action="mailto:kontakt@nutriLog.pl"
+                            content="kontakt@vitema.pl"
+                            action="mailto:kontakt@vitema.pl"
                         />
                     </div>
 

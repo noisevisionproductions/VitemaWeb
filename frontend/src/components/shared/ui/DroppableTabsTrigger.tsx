@@ -1,7 +1,7 @@
 import React from 'react';
 import {TabsTrigger} from './Tabs';
 import {useDrop} from 'react-dnd';
-import {ParsedProduct} from '../../../types/nutrilog/product';
+import {ParsedProduct} from '../../../types/product';
 
 type BaseTabsTriggerProps = Omit<React.ComponentPropsWithoutRef<typeof TabsTrigger>, 'onDrop'>;
 

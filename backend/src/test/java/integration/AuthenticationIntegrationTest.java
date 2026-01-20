@@ -1,11 +1,11 @@
 package integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.noisevisionsoftware.nutrilog.NutrilogApplication;
-import com.noisevisionsoftware.nutrilog.dto.request.LoginRequest;
-import com.noisevisionsoftware.nutrilog.exception.AuthenticationException;
-import com.noisevisionsoftware.nutrilog.security.model.FirebaseUser;
-import com.noisevisionsoftware.nutrilog.service.auth.AuthService;
+import com.noisevisionsoftware.vitema.VitemaApplication;
+import com.noisevisionsoftware.vitema.dto.request.LoginRequest;
+import com.noisevisionsoftware.vitema.exception.AuthenticationException;
+import com.noisevisionsoftware.vitema.security.model.FirebaseUser;
+import com.noisevisionsoftware.vitema.service.auth.AuthService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(
-        classes = NutrilogApplication.class,
+        classes = VitemaApplication.class,
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @AutoConfigureMockMvc

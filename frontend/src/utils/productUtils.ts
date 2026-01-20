@@ -1,6 +1,6 @@
-import {ParsedProduct} from '../types/nutrilog/product';
+import {ParsedProduct} from '../types/product';
 import {DEFAULT_CATEGORIES} from '../data/productCategories';
-import {Category} from "../types/nutrilog/productCategories";
+import {Category} from "../types/productCategories";
 
 const cleanProductName = (name: string): string => {
     if (!name) return '';

@@ -3,8 +3,8 @@ package integration.service.email;
 import com.icegreen.greenmail.junit5.GreenMailExtension;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetupTest;
-import com.noisevisionsoftware.nutrilog.model.newsletter.NewsletterSubscriber;
-import com.noisevisionsoftware.nutrilog.service.email.EmailService;
+import com.noisevisionsoftware.vitema.model.newsletter.NewsletterSubscriber;
+import com.noisevisionsoftware.vitema.service.email.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,9 +47,9 @@ class EmailServiceIntegrationTest {
 
         // Inicjalizacja serwisu
         emailService = new EmailService(sender, templateEngine);
-        String frontendUrl = "https://test-nutrilog.pl";
+        String frontendUrl = "https://test-vitema.pl";
         ReflectionTestUtils.setField(emailService, "frontendUrl", frontendUrl);
-        String fromEmail = "test@nutrilog.pl";
+        String fromEmail = "test@vitema.pl";
         ReflectionTestUtils.setField(emailService, "fromEmail", fromEmail);
 
         // Reset serwera GreenMail przed każdym testem
@@ -93,7 +93,7 @@ class EmailServiceIntegrationTest {
         MimeMessage receivedMessage = receivedMessages[0];
         assertEquals(subscriber.getEmail(), receivedMessage.getAllRecipients()[0].toString(),
                 "Email powinien być wysłany na prawidłowy adres");
-        assertEquals("Potwierdź zapis do newslettera Nutrilog", receivedMessage.getSubject(),
+        assertEquals("Potwierdź zapis do newslettera Vitema", receivedMessage.getSubject(),
                 "Email powinien mieć prawidłowy temat");
     }
 
@@ -116,7 +116,7 @@ class EmailServiceIntegrationTest {
         MimeMessage receivedMessage = receivedMessages[0];
         assertEquals(subscriber.getEmail(), receivedMessage.getAllRecipients()[0].toString(),
                 "Email powinien być wysłany na prawidłowy adres");
-        assertEquals("Witamy w newsletterze Nutrilog!", receivedMessage.getSubject(),
+        assertEquals("Witamy w newsletterze Vitema!", receivedMessage.getSubject(),
                 "Email powinien mieć prawidłowy temat");
     }
 

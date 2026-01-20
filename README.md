@@ -1,7 +1,7 @@
-# Nutrilog (Web Platform)
+# Vitema (Web Platform)
 
-Nutrilog is a comprehensive web-based platform designed for nutrition specialists to manage patients, create dietary
-plans, and monitor progress within the **Nutrilog** ecosystem.
+Vitema is a comprehensive web-based platform designed for nutrition specialists to manage patients, create dietary
+plans, and monitor progress within the **Vitema** ecosystem.
 
 It consists of two main components: a public-facing **Landing Page** that showcases the service, and a secure **Admin
 Panel** restricted to authorized nutritionists for day-to-day operations.

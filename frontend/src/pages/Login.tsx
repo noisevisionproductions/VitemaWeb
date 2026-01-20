@@ -1,7 +1,7 @@
 import Logo from '../components/shared/ui/landing/Logo';
 import {Link} from 'react-router-dom';
 import {ArrowLeftIcon} from '@heroicons/react/24/outline';
-import LoginForm from "../components/nutrilog/auth/LoginForm";
+import LoginForm from "../components/vitema/auth/LoginForm";
 import {useTranslation} from "react-i18next";
 
 const Login = () => {
@@ -44,7 +44,7 @@ const Login = () => {
 
                     <p className="text-center text-sm text-gray-600">
                         {t('auth.noAccess')} {' '}
-                        <a href="mailto:kontakt@szytadieta.pl" className="text-primary hover:text-primary-dark">
+                        <a href="mailto:kontakt@vitema.pl" className="text-primary hover:text-primary-dark">
                             {t('auth.contactAdmin')}
                         </a>
                     </p>

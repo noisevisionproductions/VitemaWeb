@@ -6,7 +6,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: noisevisionproductions/nutrilog
+  IMAGE_NAME: noisevisionproductions/vitema
 
 jobs:
   build-and-push:
@@ -70,3 +70,5 @@ jobs:
             docker-compose pull
             
             docker-compose up -d
+            
+            docker image prune -f

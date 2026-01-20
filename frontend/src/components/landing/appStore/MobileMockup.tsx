@@ -15,7 +15,7 @@ const MobileMockup = () => {
                 <div className="relative bg-white w-full h-full rounded-[1.5rem] overflow-hidden">
                     <img
                         src="/images/app_download_section.jpg"
-                        alt="Aplikacja mobilna NutriLog"
+                        alt="Aplikacja mobilna Vitema"
                         className="w-full h-auto object-cover"
                     />
                 </div>

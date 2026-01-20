@@ -1,8 +1,8 @@
 import {useEffect} from 'react';
 import {useForm} from 'react-hook-form';
 import RoleSelector from './RoleSelector';
-import {NewsletterFormData} from "../../../types/nutrilog/newsletter";
-import {useNewsletterSubscription} from "../../../hooks/nutrilog/email/useNewsletterSubscription";
+import {NewsletterFormData} from "../../../types/newsletter";
+import {useNewsletterSubscription} from "../../../hooks/email/useNewsletterSubscription";
 import {useTranslation} from "react-i18next";
 
 interface NewsletterFormProps {

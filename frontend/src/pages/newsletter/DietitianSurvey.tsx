@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {PublicNewsletterService} from "../../services/nutrilog/newsletter";
+import {PublicNewsletterService} from "../../services/newsletter";
 
 interface SurveyQuestion {
     id: string;
@@ -185,7 +185,7 @@ const DietitianSurvey: React.FC<SurveyProps> = ({
     return (
         <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6 overflow-y-auto max-h-[80vh]">
             <div className="mb-6 sticky top-0 bg-white pt-2 pb-4 z-10">
-                <h2 className="text-2xl font-semibold text-text-primary mb-2">Pomóż nam ulepszyć NutriLog</h2>
+                <h2 className="text-2xl font-semibold text-text-primary mb-2">Pomóż nam ulepszyć Vitema</h2>
                 <p className="text-text-secondary">
                     Dziękujemy za potwierdzenie adresu email. Twoje odpowiedzi na poniższe pytania pomogą nam lepiej
                     zrozumieć potrzeby dietetyków.

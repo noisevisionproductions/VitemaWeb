@@ -4,7 +4,7 @@ server:
 spring:
   # PostgreSQL Development Configuration
   datasource:
-    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:nutrilog}
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:vitema}
     username: ${POSTGRES_USER:postgres}
     password: ${POSTGRES_PASSWORD_DEV}
     driver-class-name: org.postgresql.Driver
@@ -44,7 +44,7 @@ app:
 
 logging:
   level:
-    com.noisevisionsoftware.nutrilog: DEBUG
+    com.noisevisionsoftware.vitema: DEBUG
     org.springframework.security: DEBUG
     org.springframework.web: DEBUG
     org.hibernate.SQL: DEBUG
@@ -54,5 +54,5 @@ sendgrid:
   api:
     key: ${SENDGRID_API_KEY}
   from:
-    email: kontakt@nutrilog.pl
-    name: Tomasz z NutriLog
+    email: kontakt@vitema.pl
+    name: Tomasz z Vitema

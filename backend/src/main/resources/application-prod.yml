@@ -24,7 +24,7 @@ spring:
   mail:
     host: ${SMTP_HOST:serwer2561711.home.pl}
     port: ${SMTP_PORT:587}
-    username: ${SMTP_USERNAME:kontakt@nutrilog.pl}
+    username: ${SMTP_USERNAME:kontakt@vitema.pl}
     password: ${SMTP_PASSWORD}
     properties:
       mail:
@@ -40,15 +40,15 @@ firebase:
     path: firebase-service-account.json
 
 cors:
-  allowed-origins: https://nutrilog.pl
+  allowed-origins: https://vitema.pl
 
 app:
-  frontend-url: https://nutrilog.pl
+  frontend-url: https://vitema.pl
   admin-email: ${ADMIN_EMAIL}
 
 logging:
   level:
-    com.noisevisionsoftware.nutrilog: INFO
+    com.noisevisionsoftware.vitema: INFO
     org.springframework.security: INFO
     org.springframework.web: INFO
     org.hibernate.SQL: WARN
@@ -57,5 +57,5 @@ sendgrid:
   api:
     key: ${SENDGRID_API_KEY}
   from:
-    email: kontakt@nutrilog.pl
-    name: Tomasz z NutriLog
+    email: kontakt@vitema.pl
+    name: Tomasz z Vitema

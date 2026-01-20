@@ -1,6 +1,6 @@
 import React, { createContext, PropsWithChildren, useContext } from 'react';
-import { ParsedProduct } from '../types/nutrilog/product';
-import { useSuggestedCategories} from "../hooks/nutrilog/shopping/useSuggestedCategories";
+import { ParsedProduct } from '../types/product';
+import { useSuggestedCategories} from "../hooks/shopping/useSuggestedCategories";
 
 interface SuggestedCategoriesContextType {
     getSuggestion: (product: ParsedProduct) => Promise<string>;

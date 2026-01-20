@@ -1,7 +1,7 @@
 import React, {createContext, useContext} from 'react';
 
 export enum ApplicationType {
-    NUTRILOG = 'nutrilog'
+    VITEMA = 'vitema'
 }
 
 export interface ApplicationConfig {
@@ -10,9 +10,9 @@ export interface ApplicationConfig {
 }
 
 export const APPLICATION_CONFIGS: Record<ApplicationType, ApplicationConfig> = {
-    [ApplicationType.NUTRILOG]: {
-        type: ApplicationType.NUTRILOG,
-        name: 'NutriLog',
+    [ApplicationType.VITEMA]: {
+        type: ApplicationType.VITEMA,
+        name: 'Vitema',
     }
 };
 
@@ -22,8 +22,8 @@ interface ApplicationContextType {
 }
 
 const defaultContextValue: ApplicationContextType = {
-    currentApplication: ApplicationType.NUTRILOG,
-    applicationConfig: APPLICATION_CONFIGS[ApplicationType.NUTRILOG]
+    currentApplication: ApplicationType.VITEMA,
+    applicationConfig: APPLICATION_CONFIGS[ApplicationType.VITEMA]
 };
 
 const ApplicationContext = createContext<ApplicationContextType>(defaultContextValue);

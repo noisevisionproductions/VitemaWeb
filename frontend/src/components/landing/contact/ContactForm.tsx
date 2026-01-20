@@ -1,7 +1,7 @@
 import {useForm} from "react-hook-form";
 import {useState} from "react";
-import {ContactFormData} from "../../../types/nutrilog/contact";
-import {ContactService} from "../../../services/nutrilog/contact/ContactService";
+import {ContactFormData} from "../../../types/contact";
+import {ContactService} from "../../../services/contact/ContactService";
 import {toast} from "../../../utils/toast";
 import {useTranslation} from "react-i18next";
 

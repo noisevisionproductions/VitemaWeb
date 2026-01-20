@@ -1,4 +1,4 @@
-import {MealType} from "../../types/nutrilog";
+import {MealType} from "../../types";
 
 export const getMealTypeLabel = (mealType: MealType): string => {
     const labels: Record<MealType, string> = {

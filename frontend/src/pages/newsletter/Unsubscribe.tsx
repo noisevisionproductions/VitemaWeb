@@ -1,5 +1,5 @@
 import {Link, useSearchParams} from "react-router-dom";
-import {PublicNewsletterService} from "../../services/nutrilog/newsletter";
+import {PublicNewsletterService} from "../../services/newsletter";
 import {useState} from "react";
 import LandingLayout from "../../components/landing/layout/LandingLayout";
 
@@ -41,7 +41,7 @@ const Unsubscribe = () => {
                         <div className="text-center">
                             <h2 className="text-2xl font-semibold mb-4">Wypisanie z newslettera</h2>
                             <p className="mb-6">
-                                Czy na pewno chcesz zrezygnować z otrzymywania informacji o NutriLog?
+                                Czy na pewno chcesz zrezygnować z otrzymywania informacji o Vitema?
                             </p>
                             <p className="text-sm text-text-secondary mb-6">
                                 Email: <span className="font-medium">{email}</span>

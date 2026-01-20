@@ -1,4 +1,4 @@
-import {NewsletterSubscriber} from "../../types/nutrilog/newsletter";
+import {NewsletterSubscriber} from "../../types/newsletter";
 import React from "react";
 import Modal from "../../components/shared/common/Modal";
 import {formatPostgresTimestamp} from "../../utils/dateFormatters";

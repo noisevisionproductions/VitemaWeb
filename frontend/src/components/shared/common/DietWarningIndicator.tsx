@@ -1,6 +1,6 @@
 import React from "react";
 import {getDaysRemainingToDietEnd, getWarningStatusText, WarningStatus} from "../../../utils/diet/dietWarningUtils";
-import {Diet} from "../../../types/nutrilog";
+import {Diet} from "../../../types";
 import {AlertCircle, AlertTriangle, Clock} from "lucide-react";
 import {checkFutureDiets} from "../../../utils/diet/dietContinuityUtils";
 

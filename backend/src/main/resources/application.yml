@@ -1,6 +1,6 @@
 spring:
   application:
-    name: nutrilog
+    name: vitema
   servlet:
     multipart:
       enabled: true

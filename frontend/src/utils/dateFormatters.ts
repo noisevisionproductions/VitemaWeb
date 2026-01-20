@@ -1,5 +1,5 @@
 import {Timestamp} from 'firebase/firestore';
-import {User} from "../types/nutrilog/user";
+import {User} from "../types/user";
 
 /**
  * Reprezentuje różne formaty timestamp w aplikacji

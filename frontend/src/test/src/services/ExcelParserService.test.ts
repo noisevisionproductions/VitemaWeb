@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { ExcelParserService} from "../../../services/ExcelParserService";
-import { MealType} from "../../../types/nutrilog";
+import { MealType} from "../../../types";
 import * as XLSX from 'xlsx';
 
 vi.mock('xlsx', () => ({

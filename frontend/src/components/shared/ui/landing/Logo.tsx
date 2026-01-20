@@ -2,14 +2,14 @@ const Logo = ({asLink = true, variant = 'full'}) => {
     const logoImage = (
         <img
             src="/images/logo-n.png"
-            alt="NutriLog Logo"
+            alt="Vitema Logo"
             className="h-8 w-auto"
         />
     );
 
     const logoText = (
         <span className="text-2xl font-bold text-primary">
-            NutriLog
+            Vitema
         </span>
     );
 

@@ -8,10 +8,10 @@ interface PrivacyPolicySection {
 
 const PrivacyPolicy: React.FC = () => {
     // Data ostatniej aktualizacji
-    const lastUpdate = "15 marca 2025 r.";
+    const lastUpdate = "19 styczeń 2026 r.";
 
     // Adres email do kontaktu
-    const contactEmail = "kontakt@nutrilog.pl";
+    const contactEmail = "kontakt@vitema.pl";
 
     // Definicja sekcji polityki prywatności
     const privacyPolicySections: PrivacyPolicySection[] = [
@@ -21,13 +21,13 @@ const PrivacyPolicy: React.FC = () => {
             content: (
                 <>
                     <p className="mb-4">
-                        Nutrilog ("my", "nas", "nasz") szanuje Twoją prywatność i zobowiązuje się do jej ochrony.
+                        Vitema ("my", "nas", "nasz") szanuje Twoją prywatność i zobowiązuje się do jej ochrony.
                         Niniejsza Polityka Prywatności wyjaśnia, w jaki sposób gromadzimy, wykorzystujemy i chronimy
                         Twoje dane osobowe podczas korzystania z naszej aplikacji internetowej, aplikacji mobilnej i
                         usług.
                     </p>
                     <p className="mb-4">
-                        Nutrilog to platforma przeznaczona dla dietetyków i ich klientów, umożliwiająca zarządzanie
+                        Vitema to platforma przeznaczona dla dietetyków i ich klientów, umożliwiająca zarządzanie
                         dietami i monitorowanie postępów. Rozumiemy, że informacje dotyczące zdrowia i diety są
                         wyjątkowo wrażliwe, dlatego przykładamy szczególną wagę do ich ochrony.
                     </p>
@@ -96,7 +96,7 @@ const PrivacyPolicy: React.FC = () => {
 
                     <h3 className="text-lg font-semibold mt-4 mb-2">Podstawowe cele przetwarzania:</h3>
                     <ul className="list-disc pl-6 mb-4">
-                        <li>Świadczenie usług Nutrilog dla dietetyków i ich klientów</li>
+                        <li>Świadczenie usług Vitema dla dietetyków i ich klientów</li>
                         <li>Umożliwienie dietetykom tworzenia, zarządzania i monitorowania planów dietetycznych dla
                             klientów
                         </li>
@@ -140,10 +140,10 @@ const PrivacyPolicy: React.FC = () => {
                         zawierającego:
                     </p>
                     <ul className="list-disc pl-6 mb-4">
-                        <li>Informacje o nowych funkcjach i aktualizacjach platformy Nutrilog</li>
+                        <li>Informacje o nowych funkcjach i aktualizacjach platformy Vitema</li>
                         <li>Porady dotyczące efektywnego wykorzystania naszych narzędzi</li>
                         <li>Materiały edukacyjne związane z dietetyką i zarządzaniem praktyką dietetyczną</li>
-                        <li>Promocje i oferty specjalne dla użytkowników Nutrilog</li>
+                        <li>Promocje i oferty specjalne dla użytkowników Vitema</li>
                         <li>Zaproszenia do udziału w badaniach i ankietach</li>
                     </ul>
 
@@ -167,7 +167,7 @@ const PrivacyPolicy: React.FC = () => {
                     <p className="mb-4">
                         Po rezygnacji z newslettera Twój adres email zostanie usunięty z naszej listy mailingowej w
                         ciągu 7 dni roboczych. Pamiętaj, że rezygnacja z newslettera nie wpływa na Twoje konto w
-                        serwisie Nutrilog ani na żadne inne aspekty korzystania z naszych usług.
+                        serwisie Vitema ani na żadne inne aspekty korzystania z naszych usług.
                     </p>
                 </>
             )
@@ -429,7 +429,7 @@ const PrivacyPolicy: React.FC = () => {
                 <>
                     <p className="mb-4">
                         Nasza platforma może zawierać linki do stron internetowych, aplikacji lub usług osób trzecich,
-                        które nie są własnością ani nie są kontrolowane przez Nutrilog. Ta Polityka Prywatności dotyczy
+                        które nie są własnością ani nie są kontrolowane przez Vitema. Ta Polityka Prywatności dotyczy
                         wyłącznie informacji gromadzonych przez naszą platformę.
                     </p>
 
@@ -441,7 +441,7 @@ const PrivacyPolicy: React.FC = () => {
 
                     <p className="mb-4">
                         Dietetycy korzystający z naszej platformy mogą umieszczać linki do zewnętrznych zasobów
-                        edukacyjnych lub innych materiałów. Nutrilog nie weryfikuje ani nie odpowiada za treści dostępne
+                        edukacyjnych lub innych materiałów. Vitema nie weryfikuje ani nie odpowiada za treści dostępne
                         poprzez takie linki.
                     </p>
                 </>
@@ -485,7 +485,7 @@ const PrivacyPolicy: React.FC = () => {
                     </p>
 
                     <p className="mb-4">
-                        W przypadku aplikacji mobilnej Nutrilog, używamy podobnych technologii do przechowywania
+                        W przypadku aplikacji mobilnej Vitema, używamy podobnych technologii do przechowywania
                         informacji lokalnie na urządzeniu oraz identyfikatorów reklamowych zgodnie z ustawieniami
                         urządzenia.
                     </p>
@@ -556,8 +556,8 @@ const PrivacyPolicy: React.FC = () => {
 
                     <p className="mb-4">
                         W sprawach dotyczących ochrony danych osobowych wyznaczyliśmy Inspektora Ochrony Danych (IOD), z
-                        którym można się skontaktować pod adresem email: <a href="mailto:kontakt@nutrilog.pl"
-                                                                            className="text-primary hover:underline">kontakt@nutrilog.pl</a>.
+                        którym można się skontaktować pod adresem email: <a href="mailto:kontakt@vitema.pl"
+                                                                            className="text-primary hover:underline">kontakt@vitema.pl</a>.
                     </p>
                 </>
             )

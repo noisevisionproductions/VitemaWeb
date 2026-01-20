@@ -1,4 +1,4 @@
-import {Diet} from "../../types/nutrilog";
+import {Diet} from "../../types";
 import {Timestamp} from "firebase/firestore";
 
 export type WarningStatus = 'critical' | 'warning' | 'normal';

@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react';
 import {useSearchParams, Link} from 'react-router-dom';
 import LandingLayout from "../../components/landing/layout/LandingLayout";
-import {PublicNewsletterService} from "../../services/nutrilog/newsletter";
+import {PublicNewsletterService} from "../../services/newsletter";
 import DietitianSurvey from "./DietitianSurvey";
 import {Timestamp} from "firebase/firestore";
 import {formatTimestamp} from "../../utils/dateFormatters";
