@@ -46,8 +46,7 @@ public class NewsletterController {
 
     @GetMapping("/verify")
     public ResponseEntity<?> verifySubscription(@RequestParam String token) {
-        try {
-            ExecutorService executor = Executors.newSingleThreadExecutor();
+        try (ExecutorService executor = Executors.newSingleThreadExecutor()) {
             Future<NewsletterSubscriber> future = executor.submit(() -> publicNewsletterService.verifySubscriberAndGet(token));
 
             NewsletterSubscriber subscriber;
@@ -67,7 +66,7 @@ public class NewsletterController {
                 response.put("subscriberId", subscriber.getId());
                 response.put("subscriberRole", subscriber.getRole().getValue());
                 response.put("email", subscriber.getEmail());
-                response.put("verifiedAt", subscriber.getVerifiedAt());
+                response.put("verifiedAt", subscriber.getVerifiedAt() != null ? subscriber.getVerifiedAt().toString() : null);
 
                 return ResponseEntity.ok(response);
             } else {
@@ -91,14 +90,14 @@ public class NewsletterController {
                         "message", "Zostałeś wypisany z newslettera."
                 ));
             } else {
-                return ResponseEntity.badRequest().body(Map.of(
-                        "message", "Podany adres email nie jest zapisany do newslettera."
-                ));
-            }
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of(
-                    "message", "Wystąpił błąd podczas wypisywania z newslettera."
-            ));
+        return ResponseEntity.badRequest().body(Map.of(
+                "message", "Podany adres email nie jest zapisany do newslettera."
+        ));
+    }
+} catch (Exception e) {
+        return ResponseEntity.internalServerError().body(Map.of(
+        "message", "Wystąpił błąd podczas wypisywania z newslettera."
+));
         }
     }
 
