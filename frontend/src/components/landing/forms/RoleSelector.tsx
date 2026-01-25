@@ -46,7 +46,7 @@ const RoleSelector = ({selectedRole, register, error}: RoleSelectorProps) => {
                     : 'border-border hover:bg-white/50 hover:border-primary/30'}`}
                 >
                     <span className="text-text-primary font-medium">
-                        🏢 {t('newsletter.roles.company')}
+                        💪 {t('newsletter.roles.company')}
                     </span>
                     {selectedRole === 'firma' && (
                         <CheckCircle className="w-5 h-5 text-primary"/>
