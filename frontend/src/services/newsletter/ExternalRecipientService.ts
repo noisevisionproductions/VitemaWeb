@@ -1,4 +1,4 @@
-import {ExternalRecipient, ExternalRecipientFormData} from "../../types/sendGrid";
+import {ExternalRecipient, ExternalRecipientFormData} from "../../types/email";
 import api from "../../config/axios";
 import {toast} from "../../utils/toast";
 

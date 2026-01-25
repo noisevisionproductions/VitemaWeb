@@ -1,9 +1,8 @@
-package com.noisevisionsoftware.vitema.service.newsletter;
+package com.noisevisionsoftware.vitema.service.email.newsletter;
 
 import com.noisevisionsoftware.vitema.model.newsletter.NewsletterSubscriber;
 import com.noisevisionsoftware.vitema.model.newsletter.SubscriberRole;
 import com.noisevisionsoftware.vitema.repository.jpa.newsletter.NewsletterSubscriberRepository;
-import com.noisevisionsoftware.vitema.service.email.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -23,7 +22,6 @@ import java.util.Map;
 public class AdminNewsletterService {
 
     private final NewsletterSubscriberRepository subscriberRepository;
-    private final EmailService emailService;
 
     /**
      * Pobiera wszystkich aktywnych i zweryfikowanych subskrybentów
@@ -38,7 +36,7 @@ public class AdminNewsletterService {
      * Pobiera wszystkich subskrybentów
      */
     @Transactional(readOnly = true)
-    public List<NewsletterSubscriber> getAllSubscribers(){
+    public List<NewsletterSubscriber> getAllSubscribers() {
         return subscriberRepository.findAll();
     }
 
@@ -48,7 +46,7 @@ public class AdminNewsletterService {
     @CacheEvict(value = "newsletterSubscribers", allEntries = true)
     @Transactional
     public void deactivateSubscriber(Long id) {
-        subscriberRepository.findById(id).ifPresent(subscriber ->{
+        subscriberRepository.findById(id).ifPresent(subscriber -> {
             subscriber.setActive(false);
             subscriberRepository.save(subscriber);
         });
@@ -71,8 +69,8 @@ public class AdminNewsletterService {
      */
     @CacheEvict(value = "newsletterSubscribers", allEntries = true)
     @Transactional
-    public void verifySubscriberManually(Long id){
-        subscriberRepository.findById(id).ifPresent(subscriber ->{
+    public void verifySubscriberManually(Long id) {
+        subscriberRepository.findById(id).ifPresent(subscriber -> {
             subscriber.setVerified(true);
             subscriber.setVerifiedAt(LocalDateTime.now());
             subscriberRepository.save(subscriber);
@@ -109,7 +107,7 @@ public class AdminNewsletterService {
      */
     @CacheEvict(value = "newsletterSubscribers", allEntries = true)
     @Transactional
-    public void updateLastEmailSent(String email){
+    public void updateLastEmailSent(String email) {
         subscriberRepository.findByEmail(email).ifPresent(subscriber -> {
             subscriber.setLastEmailSent(LocalDateTime.now());
             subscriberRepository.save(subscriber);
@@ -121,25 +119,8 @@ public class AdminNewsletterService {
      */
     @CacheEvict(value = "newsletterSubscribers", allEntries = true)
     @Transactional
-    public void deleteSubscriber(Long id)  {
+    public void deleteSubscriber(Long id) {
         subscriberRepository.deleteById(id);
-    }
-
-    /**
-     * Wysyła wiadomość do wszystkich aktywnych i zweryfikowanych subskrybentów
-     */
-    @Transactional
-    public void sendBulkEmail(String subject, String content) {
-        try {
-            List<NewsletterSubscriber> subscribers = getAllActiveSubscribers();
-
-            for (NewsletterSubscriber subscriber : subscribers) {
-                emailService.sendCustomEmail(subscriber.getEmail(), subject, content);
-                updateLastEmailSent(subscriber.getEmail());
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Błąd podczas wysyłania masowego emaila", e);
-        }
     }
 
     /**
@@ -153,12 +134,12 @@ public class AdminNewsletterService {
         long activeCount = subscriberRepository.countActiveSubscribers();
         long activeVerifiedCount = subscriberRepository.countActiveVerifiedSubscribers();
 
-        Map<SubscriberRole, Long> roleDistribution =  new HashMap<>();
+        Map<SubscriberRole, Long> roleDistribution = new HashMap<>();
         List<Object[]> roleCounts = subscriberRepository.countByRole();
 
-        for (Object[] roleCount : roleCounts){
+        for (Object[] roleCount : roleCounts) {
             SubscriberRole role = (SubscriberRole) roleCount[0];
-            Long count = (Long)     roleCount[1];
+            Long count = (Long) roleCount[1];
             roleDistribution.put(role, count);
         }
 

@@ -7,6 +7,7 @@ import com.noisevisionsoftware.vitema.model.newsletter.NewsletterSubscribersMeta
 import com.noisevisionsoftware.vitema.model.newsletter.SubscriberRole;
 import com.noisevisionsoftware.vitema.repository.jpa.newsletter.NewsletterSubscriberRepository;
 import com.noisevisionsoftware.vitema.service.email.EmailService;
+import com.noisevisionsoftware.vitema.service.email.newsletter.PublicNewsletterService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

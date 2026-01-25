@@ -1,4 +1,4 @@
-package com.noisevisionsoftware.vitema.service.newsletter;
+package com.noisevisionsoftware.vitema.service.email.newsletter;
 
 import com.noisevisionsoftware.vitema.dto.request.newsletter.ExternalRecipientRequest;
 import com.noisevisionsoftware.vitema.model.newsletter.ExternalRecipient;

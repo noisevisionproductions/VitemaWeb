@@ -1,10 +1,10 @@
-package com.noisevisionsoftware.vitema.controller.newsletter;
+package com.noisevisionsoftware.vitema.controller.email;
 
 import com.noisevisionsoftware.vitema.exception.TooManyRequestsException;
 import com.noisevisionsoftware.vitema.model.newsletter.MetadataWrapper;
 import com.noisevisionsoftware.vitema.model.newsletter.NewsletterSubscriber;
 import com.noisevisionsoftware.vitema.dto.request.newsletter.SubscriptionRequest;
-import com.noisevisionsoftware.vitema.service.newsletter.PublicNewsletterService;
+import com.noisevisionsoftware.vitema.service.email.newsletter.PublicNewsletterService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

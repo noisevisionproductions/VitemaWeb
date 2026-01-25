@@ -1,10 +1,10 @@
-import {SendgridEmailParams, SingleEmailRequest, TargetedEmailParams} from "../../types/sendGrid";
+import {SendgridEmailParams, SingleEmailRequest, TargetedEmailParams} from "../../types/email";
 import api from "../../config/axios";
 
 /**
  * Usługa obsługująca wysyłkę emaili przez SendGrid
  */
-export const SendGridService = {
+export const AdminEmailService = {
 
     /*
     * Wysyła pojedynczy email do konkretnego odbiorcy
@@ -37,8 +37,8 @@ export const SendGridService = {
     /**
      * Pobiera dostępne systemowe szablony emaili
      */
-    getEmailTemplates: async () => {
-        return api.get('/admin/email/templates');
+    getSystemTemplates: async () => {
+        return api.get<{ templates: any[] }>('/admin/email/templates');
     },
 
     /**

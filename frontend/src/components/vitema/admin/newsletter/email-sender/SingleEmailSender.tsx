@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
-import {ExternalRecipient} from '../../../../../types/sendGrid';
+import {ExternalRecipient} from '../../../../../types/email';
 import {toast} from '../../../../../utils/toast';
-import {SendGridService} from '../../../../../services/newsletter/SendGridService';
+import {AdminEmailService} from '../../../../../services/newsletter/AdminEmailService';
 import {ExternalRecipientService} from '../../../../../services/newsletter/ExternalRecipientService';
 import LoadingSpinner from '../../../../shared/common/LoadingSpinner';
 import EmailContentEditor from './EmailContentEditor';
@@ -79,7 +79,7 @@ const SingleEmailSender: React.FC = () => {
         try {
             setIsSending(true);
 
-            await SendGridService.sendSingleEmail({
+            await AdminEmailService.sendSingleEmail({
                 recipientEmail: selectedRecipient.email,
                 recipientName: selectedRecipient.name,
                 externalRecipientId: selectedRecipient.id,

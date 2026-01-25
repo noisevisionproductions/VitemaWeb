@@ -1,12 +1,12 @@
-package com.noisevisionsoftware.vitema.controller;
+package com.noisevisionsoftware.vitema.controller.email;
 
 import com.noisevisionsoftware.vitema.dto.request.newsletter.sendgrid.EmailRequest;
 import com.noisevisionsoftware.vitema.dto.request.newsletter.sendgrid.SavedTemplateRequest;
 import com.noisevisionsoftware.vitema.dto.request.newsletter.sendgrid.SingleEmailRequest;
 import com.noisevisionsoftware.vitema.dto.request.newsletter.sendgrid.TargetedEmailRequest;
 import com.noisevisionsoftware.vitema.model.newsletter.EmailTemplate;
+import com.noisevisionsoftware.vitema.service.email.AdminEmailService;
 import com.noisevisionsoftware.vitema.service.email.EmailTemplateService;
-import com.noisevisionsoftware.vitema.service.email.SendGridService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,15 +24,15 @@ import java.util.Optional;
 @PreAuthorize("hasRole('OWNER')")
 @RequiredArgsConstructor
 @Slf4j
-public class SendGridController {
+public class AdminEmailController {
 
-    private final SendGridService sendGridService;
+    private final AdminEmailService adminEmailService;
     private final EmailTemplateService emailTemplateService;
 
     @PostMapping("/single")
     public ResponseEntity<?> sendSingleEmail(@Valid @RequestBody SingleEmailRequest request) {
         try {
-            sendGridService.sendSingleEmail(request);
+            adminEmailService.sendSingleEmail(request);
 
             String responseMessage = "Wiadomość została wysłana do: " + request.getRecipientEmail();
             if (request.getExternalRecipientId() != null) {
@@ -55,7 +55,7 @@ public class SendGridController {
     @PostMapping("/bulk")
     public ResponseEntity<?> sendBulkEmail(@Valid @RequestBody EmailRequest request) {
         try {
-            sendGridService.sendBulkEmail(request);
+            adminEmailService.sendBulkEmail(request);
             return ResponseEntity.ok().body(Map.of(
                     "message", "Wiadomość została wysłana do wszystkich aktywnych i zweryfikowanych subskrybentów"
             ));
@@ -70,10 +70,10 @@ public class SendGridController {
     @PostMapping("/bulk-targeted")
     public ResponseEntity<?> sendTargetedBulkEmail(@Valid @RequestBody TargetedEmailRequest request) {
         try {
-            Map<String, Object> result = sendGridService.sendTargetedBulkEmail(request);
+            Map<String, Object> result = adminEmailService.sendTargetedBulkEmail(request);
             return ResponseEntity.ok().body(result);
         } catch (Exception e) {
-            log.error("Błąd podczas wysyłania targeted emaila", e);
+            log.error("Błąd podczas wysyłania targetowanego emaila", e);
             return ResponseEntity.internalServerError().body(Map.of(
                     "message", "Wystąpił błąd podczas wysyłania wiadomości: " + e.getMessage()
             ));
@@ -83,7 +83,15 @@ public class SendGridController {
     @PostMapping("/send/{email}")
     public ResponseEntity<?> sendEmail(@PathVariable String email, @Valid @RequestBody EmailRequest request) {
         try {
-            sendGridService.sendEmail(email, request);
+            SingleEmailRequest singleRequest = new SingleEmailRequest();
+            singleRequest.setRecipientEmail(email);
+            singleRequest.setSubject(request.getSubject());
+            singleRequest.setContent(request.getContent());
+            singleRequest.setUseTemplate(request.isUseTemplate());
+            singleRequest.setTemplateType(request.getTemplateType());
+
+            adminEmailService.sendSingleEmail(singleRequest);
+
             return ResponseEntity.ok().body(Map.of(
                     "message", "Wiadomość została wysłana do: " + email
             ));
@@ -95,8 +103,23 @@ public class SendGridController {
         }
     }
 
+    @PostMapping("/preview")
+    public ResponseEntity<?> previewEmail(@Valid @RequestBody EmailRequest request) {
+        try {
+            String previewContent = adminEmailService.renderEmailPreview(request);
+            return ResponseEntity.ok().body(Map.of(
+                    "preview", previewContent
+            ));
+        } catch (Exception e) {
+            log.error("Błąd podczas generowania podglądu emaila", e);
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "message", "Wystąpił błąd podczas generowania podglądu: " + e.getMessage()
+            ));
+        }
+    }
+
     @GetMapping("/templates")
-    public ResponseEntity<?> getTemplates() {
+    public ResponseEntity<?> getSystemTemplates() {
         Map<String, Object> templates = new HashMap<>();
 
         List<Map<String, String>> templatesList = List.of(
@@ -124,21 +147,6 @@ public class SendGridController {
 
         templates.put("templates", templatesList);
         return ResponseEntity.ok(templates);
-    }
-
-    @PostMapping("/preview")
-    public ResponseEntity<?> previewEmail(@Valid @RequestBody EmailRequest request) {
-        try {
-            String previewContent = sendGridService.renderEmailPreview(request);
-            return ResponseEntity.ok().body(Map.of(
-                    "preview", previewContent
-            ));
-        } catch (Exception e) {
-            log.error("Błąd podczas generowania podglądu emaila", e);
-            return ResponseEntity.internalServerError().body(Map.of(
-                    "message", "Wystąpił błąd podczas generowania podglądu: " + e.getMessage()
-            ));
-        }
     }
 
     @GetMapping("/saved-templates")

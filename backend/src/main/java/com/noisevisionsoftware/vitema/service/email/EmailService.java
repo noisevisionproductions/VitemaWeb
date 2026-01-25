@@ -116,7 +116,6 @@ public class EmailService {
             mailSender.send(message);
         } catch (MessagingException | UnsupportedEncodingException e) {
             log.error("Błąd podczas wysyłania niestandardowego emaila", e);
-            throw new RuntimeException("Błąd podczas wysyłania emaila", e);
         }
     }
 

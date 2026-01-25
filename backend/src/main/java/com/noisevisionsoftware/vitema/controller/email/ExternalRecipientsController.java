@@ -1,9 +1,9 @@
-package com.noisevisionsoftware.vitema.controller.newsletter;
+package com.noisevisionsoftware.vitema.controller.email;
 
 import com.noisevisionsoftware.vitema.dto.request.newsletter.BulkExternalRecipientRequest;
 import com.noisevisionsoftware.vitema.dto.request.newsletter.ExternalRecipientRequest;
 import com.noisevisionsoftware.vitema.model.newsletter.ExternalRecipient;
-import com.noisevisionsoftware.vitema.service.newsletter.ExternalRecipientsService;
+import com.noisevisionsoftware.vitema.service.email.newsletter.ExternalRecipientsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

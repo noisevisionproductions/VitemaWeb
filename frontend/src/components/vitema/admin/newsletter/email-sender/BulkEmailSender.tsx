@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react';
 import {toast} from "../../../../../utils/toast";
-import {SendGridService} from "../../../../../services/newsletter/SendGridService";
-import {TargetedEmailParams} from "../../../../../types/sendGrid";
+import {AdminEmailService} from "../../../../../services/newsletter/AdminEmailService";
+import {TargetedEmailParams} from "../../../../../types/email";
 import LoadingSpinner from "../../../../shared/common/LoadingSpinner";
 import EmailContentEditor from "./EmailContentEditor";
 import EmailPreview from './EmailPreview';
@@ -166,7 +166,7 @@ const BulkEmailSender = () => {
                 newStatus: updateStatus ? newStatus : undefined
             };
 
-            const response = await SendGridService.sendTargetedBulkEmail(emailParams);
+            const response = await AdminEmailService.sendTargetedBulkEmail(emailParams);
 
             toast.success(response.data.message || `Wiadomość została wysłana do ${response.data.sentCount} odbiorców`);
 

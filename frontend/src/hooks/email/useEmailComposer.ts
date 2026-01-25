@@ -1,5 +1,5 @@
 import {useState, useEffect, useCallback} from 'react';
-import {EmailTemplate, EmailTemplateType, SavedEmailTemplate} from '../../types/sendGrid';
+import {EmailTemplate, EmailTemplateType, SavedEmailTemplate} from '../../types/email';
 import {EmailTemplateService} from '../../services/newsletter/temlates/EmailTemplateService';
 import {SavedTemplateService} from '../../services/newsletter/temlates/SavedTemplateService';
 import {toast} from '../../utils/toast';

@@ -7,7 +7,7 @@ import com.noisevisionsoftware.vitema.dto.request.newsletter.sendgrid.SingleEmai
 import com.noisevisionsoftware.vitema.dto.request.newsletter.sendgrid.TargetedEmailRequest;
 import com.noisevisionsoftware.vitema.model.newsletter.EmailTemplate;
 import com.noisevisionsoftware.vitema.service.email.EmailTemplateService;
-import com.noisevisionsoftware.vitema.service.email.SendGridService;
+import com.noisevisionsoftware.vitema.service.email.AdminEmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,7 +35,7 @@ class SendGridControllerTest {
     private MockMvc mockMvc;
 
     @Mock
-    private SendGridService sendGridService;
+    private AdminEmailService sendGridService;
 
     @Mock
     private EmailTemplateService emailTemplateService;

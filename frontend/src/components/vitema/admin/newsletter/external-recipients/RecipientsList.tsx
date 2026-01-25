@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
-import {ExternalRecipient} from "../../../../../types/sendGrid";
+import {ExternalRecipient} from "../../../../../types/email";
 import {Check, Mail, MessageCircle, MoreHorizontal, Trash2, X} from "lucide-react";
 import {cn} from "../../../../../utils/cs";
 import ConfirmationDialog from "../../../../shared/common/ConfirmationDialog";

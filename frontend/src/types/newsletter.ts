@@ -45,8 +45,3 @@ export interface NewsletterStatsData {
     roleDistribution: Record<string, number>;
     emailStats?: EmailStats;
 }
-
-export interface BulkEmailRequest {
-    subject: string;
-    content: string;
-}

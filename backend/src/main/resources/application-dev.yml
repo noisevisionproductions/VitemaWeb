@@ -49,10 +49,3 @@ logging:
     org.springframework.web: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-
-sendgrid:
-  api:
-    key: ${SENDGRID_API_KEY}
-  from:
-    email: kontakt@vitema.pl
-    name: Tomasz z Vitema

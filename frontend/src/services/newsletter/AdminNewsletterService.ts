@@ -1,4 +1,4 @@
-import {BulkEmailRequest, NewsletterStatsData, NewsletterSubscriber} from "../../types/newsletter";
+import {NewsletterStatsData, NewsletterSubscriber} from "../../types/newsletter";
 import api from "../../config/axios";
 
 interface ApiResponse {
@@ -40,13 +40,6 @@ export class AdminNewsletterService {
      */
     static async deleteSubscriber(id: string): Promise<void> {
         await api.delete(`/admin/newsletter/subscribers/${id}`);
-    }
-
-    /**
-     * Wysyła masowy email do wszystkich aktywnych subskrybentów
-     */
-    static async sendBulkEmail(data: BulkEmailRequest): Promise<void> {
-        await api.post('/admin/newsletter/send-bulk-email', data);
     }
 
     /**

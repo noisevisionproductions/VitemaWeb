@@ -1,5 +1,5 @@
-import {SendGridService} from '../SendGridService';
-import {EmailTemplate, EmailTemplateType} from "../../../types/sendGrid";
+import {AdminEmailService} from '../AdminEmailService';
+import {EmailTemplate, EmailTemplateType} from "../../../types/email";
 import {toast} from "../../../utils/toast";
 
 /**
@@ -12,7 +12,7 @@ export const EmailTemplateService = {
      */
     getTemplates: async (): Promise<EmailTemplate[]> => {
         try {
-            const response = await SendGridService.getEmailTemplates();
+            const response = await AdminEmailService.getSystemTemplates();
 
             if (response.data && response.data.templates) {
                 return response.data.templates.map((template: any) => ({
@@ -23,13 +23,11 @@ export const EmailTemplateService = {
             }
 
             console.error('Nieprawidłowa struktura odpowiedzi z API');
-            toast.error('Nie udało się pobrać szablonów emaili. Spróbuj odświeżyć stronę.');
+            toast.error('Nie udało się pobrać szablonów emaili.');
             return [];
         } catch (error) {
             console.error('Błąd podczas pobierania szablonów:', error);
-            toast.error('Nie udało się pobrać szablonów emaili. Spróbuj odświeżyć stronę.');
-
-            // Zwracamy pusty array, żeby aplikacja nie zawiesiła się całkowicie
+            toast.error('Nie udało się pobrać szablonów emaili.');
             return [];
         }
     },
@@ -38,14 +36,14 @@ export const EmailTemplateService = {
      * Generuje podgląd emaila z użyciem wybranego szablonu
      */
     previewTemplate: async (content: string, templateType: EmailTemplateType): Promise<string> => {
-        const response = await SendGridService.previewTemplate({
+        const response = await AdminEmailService.previewEmail({
             subject: 'Podgląd',
             content,
             useTemplate: true,
             templateType
         }).catch(error => {
             console.error('Błąd podczas generowania podglądu:', error);
-            return Promise.reject('Nie udało się wygenerować podglądu email. Spróbuj ponownie później.');
+            return Promise.reject('Nie udało się wygenerować podglądu email.');
         });
 
         if (!response?.data?.preview) {

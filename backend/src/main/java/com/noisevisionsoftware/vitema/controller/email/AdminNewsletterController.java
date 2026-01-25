@@ -1,9 +1,7 @@
-package com.noisevisionsoftware.vitema.controller.newsletter;
+package com.noisevisionsoftware.vitema.controller.email;
 
-import com.noisevisionsoftware.vitema.dto.request.newsletter.BulkEmailRequest;
 import com.noisevisionsoftware.vitema.model.newsletter.NewsletterSubscriber;
-import com.noisevisionsoftware.vitema.service.newsletter.AdminNewsletterService;
-import jakarta.validation.Valid;
+import com.noisevisionsoftware.vitema.service.email.newsletter.AdminNewsletterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,12 +39,6 @@ public class AdminNewsletterController {
     @DeleteMapping("/subscribers/{id}")
     public ResponseEntity<?> deleteSubscriber(@PathVariable Long id) throws ExecutionException, InterruptedException {
         newsletterService.deleteSubscriber(id);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/send-bulk-email")
-    public ResponseEntity<?> sendBulkEmail(@Valid @RequestBody BulkEmailRequest request) {
-        newsletterService.sendBulkEmail(request.getSubject(), request.getContent());
         return ResponseEntity.ok().build();
     }
 

@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {ExternalRecipientFormData} from "../../../../../types/sendGrid";
+import {ExternalRecipientFormData} from "../../../../../types/email";
 import {X} from "lucide-react";
 
 interface AddRecipientFormProps {

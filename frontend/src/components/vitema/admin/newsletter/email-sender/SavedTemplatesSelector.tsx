@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {SavedEmailTemplate} from '../../../../../types/sendGrid';
+import {SavedEmailTemplate} from '../../../../../types/email';
 import {RefreshCw, FileText, Clock, Eye, Trash} from 'lucide-react';
 import LoadingSpinner from '../../../../shared/common/LoadingSpinner';
 import {toast} from '../../../../../utils/toast';
