@@ -52,10 +52,3 @@ logging:
     org.springframework.security: INFO
     org.springframework.web: INFO
     org.hibernate.SQL: WARN
-
-sendgrid:
-  api:
-    key: ${SENDGRID_API_KEY}
-  from:
-    email: kontakt@vitema.pl
-    name: Tomasz z Vitema
