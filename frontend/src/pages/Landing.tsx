@@ -9,6 +9,7 @@ import CTA from "../components/landing/cta/CTA";
 import MarketStats from "../components/landing/marketStats/MarketStats";
 import DownloadAppSection from "../components/landing/appStore/DownloadAppSection";
 import {Helmet} from "react-helmet-async";
+import RevenueUpsell from "../components/landing/upsell/RevenueUpsell";
 
 const Landing = () => {
     const location = useLocation();
@@ -57,6 +58,7 @@ const Landing = () => {
             <Hero/>
             <MarketStats/>
             <Features/>
+            <RevenueUpsell/>
             <ForWho/>
             <DownloadAppSection/>
             <FAQ/>

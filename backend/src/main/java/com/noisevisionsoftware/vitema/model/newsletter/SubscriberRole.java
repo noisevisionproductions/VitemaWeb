@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum SubscriberRole {
     DIETITIAN,
-    COMPANY;
+    COMPANY,
+    FREELANCER,
+    STUDIO;
 
     @JsonValue
     public String getValue() {

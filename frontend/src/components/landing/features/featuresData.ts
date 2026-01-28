@@ -1,12 +1,12 @@
 import {
-    ArrowsPointingInIcon,
-    ChartBarIcon,
-    DevicePhoneMobileIcon,
-    DocumentTextIcon,
-    ListBulletIcon,
-    UserGroupIcon
+    ClipboardDocumentCheckIcon, // Pasuje do: Szablony / Żywienie bez bycia dietetykiem
+    ShoppingCartIcon,           // Pasuje do: Listy Zakupów
+    UsersIcon,                  // Pasuje do: Centrum dowodzenia (klienci)
+    DevicePhoneMobileIcon,      // Pasuje do: Aplikacja mobilna (ZAMIAST Excela)
+    ChartBarIcon,               // Pasuje do: Wizualizacja postępów
+    ArrowTrendingUpIcon         // Pasuje do: Skalowanie (nowa funkcja)
 } from '@heroicons/react/24/outline';
-import * as React from "react";
+import React from "react";
 
 export interface Feature {
     id: number;
@@ -17,17 +17,17 @@ export interface Feature {
 export const features: Feature[] = [
     {
         id: 1,
-        icon: ArrowsPointingInIcon,
+        icon: ClipboardDocumentCheckIcon,
         status: 'available'
     },
     {
         id: 2,
-        icon: ListBulletIcon,
+        icon: ShoppingCartIcon,
         status: 'available'
     },
     {
         id: 3,
-        icon: UserGroupIcon,
+        icon: UsersIcon,
         status: 'available'
     },
     {
@@ -38,11 +38,11 @@ export const features: Feature[] = [
     {
         id: 5,
         icon: ChartBarIcon,
-        status: 'available'
+        status: 'coming_soon'
     },
     {
         id: 6,
-        icon: DocumentTextIcon,
-        status: 'available'
+        icon: ArrowTrendingUpIcon,
+        status: 'coming_soon'
     }
 ];

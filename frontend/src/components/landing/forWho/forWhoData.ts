@@ -1,7 +1,7 @@
 import {
     UserIcon,
     BuildingOfficeIcon,
-    AcademicCapIcon,
+    GlobeAltIcon,
     UserGroupIcon
 } from '@heroicons/react/24/outline';
 import React from "react";
@@ -20,12 +20,12 @@ export const userTypes: UserType[] = [
     },
     {
         id: 2,
-        icon: BuildingOfficeIcon,
+        icon: GlobeAltIcon,
         primary: true
     },
     {
         id: 3,
-        icon: AcademicCapIcon,
+        icon: BuildingOfficeIcon,
         primary: true
     },
     {

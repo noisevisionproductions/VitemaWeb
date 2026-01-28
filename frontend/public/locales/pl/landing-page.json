@@ -55,12 +55,12 @@
     }
   },
   "download": {
-    "titlePart1": "Twój dietetyk zawsze",
-    "titlePart2": "w Twojej kieszeni",
-    "description": "Pobierz naszą aplikację mobilną i zyskaj natychmiastowy dostęp do swoich planów żywieniowych, listy zakupów i komunikacji z dietetykiem, gdziekolwiek jesteś.",
+    "titlePart1": "Twój Trener zawsze",
+    "titlePart2": "w kieszeni",
+    "description": "Daj podopiecznym narzędzie, które pokochają. Stały dostęp do planów żywieniowych, interaktywna lista zakupów i szybki kontakt z Tobą – wszystko w jednej aplikacji.",
     "googlePlay": "Pobierz z",
     "googlePlayAlt": "Pobierz aplikację z Google Play",
-    "requirements": "Dostępna dla urządzeń z systemem Android 8.0+"
+    "requirements": "Dostępne dla urządzeń z Android 8.0+"
   },
   "contact": {
     "title": "Skontaktuj się z nami",
@@ -94,128 +94,138 @@
     }
   },
   "features": {
-    "title": "Oszczędzaj czas dzięki automatyzacji",
-    "subtitle": "Skoncentruj się na pracy z klientami, a rutynowe zadania zostaw naszemu systemowi",
-    "footer": "Stale rozwijamy naszą platformę o nowe funkcje na podstawie potrzeb dietetyków.",
-    "footerLinkPrefix": "Masz pomysł?",
+    "title": "Narzędzia, które pracują na Twój sukces",
+    "subtitle": "Wszystko, czego potrzebujesz, by dodać profesjonalną opiekę żywieniową do oferty – bez zbędnego stresu i straty czasu.",
+    "footer": "Przestań prowadzić biznes na WhatsAppie i w Excelu.",
+    "footerLinkPrefix": "Brakuje Ci jakiejś funkcji?",
     "footerLink": "Daj nam znać!",
     "status": {
       "comingSoon": "Wkrótce"
     },
     "items": {
       "1": {
-        "title": "Import diet z plików Excel",
-        "description": "Automatycznie przetwarzaj istniejące plany dietetyczne z Excela do formatu cyfrowego bez ręcznego przepisywania."
+        "title": "Twórz własne szablony",
+        "description": "Zapisuj swoje sprawdzone plany jako szablony. Gdy przyjdzie nowy podopieczny o podobnej wadze i celu, przypiszesz mu gotową dietę jednym kliknięciem."
       },
       "2": {
-        "title": "Gotowe listy zakupów",
-        "description": "System automatycznie generuje listy zakupów na podstawie diet, oszczędzając czas Tobie i Twoim klientom."
+        "title": "Automatyczne listy zakupów",
+        "description": "Jedno kliknięcie generuje posortowaną listę zakupów dla Twoich klientów. Szybsze zakupy to mniejsze ryzyko podjadania i lepsze efekty."
       },
       "3": {
-        "title": "Zarządzanie klientami",
-        "description": "Przypisuj diety do klientów, śledź ich postępy i zarządzaj danymi w jednym miejscu."
+        "title": "Centrum dowodzenia",
+        "description": "Koniec z chaosem w wiadomościach prywatnych. Zarządzaj raportami (check-in), korektami diety i notatkami w jednym czytelnym panelu."
       },
       "4": {
-        "title": "Aplikacja mobilna dla klientów",
-        "description": "Twoi klienci mają stały dostęp do swoich diet, przepisów i list zakupów w intuicyjnej aplikacji mobilnej."
+        "title": "Twoja własna aplikacja",
+        "description": "Zaoferuj klientom doświadczenie Premium. Podgląd posiłków i odhaczanie nawyków w aplikacji, która buduje Twój profesjonalizm."
       },
       "5": {
-        "title": "Raporty i statystyki",
-        "description": "Podstawowe statystyki dotyczące klientów i ich diet, pomagające podejmować lepsze decyzje biznesowe."
+        "title": "Wizualizacja postępów",
+        "description": "Pokaż klientom czarno na białym ich sukcesy. Śledź wagę, pomiary i zdjęcia sylwetki, aby utrzymać ich motywację i retencję."
       },
       "6": {
-        "title": "Baza wiedzy i szablony",
-        "description": "Rozwijana baza wiedzy z szablonami diet i materiałami edukacyjnymi dla dietetyków."
+        "title": "Systemy do skalowania",
+        "description": "Stwórz 'Autorskie Plany' raz i przypisuj je wielu klientom jednym kliknięciem. Idealne rozwiązanie do skalowania opieki online."
       }
     }
   },
   "faq": {
-    "title": "Często zadawane pytania",
-    "subtitle": "Znajdź odpowiedzi na najczęściej zadawane pytania dotyczące Vitema",
+    "title": "Najczęściej zadawane pytania",
+    "subtitle": "Szczere odpowiedzi na temat obecnej wersji Vitema (Beta)",
     "items": {
       "1": {
-        "question": "Jak mogę rozpocząć korzystanie z Vitema?",
-        "answer": "Obecnie zbieramy listę zainteresowanych osób, aby dostosować system do potrzeb rynku. Zapisz się do newslettera, a poinformujemy Cię o starcie platformy i damy dostęp do wersji beta z dodatkowymi korzyściami dla pierwszych użytkowników."
+        "question": "Czy muszę ręcznie wpisywać każdy produkt?",
+        "answer": "Na początku tworzysz własną bazę ulubionych posiłków i produktów. Robisz to jednak tylko raz. Potem układasz diety jak z klocków, przeciągając gotowe dania do planu podopiecznego. To Twoja własna, cyfrowa książka kucharska."
       },
       "2": {
-        "question": "Czy mogę dostosować system do mojej marki?",
-        "answer": "Tak, Vitema będzie oferował możliwość white-label, co oznacza, że możesz dostosować wygląd systemu do swojej marki - włączając logo, kolory i domenę."
+        "question": "Czy to szybsze niż Excel?",
+        "answer": "Zdecydowanie. W Excelu kopiujesz komórki i ręcznie liczysz makro przy każdej zmianie gramatury. Vitema przelicza wszystko automatycznie w czasie rzeczywistym. Raz stworzony plan możesz skopiować dla innego podopiecznego w sekundę."
       },
       "3": {
-        "question": "Czy system będzie działał na urządzeniach mobilnych?",
-        "answer": "Tak, Vitema jest projektowany z myślą o responsywności. Zarówno panel dietetyka jak i interfejs klienta będą w pełni funkcjonalne na wszystkich urządzeniach - komputerach, tabletach i telefonach."
+        "question": "Czy aplikacja działa na iPhone?",
+        "answer": "Obecnie dostępna jest natywna aplikacja na Androida. Wersja na iOS (iPhone) jest naszym priorytetem w mapie rozwoju. Do tego czasu posiadacze iPhone'ów mogą korzystać z responsywnej wersji przeglądarkowej."
       },
       "4": {
-        "question": "Jakie wsparcie techniczne będzie dostępne?",
-        "answer": "Planujemy zapewnić kompleksowe wsparcie techniczne poprzez czat, email oraz bazę wiedzy z tutorialami. Dla większych klientów przewidujemy dedykowane wsparcie i szkolenia."
+        "question": "Czy mogę spersonalizować aplikację pod swoją markę?",
+        "answer": "W planach mamy funkcję White-Label (Twoje logo i kolory), która zostanie udostępniona w późniejszej fazie rozwoju. Obecnie skupiamy się na funkcjonalności i stabilności systemu."
       },
       "5": {
-        "question": "Czy będzie możliwość importu danych z innych systemów?",
-        "answer": "Tak, planujemy funkcję importu danych klientów i diet z popularnych formatów (CSV, Excel) oraz integracje z najpopularniejszymi systemami do zarządzania dietami."
+        "question": "Co jeśli klient chce wymienić posiłek?",
+        "answer": "Nie musisz tworzyć nowej rozpiski. Wchodzisz w plan klienta, klikasz 'Wymień' na danym posiłku i wstawiasz inną propozycję ze swojej bazy. Lista zakupów w aplikacji klienta zaktualizuje się automatycznie."
       },
       "6": {
-        "question": "Jak wygląda kwestia bezpieczeństwa danych?",
-        "answer": "Bezpieczeństwo danych jest naszym priorytetem. System będzie zgodny z RODO, a dane będą szyfrowane i przechowywane na bezpiecznych serwerach w UE. Nie będziemy mieli możliwości wglądu do wrażliwych danych dietetyków i ich klientów."
-      },
-      "7": {
-        "question": "Czym Vitema wyróżnia się na tle konkurencji?",
-        "answer": "Vitema wyróżnia się wykorzystaniem najnowocześniejszych technologii zarówno w panelu dietetyka, jak i aplikacji dla klientów. Cały system jest zoptymalizowany pod kątem wydajności, co zapewnia płynne działanie bez zawieszania się czy crashów, nawet przy dużym obciążeniu."
+        "question": "Ile to kosztuje?",
+        "answer": "Dla Beta-testerów system jest darmowy. Dołączając teraz, pomagasz nam rozwijać Vitemę, a w podziękowaniu otrzymasz specjalną ofertę dożywotnią, gdy wprowadzimy płatne subskrypcje."
       }
     }
   },
   "cta": {
-    "title": "Rozpocznij transformację swojej praktyki dietetycznej",
-    "subtitle": "Dołącz do grona pierwszych użytkowników i zyskaj 6 miesięcy dostępu za darmo",
-    "disclaimer": "Dołączając do listy, zgadzasz się na otrzymywanie informacji o produkcie. Możesz zrezygnować w każdej chwili."
+    "title": "Przestań tracić czas na papierologię",
+    "subtitle": "Dołącz do grupy trenerów, którzy skalują swój biznes dzięki automatyzacji. Pierwsze 50 osób otrzyma 6 miesięcy gratis.",
+    "disclaimer": "Bez spamu. Możesz wypisać się w każdej chwili."
   },
   "forWho": {
     "title": "Dla kogo jest Vitema?",
-    "subtitle": "Kompleksowe rozwiązanie dla wszystkich uczestników procesu dietetycznego",
-    "footer": "Vitema łączy dietetyków z ich klientami w jednym ekosystemie, zapewniając płynną komunikację i efektywną współpracę.",
+    "subtitle": "Niezależnie czy trenujesz 5 stacjonarnie, czy 500 online – pomożemy Ci rosnąć.",
+    "footer": "Dołącz do listy oczekujących, aby zagwarantować sobie darmowy start.",
     "items": {
       "1": {
-        "title": "Indywidualni dietetycy",
-        "description": "Prowadzisz własną praktykę dietetyczną i szukasz narzędzia do efektywnej pracy z klientami?",
+        "title": "Trenerzy Personalni",
+        "description": "Robisz wszystko sam? Odzyskaj swój prywatny czas.",
         "benefits": [
-          "Automatyzacja rutynowych zadań",
-          "Profesjonalny wizerunek",
-          "Łatwe zarządzanie dietami",
-          "Więcej czasu na pracę z klientami",
-          "Monitorowanie postępów klientów"
+          "Oszczędność czasu admina o 50%",
+          "Wprowadź 'Dietę' do cennika",
+          "Profesjonalny wizerunek eksperta",
+          "Koniec z tabelkami w Excelu"
         ]
       },
       "2": {
-        "title": "Gabinety i kliniki",
-        "description": "Zarządzasz zespołem dietetyków i potrzebujesz systemu do koordynacji ich pracy?",
+        "title": "Trenerzy Online",
+        "description": "Duża liczba podopiecznych zdalnych? Potrzebujesz automatyzacji, nie PDF-ów.",
         "benefits": [
-          "Zarządzanie zespołem dietetyków",
-          "Centralna baza klientów",
-          "Raportowanie i analityka",
-          "Współdzielenie materiałów",
-          "Spójny system pracy"
+          "Obsługa 50+ klientów bez chaosu",
+          "Szybkie kopiowanie planów",
+          "Zdalne raporty (check-in)",
+          "Automatyzacja onboardingu"
         ]
       },
       "3": {
-        "title": "Sieci dietetyczne",
-        "description": "Prowadzisz sieć gabinetów lub franczyzę i potrzebujesz skalowalnego rozwiązania?",
+        "title": "Studia Treningowe",
+        "description": "Zarządzasz zespołem? Ujednolić ofertę żywieniową w swoim obiekcie.",
         "benefits": [
-          "White label rozwiązanie",
-          "Zarządzanie wieloma lokalizacjami",
-          "Zaawansowana analityka",
-          "Integracje z systemami",
-          "Dostosowanie do marki"
+          "Jeden system dla wszystkich trenerów",
+          "Nowe źródło przychodu dla studia",
+          "Narzędzie do retencji klientów",
+          "Kontrola wyników zespołu"
         ]
       },
       "4": {
-        "title": "Klienci dietetyków",
-        "description": "Pracujesz z dietetykiem i potrzebujesz wygodnego dostępu do swoich planów żywieniowych?",
+        "title": "Twoi Podopieczni",
+        "description": "Ludzi, którzy Ci płacą. Zasługują na nowoczesne rozwiązania.",
         "benefits": [
-          "Wygodny dostęp do diety w aplikacji mobilnej",
-          "Gotowe listy zakupów na każdy dzień",
-          "Monitorowanie postępów",
-          "Łatwa komunikacja z dietetykiem",
-          "Dostęp do przepisów i materiałów edukacyjnych"
+          "Prosta w obsłudze aplikacja",
+          "Interaktywna lista zakupów",
+          "Czytelna wizualizacja efektów",
+          "Lepsze wyniki = Zadowolony klient"
         ]
+      }
+    }
+  },
+  "upsell": {
+    "title": "Nie sprzedajesz jeszcze planów żywieniowych?",
+    "subtitle": "Zobacz, ile pieniędzy zostawiasz na stole. Twoi podopieczni i tak szukają diety – jeśli nie kupią jej u Ciebie, pójdą do dietetyka.",
+    "cards": {
+      "1": {
+        "title": "Większy zarobek z klienta",
+        "description": "Dodając gotowy jadłospis do oferty, możesz podnieść cenę współpracy o 200-400 zł miesięcznie, nie pracując więcej godzin."
+      },
+      "2": {
+        "title": "Kompetencje bez studiów",
+        "description": "Nie musisz liczyć kalorii na piechotę. Korzystaj z bazy zweryfikowanych szablonów Vitema i dostosuj je jednym kliknięciem."
+      },
+      "3": {
+        "title": "Lepsze efekty treningowe",
+        "description": "Klient, który dobrze je, ma siłę trenować. Lepsze wyniki podopiecznego to Twoja najlepsza wizytówka i marketing."
       }
     }
   },
@@ -228,16 +238,16 @@
     "validation": {
       "emailRequired": "Email jest wymagany",
       "emailInvalid": "Nieprawidłowy adres email",
-      "roleRequired": "Wybierz kim jesteś"
+      "roleRequired": "Wybierz model pracy"
     },
     "roles": {
-      "dietitian": "Jestem dietetykiem",
-      "company": "Jestem trenerem"
+      "freelancer": "Trener Freelancer",
+      "studio": "Właściciel Studia"
     }
   },
   "footer": {
-    "description": "Kompleksowy system do zarządzania praktyką dietetyczną i komunikacji z klientami.",
-    "copyright": "© {{year}} Vitema. Wszystkie prawa zastrzeżone.",
+    "description": "Kompleksowy system do rozwoju biznesu trenerskiego i opieki nad podopiecznymi.",
+    "copyright": "© {{year}} Vitema. Wszelkie prawa zastrzeżone.",
     "sections": {
       "product": "Produkt",
       "company": "Firma",
@@ -249,40 +259,40 @@
       "faq": "FAQ",
       "about": "O nas",
       "contact": "Kontakt",
-      "privacy": "Polityka prywatności"
+      "privacy": "Polityka Prywatności"
     }
   },
   "hero": {
-    "titlePart1": "Stwórz i zarządzaj",
-    "titlePart2": "spersonalizowanymi dietami",
-    "subtitle": "Kompleksowe narzędzie do zarządzania dietami i komunikacji z klientami. Oszczędź czas, zwiększ efektywność i rozwijaj swoją praktykę, wybierając najnowocześniejsze rozwiązanie.",
+    "titlePart1": "Trening to za mało.",
+    "titlePart2": "Zadbaj o dietę podopiecznych.",
+    "subtitle": "Pierwsze narzędzie dla Trenerów Personalnych, które zmienia chaos w Excelu w profesjonalną aplikację dla Twoich klientów. Zaoferuj kompleksową opiekę, oszczędź czas i zwiększ skuteczność treningów.",
     "offer": {
-      "label": "Oferta specjalna:",
+      "label": "Wczesny dostęp:",
       "textPart1": "Pierwszych",
-      "highlight": "50 użytkowników",
-      "textPart2": "otrzyma 6 miesięcy dostępu za darmo! Zapisz się na listę oczekujących."
+      "highlight": "50 trenerów",
+      "textPart2": "otrzyma 6 miesięcy konta Premium za darmo! Dołącz do listy oczekujących."
     },
     "mockup": {
-      "panelAlt": "Panel dietetyka - zarządzanie dietami",
-      "appAlt": "Aplikacja mobilna dla klientów"
+      "panelAlt": "Panel Trenera - kreator planów żywieniowych",
+      "appAlt": "Aplikacja mobilna dla podopiecznego"
     }
   },
   "stats": {
-    "title": "Trudności, które rozwiązuje nasza platforma",
-    "subtitle": "Codzienne wyzwania dietetyków, które pomagamy przezwyciężyć",
-    "note": "* Dane na podstawie badań przeprowadzonych wśród dietetyków i ich klientów w 2023 roku",
+    "title": "Skup się na treningu, nie na papierologii",
+    "subtitle": "Wyzwania, które rozwiązujemy, abyś mógł skalować swój biznes trenerski",
+    "note": "* Dane na podstawie analizy rynku trenerów personalnych w Polsce",
     "items": {
       "1": {
-        "label": "tygodniowo tracone na ręczne zarządzanie dietami",
-        "description": "Dietetycy marnują średnio 12 godzin tygodniowo na przygotowywanie dokumentacji, układanie planów i ręczne obliczanie wartości odżywczych."
+        "label": "czasu traconego na układanie diet w Excelu",
+        "description": "Trenerzy spędzają godziny na kopiowaniu posiłków i ręcznym liczeniu makro. Vitema automatyzuje ten proces, generując listy zakupów za Ciebie."
       },
       "2": {
-        "label": "klientów rezygnuje z powodu braku wygodnego dostępu do diety",
-        "description": "Brak łatwego dostępu do planów żywieniowych i komunikacji z dietetykiem jest głównym powodem rezygnacji klientów z kontynuacji współpracy."
+        "label": "podopiecznych rezygnuje z braku efektów",
+        "description": "Najczęstszym powodem braku progresu sylwetkowego nie jest zły trening, lecz brak trzymania diety. Daj klientom narzędzie, które ułatwi im to zadanie."
       },
       "3": {
-        "label": "klientów preferuje aplikację mobilną do kontaktu z dietetykiem",
-        "description": "Większość klientów oczekuje możliwości sprawdzenia swojej diety, postępów i komunikacji z dietetykiem przez aplikację mobilną."
+        "label": "oczekuje nowoczesnego podejścia",
+        "description": "Wysyłanie diety w PDF na maila to przeszłość. Klienci oczekują interaktywnej aplikacji w telefonie, którą mają zawsze przy sobie na zakupach."
       }
     }
   },

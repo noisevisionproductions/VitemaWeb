@@ -14,7 +14,7 @@ const ForWho = () => {
     });
 
     return (
-        <section id="for-who" className="py-20 bg-surface">
+        <section id="for-who" className="py-20 bg-background">
             <Container>
                 <SectionHeader
                     title={t('forWho.title')}

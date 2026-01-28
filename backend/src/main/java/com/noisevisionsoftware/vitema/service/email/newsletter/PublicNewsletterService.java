@@ -59,9 +59,7 @@ public class PublicNewsletterService {
             throw new IllegalStateException("Email już istnieje w bazie newslettera");
         }
 
-        SubscriberRole role = "dietetyk".equals(request.getRole())
-                ? SubscriberRole.DIETITIAN
-                : SubscriberRole.COMPANY;
+        SubscriberRole role = getSubscriberRole(request);
 
         NewsletterSubscriber subscriber = NewsletterSubscriber.create(normalizedEmail, role);
         subscriber.setLastEmailSent(LocalDateTime.now());
@@ -69,6 +67,19 @@ public class PublicNewsletterService {
         subscriberRepository.save(subscriber);
 
         emailService.sendVerificationEmail(subscriber);
+    }
+
+    private static SubscriberRole getSubscriberRole(SubscriptionRequest request) {
+        SubscriberRole role;
+        String requestRole = request.getRole() != null ? request.getRole().toLowerCase() : "";
+
+        role = switch (requestRole) {
+            case "freelancer" -> SubscriberRole.FREELANCER;
+            case "studio" -> SubscriberRole.STUDIO;
+            case "dietetyk" -> SubscriberRole.DIETITIAN;
+            default -> SubscriberRole.COMPANY;
+        };
+        return role;
     }
 
     /**

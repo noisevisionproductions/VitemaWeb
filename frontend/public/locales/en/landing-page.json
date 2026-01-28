@@ -55,9 +55,9 @@
     }
   },
   "download": {
-    "titlePart1": "Your dietitian always",
-    "titlePart2": "in your pocket",
-    "description": "Download our mobile app and get instant access to your meal plans, shopping lists, and communication with your dietitian, wherever you are.",
+    "titlePart1": "Your Trainer always",
+    "titlePart2": "in the pocket",
+    "description": "Give your clients a tool they'll love. Instant access to meal plans, interactive shopping lists, and direct chat with you. Currently available for Android.",
     "googlePlay": "Get it on",
     "googlePlayAlt": "Download app from Google Play",
     "requirements": "Available for Android 8.0+ devices"
@@ -94,128 +94,138 @@
     }
   },
   "features": {
-    "title": "Save time with automation",
-    "subtitle": "Focus on working with clients, and leave routine tasks to our system",
-    "footer": "We are constantly developing our platform with new features based on dietitians' needs.",
-    "footerLinkPrefix": "Have an idea?",
-    "footerLink": "Let us know!",
+    "title": "Built for High-Performance Coaching",
+    "subtitle": "Everything you need to add professional nutrition coaching to your offer without the headache.",
+    "footer": "Stop using WhatsApp and Excel to run a professional business.",
+    "footerLinkPrefix": "Missing a feature?",
+    "footerLink": "Request it here!",
     "status": {
       "comingSoon": "Coming soon"
     },
     "items": {
       "1": {
-        "title": "Import diets from Excel files",
-        "description": "Automatically process existing diet plans from Excel to digital format without manual rewriting."
+        "title": "Create Your Own Templates",
+        "description": "Digitize your knowledge. Save your proven diet plans as templates. Next time you get a similar client, you can assign a full plan with just one click."
       },
       "2": {
-        "title": "Ready-made shopping lists",
-        "description": "The system automatically generates shopping lists based on diets, saving time for you and your clients."
+        "title": "Automated Shopping Lists",
+        "description": "One click generates a sorted grocery list for your clients. They shop faster, prep easier, and stick to the plan."
       },
       "3": {
-        "title": "Client management",
-        "description": "Assign diets to clients, track their progress, and manage data in one place."
+        "title": "Client Command Center",
+        "description": "Ditch the scattered DMs. Manage check-ins, diet adjustments, and feedback notes in one organized dashboard."
       },
       "4": {
-        "title": "Mobile app for clients",
-        "description": "Your clients have constant access to their diets, recipes, and shopping lists in an intuitive mobile app."
+        "title": "Your Branded App",
+        "description": "Give clients a premium mobile experience where they can view meals and track habits. Elevate your perceived value."
       },
       "5": {
-        "title": "Reports and statistics",
-        "description": "Basic statistics regarding clients and their diets, helping you make better business decisions."
+        "title": "Visual Progress Tracking",
+        "description": "Show clients their success. Track weight, measurements, and photos to keep retention high."
       },
       "6": {
-        "title": "Knowledge base and templates",
-        "description": "An evolving knowledge base with diet templates and educational materials for dietitians."
+        "title": "Scalable Systems",
+        "description": "Create 'Signature Plans' once and assign them to unlimited clients. Perfect for scaling your online coaching."
       }
     }
   },
   "faq": {
     "title": "Frequently Asked Questions",
-    "subtitle": "Find answers to the most frequently asked questions about Vitema",
+    "subtitle": "Honest answers about the current Vitema Beta version",
     "items": {
       "1": {
-        "question": "How can I start using Vitema?",
-        "answer": "We are currently collecting a list of interested people to adapt the system to market needs. Subscribe to the newsletter, and we will inform you about the platform launch and give you access to the beta version with additional benefits for early adopters."
+        "question": "Do I have to enter every meal manually?",
+        "answer": "Initially, you build your own database of your favorite meals and recipes. You do this only once. Afterwards, you build diets like LEGO bricks—just drag and drop your ready-made meals into any client's plan. It becomes your personal digital cookbook."
       },
       "2": {
-        "question": "Can I customize the system to my brand?",
-        "answer": "Yes, Vitema will offer white-label capabilities, meaning you can customize the system's appearance to your brand - including logo, colors, and domain."
+        "question": "Is it really faster than Excel?",
+        "answer": "Definitely. In Excel, you have to manually recalculate macros every time you change a portion size. Vitema recalculates everything automatically in real-time. Plus, you can copy an entire week's plan to another client in seconds."
       },
       "3": {
-        "question": "Will the system work on mobile devices?",
-        "answer": "Yes, Vitema is designed with responsiveness in mind. Both the dietitian panel and the client interface will be fully functional on all devices - computers, tablets, and phones."
+        "question": "Is the app available on iPhone (iOS)?",
+        "answer": "Currently, we have a native app for Android. The iOS (iPhone) version is our top priority on the roadmap. Until then, iPhone users can use the fully responsive web version in their browser."
       },
       "4": {
-        "question": "What technical support will be available?",
-        "answer": "We plan to provide comprehensive technical support via chat, email, and a knowledge base with tutorials. For larger clients, we anticipate dedicated support and training."
+        "question": "Can I add my own logo?",
+        "answer": "We plan to introduce White-Label features (your logo and colors) in a later development stage. Currently, we are focusing 100% on the system's core functionality and stability."
       },
       "5": {
-        "question": "Will it be possible to import data from other systems?",
-        "answer": "Yes, we plan to feature data import for clients and diets from popular formats (CSV, Excel) and integrations with the most popular diet management systems."
+        "question": "What if a client dislikes a meal?",
+        "answer": "You don't need to rewrite the whole plan. Just click 'Swap' on that specific meal and replace it with another option from your database. The client's shopping list will update automatically."
       },
       "6": {
-        "question": "How about data security?",
-        "answer": "Data security is our priority. The system will be GDPR compliant, and data will be encrypted and stored on secure servers in the EU. We will not have access to sensitive data of dietitians and their clients."
-      },
-      "7": {
-        "question": "What makes Vitema stand out from the competition?",
-        "answer": "Vitema stands out by using the latest technologies in both the dietitian panel and the client app. The entire system is optimized for performance, ensuring smooth operation without freezing or crashes, even under heavy load."
+        "question": "How much does it cost?",
+        "answer": "The system is currently free for Beta testers. By joining now, you help us improve Vitema, and in return, you will receive a special lifetime offer when we introduce paid subscriptions."
       }
     }
   },
   "cta": {
-    "title": "Start transforming your dietetic practice",
-    "subtitle": "Join the group of early adopters and get 6 months of access for free",
-    "disclaimer": "By joining the list, you agree to receive product updates. You can unsubscribe at any time."
+    "title": "Stop wasting time on paperwork",
+    "subtitle": "Join the trainers who are scaling their business with automation. The first 50 users get 6 months free.",
+    "disclaimer": "No spam. Unsubscribe anytime."
   },
   "forWho": {
     "title": "Who is Vitema for?",
-    "subtitle": "A comprehensive solution for all participants in the dietary process",
-    "footer": "Vitema connects dietitians with their clients in one ecosystem, ensuring seamless communication and effective collaboration.",
+    "subtitle": "Whether you train 5 clients or 500, we help you scale.",
+    "footer": "Join the waitlist to secure your early-adopter pricing.",
     "items": {
       "1": {
-        "title": "Individual Dietitians",
-        "description": "Do you run your own dietetic practice and are looking for a tool to work effectively with clients?",
+        "title": "Freelance Trainers",
+        "description": "You do everything yourself. We give you your time back.",
         "benefits": [
-          "Automation of routine tasks",
-          "Professional image",
-          "Easy diet management",
-          "More time for client work",
-          "Client progress monitoring"
+          "Cut admin time by 50%",
+          "Add 'Nutrition' to your pricing",
+          "Look more professional than peers",
+          "No more Excel spreadsheets"
         ]
       },
       "2": {
-        "title": "Clinics and Offices",
-        "description": "Do you manage a team of dietitians and need a system to coordinate their work?",
+        "title": "Online Coaches",
+        "description": "Managing high volume remotely? You need automation, not PDF files.",
         "benefits": [
-          "Dietitian team management",
-          "Central client database",
-          "Reporting and analytics",
-          "Material sharing",
-          "Consistent workflow"
+          "Manage 50+ clients easily",
+          "Fast plan replication",
+          "Remote check-ins",
+          "Automated client onboarding"
         ]
       },
       "3": {
-        "title": "Dietary Networks",
-        "description": "Do you run a network of offices or a franchise and need a scalable solution?",
+        "title": "Studio Owners",
+        "description": "Running a team? Standardize the nutrition offer across your facility.",
         "benefits": [
-          "White label solution",
-          "Multi-location management",
-          "Advanced analytics",
-          "System integrations",
-          "Brand customization"
+          "Unified system for all trainers",
+          "New revenue stream for the gym",
+          "Client retention tool",
+          "Team performance oversight"
         ]
       },
       "4": {
-        "title": "Dietitians' Clients",
-        "description": "Do you work with a dietitian and need convenient access to your meal plans?",
+        "title": "Your Clients",
+        "description": "The people who pay you. They deserve a modern experience.",
         "benefits": [
-          "Convenient access to diet in mobile app",
-          "Ready-made shopping lists for every day",
-          "Progress monitoring",
-          "Easy communication with dietitian",
-          "Access to recipes and educational materials"
+          "Easy-to-follow app",
+          "Interactive shopping lists",
+          "Clear progress visualization",
+          "Better results = Happy clients"
         ]
+      }
+    }
+  },
+  "upsell": {
+    "title": "Not selling meal plans yet?",
+    "subtitle": "See how much money you are leaving on the table. Your clients need nutrition guidance—if they don't buy it from you, they'll go elsewhere.",
+    "cards": {
+      "1": {
+        "title": "Increase Client Value",
+        "description": "By adding a meal plan to your offer, you can raise your monthly rate by $50-$100 without working extra hours."
+      },
+      "2": {
+        "title": "Expertise Made Easy",
+        "description": "No need for manual calculations. Use Vitema's verified templates and adjust them with one click."
+      },
+      "3": {
+        "title": "Better Training Results",
+        "description": "A well-fueled client trains harder. Better results for them mean better marketing and retention for you."
       }
     }
   },
@@ -228,15 +238,15 @@
     "validation": {
       "emailRequired": "Email is required",
       "emailInvalid": "Invalid email address",
-      "roleRequired": "Choose who you are"
+      "roleRequired": "Choose your business model"
     },
     "roles": {
-      "dietitian": "I am a dietitian",
-      "company": "I'm a coach"
+      "freelancer": "Freelance Trainer",
+      "studio": "Studio Owner"
     }
   },
   "footer": {
-    "description": "A comprehensive system for managing dietetic practice and client communication.",
+    "description": "A comprehensive system for scaling personal training business and client management.",
     "copyright": "© {{year}} Vitema. All rights reserved.",
     "sections": {
       "product": "Product",
@@ -253,36 +263,36 @@
     }
   },
   "hero": {
-    "titlePart1": "Create and manage",
-    "titlePart2": "personalized diets",
-    "subtitle": "A comprehensive tool for diet management and client communication. Save time, increase efficiency, and grow your practice by choosing the most modern solution.",
+    "titlePart1": "Training is just 1 hour.",
+    "titlePart2": "Win the other 23.",
+    "subtitle": "The first all-in-one tool for Personal Trainers to manage nutrition, track habits, and scale their business without the burnout. Ditch the spreadsheets and give your clients a pro app.",
     "offer": {
-      "label": "Special Offer:",
+      "label": "Early Access:",
       "textPart1": "The first",
-      "highlight": "50 users",
-      "textPart2": "will get 6 months of free access! Join the waiting list."
+      "highlight": "50 trainers",
+      "textPart2": "get 6 months of Premium for free! Join the waitlist."
     },
     "mockup": {
-      "panelAlt": "Dietitian panel - diet management",
-      "appAlt": "Mobile app for clients"
+      "panelAlt": "Trainer Dashboard - Nutrition Builder",
+      "appAlt": "Client Mobile App"
     }
   },
   "stats": {
-    "title": "Challenges our platform solves",
-    "subtitle": "Daily challenges of dietitians that we help overcome",
-    "note": "* Data based on surveys conducted among dietitians and their clients in 2023",
+    "title": "Stop grinding, start scaling",
+    "subtitle": "The biggest bottlenecks in a Personal Trainer's business—solved.",
+    "note": "* Based on market analysis of independent personal trainers.",
     "items": {
       "1": {
-        "label": "lost weekly on manual diet management",
-        "description": "Dietitians waste an average of 12 hours a week preparing documentation, creating plans, and manually calculating nutritional values."
+        "label": "hours lost weekly on admin & Excel",
+        "description": "Trainers spend over 10 hours a week struggling with spreadsheets, emails, and manual meal planning instead of training clients."
       },
       "2": {
-        "label": "of clients resign due to lack of convenient access to diet",
-        "description": "Lack of easy access to meal plans and communication with the dietitian is the main reason clients discontinue cooperation."
+        "label": "client churn rate within 6 months",
+        "description": "Clients don't quit because of the workout. They quit because they don't see results—usually due to lack of diet adherence outside the gym."
       },
       "3": {
-        "label": "of clients prefer a mobile app for contacting their dietitian",
-        "description": "Most clients expect the ability to check their diet, progress, and communicate with the dietitian via a mobile app."
+        "label": "higher engagement with a mobile app",
+        "description": "Static PDFs are forgotten. Interactive apps with shopping lists and habit tracking keep clients engaged 24/7."
       }
     }
   },

@@ -16,7 +16,7 @@ const NewsletterForm = ({className = '', buttonClassName = ''}: NewsletterFormPr
 
     const {register, handleSubmit, formState: {errors}, watch, reset} = useForm<NewsletterFormData>({
         defaultValues: {
-            role: 'dietetyk'
+            role: 'freelancer'
         }
     });
 

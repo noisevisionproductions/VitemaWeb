@@ -28,16 +28,8 @@ const Hero = () => {
                             {t('hero.subtitle')}
                         </p>
                         <NewsletterForm/>
-                        <div className="mt-4 flex items-start space-x-2">
-                            <span className="inline-block mt-1 text-primary">🎁</span>
-                            <p className="text-sm text-text-secondary">
-                                <span className="font-medium">{t('hero.offer.label')}</span>{' '}
-                                {t('hero.offer.textPart1')}{' '}
-                                <span className="font-medium text-primary">
-                                    {t('hero.offer.highlight')}
-                                </span>{' '}
-                                {t('hero.offer.textPart2')}
-                            </p>
+                        <div className="mt-3 flex items-start space-x-2">
+                            {t('cta.disclaimer')}
                         </div>
                     </motion.div>
 

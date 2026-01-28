@@ -1,12 +1,12 @@
 export interface NewsletterFormData {
     email: string;
-    role: 'dietetyk' | 'firma';
+    role: 'freelancer' | 'studio';
 }
 
 export interface NewsletterSubscriber {
     id: string;
     email: string;
-    role: 'DIETITIAN' | 'COMPANY';
+    role: 'FREELANCER' | 'STUDIO';
     createdAt: string;
     verified: boolean;
     verifiedAt: string | null;
