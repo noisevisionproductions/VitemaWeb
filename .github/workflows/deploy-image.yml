@@ -6,7 +6,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: noisevisionproductions/vitemaweb
+  IMAGE_NAME: noisevisionproductions/vitema
 
 jobs:
   build-backend:
