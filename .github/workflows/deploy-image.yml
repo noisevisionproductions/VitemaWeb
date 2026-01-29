@@ -6,7 +6,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: noisevisionproductions/vitema
+  IMAGE_NAME: noisevisionproductions/vitemaweb
 
 jobs:
   build-backend:
@@ -84,7 +84,6 @@ jobs:
           script: |
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             cd /root
-            # Pobieramy tylko backend, bo frontend to teraz pliki
             docker-compose pull backend 
             docker-compose up -d backend
             docker image prune -f
