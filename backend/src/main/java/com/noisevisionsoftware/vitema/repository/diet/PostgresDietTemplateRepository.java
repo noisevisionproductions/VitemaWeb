@@ -122,6 +122,8 @@ public class PostgresDietTemplateRepository implements DietTemplateRepository {
             DietTemplateEntity entity = jpaRepository.findByExternalId(id)
                     .orElseThrow(() -> new NotFoundException("Template not found: " + id));
             jpaRepository.delete(entity);
+        } catch (NotFoundException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Błąd podczas usuwania szablonu: {}", id, e);
             throw new RuntimeException("Nie udało się usunąć szablonu", e);

@@ -40,10 +40,10 @@ const Landing = () => {
     return (
         <>
             <Helmet>
-                <title>Vitema - Aplikacja dla Trenerów Personalnych i Dietetyków | Szybkie diety online</title>
+                <title>Vitema - Aplikacja dla Trenerów Personalnych | Szybkie diety online</title>
 
                 <meta name="description"
-                      content="Vitema to narzędzie dla Trenerów i Dietetyków. Układaj jadłospisy w 5 minut, generuj automatyczną listę zakupów i prowadź podopiecznych w dedykowanej aplikacji mobilnej. Zastąp Excela nowoczesnym systemem."/>
+                      content="Vitema to narzędzie dla Trenerów . Układaj jadłospisy w 5 minut, generuj automatyczną listę zakupów i prowadź podopiecznych w dedykowanej aplikacji mobilnej. Zastąp Excela nowoczesnym systemem."/>
 
                 <meta name="keywords"
                       content="Vitema, aplikacja dla trenera personalnego, program do układania diet, współpraca online, aplikacja dietetyczna, dieta dla podopiecznego, lista zakupów app"/>

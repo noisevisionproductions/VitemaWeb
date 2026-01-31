@@ -20,4 +20,5 @@ public class User {
     private UserRole role;
     private String note;
     private Long createdAt;
+    private String trainerId;
 }

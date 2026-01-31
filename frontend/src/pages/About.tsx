@@ -10,7 +10,7 @@ const About = () => {
             <Helmet>
                 <title>O nas - Misja i Zespół Vitema</title>
                 <meta name="description"
-                      content="Poznaj zespół Noise Vision Software tworzący aplikację Vitema. Naszą misją jest wspieranie dietetyków nowoczesną technologią."/>
+                      content="Poznaj zespół Noise Vision Software tworzący aplikację Vitema. Naszą misją jest wspieranie trenerów nowoczesną technologią."/>
                 <link rel="canonical" href="https://vitema.pl/about"/>
             </Helmet>
             <CompanyMission/>

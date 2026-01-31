@@ -1,7 +1,7 @@
 import {signInWithEmailAndPassword, signOut, User as FirebaseUser} from 'firebase/auth';
 import React, {createContext, useContext, useEffect, useState} from "react";
 import {auth} from '../config/firebase';
-import {User, UserRole} from '../types/user';
+import {RoleHierarchy, User, UserRole} from '../types/user';
 import api from "../config/axios";
 import axios from 'axios';
 import {useRouteRestoration} from "./RouteRestorationContext";
@@ -64,6 +64,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
                     await validateTokenAndSetUserData(user);
                 } catch (error) {
                     console.error("Failed to fetch user data on restoration", error);
+                    await signOut(auth);
+                    setUserData(null);
+                    setCurrentUser(null);
                 }
             } else {
                 setUserData(null);
@@ -145,15 +148,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}
     const hasRole = (requiredRole: UserRole): boolean => {
         if (!userData) return false;
 
-        const roleHierarchy: Record<UserRole, number> = {
-            [UserRole.USER]: 1,
-            [UserRole.ADMIN]: 2,
-            [UserRole.OWNER]: 3
-        };
-
         const userRole = userData.role as UserRole;
-        const userRoleLevel = roleHierarchy[userRole] || 0;
-        const requiredRoleLevel = roleHierarchy[requiredRole] || 0;
+        const userRoleLevel = RoleHierarchy[userRole] || 0;
+        const requiredRoleLevel = RoleHierarchy[requiredRole] || 0;
 
         return userRoleLevel >= requiredRoleLevel;
     };

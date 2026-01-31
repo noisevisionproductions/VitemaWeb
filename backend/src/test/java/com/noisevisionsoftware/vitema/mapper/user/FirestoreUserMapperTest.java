@@ -250,6 +250,7 @@ class FirestoreUserMapperTest {
         UserRole role = UserRole.ADMIN;
         String note = "Admin user";
         Long createdAt = 1609459200000L; // 2021-01-01
+        String trainerId = "trainer-123";
 
         User user = User.builder()
                 .id(id) // id nie powinno być mapowane do mapy Firestore
@@ -262,6 +263,7 @@ class FirestoreUserMapperTest {
                 .role(role)
                 .note(note)
                 .createdAt(createdAt)
+                .trainerId(trainerId)
                 .build();
 
         // when
@@ -269,7 +271,7 @@ class FirestoreUserMapperTest {
 
         // then
         assertNotNull(result);
-        assertEquals(9, result.size()); // wszystkie pola oprócz id
+        assertEquals(10, result.size()); // wszystkie pola oprócz id: email, nickname, gender, birthDate, storedAge, profileCompleted, role, note, createdAt, trainerId
         assertEquals(email, result.get("email"));
         assertEquals(nickname, result.get("nickname"));
         assertEquals(gender.name(), result.get("gender"));
@@ -279,6 +281,7 @@ class FirestoreUserMapperTest {
         assertEquals(role.name(), result.get("role"));
         assertEquals(note, result.get("note"));
         assertEquals(createdAt, result.get("createdAt"));
+        assertEquals(trainerId, result.get("trainerId"));
 
         // ID nie powinno być w mapie
         assertFalse(result.containsKey("id"));

@@ -82,7 +82,7 @@ public class DietManagerService {
         }
     }
 
-    private Map<String, String> saveRecipes(ParsedDietData parsedData, String userId, String dietId) {
+    protected Map<String, String> saveRecipes(ParsedDietData parsedData, String userId, String dietId) {
         Map<String, String> savedRecipeIds = new HashMap<>();
         Timestamp now = Timestamp.now();
 
@@ -123,7 +123,7 @@ public class DietManagerService {
         return savedRecipeIds;
     }
 
-    private List<Map<String, Object>> createDaysWithMeals(
+    protected List<Map<String, Object>> createDaysWithMeals(
             ParsedDietData parsedData,
             Map<String, String> savedRecipeIds
     ) {
@@ -151,7 +151,7 @@ public class DietManagerService {
         return updatedDays;
     }
 
-    private void saveShoppingList(ParsedDietData parsedData, String userId, String dietId) throws Exception {
+    protected void saveShoppingList(ParsedDietData parsedData, String userId, String dietId) throws Exception {
         Map<String, List<Map<String, Object>>> items = new HashMap<>();
 
         if (parsedData.getCategorizedProducts() != null) {
@@ -186,7 +186,7 @@ public class DietManagerService {
         }
     }
 
-    private List<Map<String, Object>> parseProductStrings(List<String> productStrings, String categoryId) {
+    protected List<Map<String, Object>> parseProductStrings(List<String> productStrings, String categoryId) {
         List<Map<String, Object>> categoryItems = new ArrayList<>();
 
         for (String productString : productStrings) {
@@ -218,7 +218,7 @@ public class DietManagerService {
         return categoryItems;
     }
 
-    private List<RecipeIngredient> convertToRecipeIngredients(List<ParsedProduct> parsedProducts) {
+    protected List<RecipeIngredient> convertToRecipeIngredients(List<ParsedProduct> parsedProducts) {
         if (parsedProducts == null) return new ArrayList<>();
 
         return parsedProducts.stream()

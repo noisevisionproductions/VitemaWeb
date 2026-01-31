@@ -32,15 +32,11 @@ public class FirebaseAuthenticationService {
 
                 authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
 
-                if (UserRole.OWNER.name().equals(user.getRole())) {
+                if ("OWNER".equals(user.getRole())) {
                     authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
                 }
 
-                return new UsernamePasswordAuthenticationToken(
-                        user,
-                        token,
-                        authorities
-                );
+                return new UsernamePasswordAuthenticationToken(user, token, authorities);
             }
         } catch (Exception e) {
             log.error("Failed to verify Firebase token", e);

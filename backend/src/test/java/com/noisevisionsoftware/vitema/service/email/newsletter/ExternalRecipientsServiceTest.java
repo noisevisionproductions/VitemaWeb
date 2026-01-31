@@ -1,9 +1,8 @@
-package com.noisevisionsoftware.vitema.service.newsletter;
+package com.noisevisionsoftware.vitema.service.email.newsletter;
 
 import com.noisevisionsoftware.vitema.dto.request.newsletter.ExternalRecipientRequest;
 import com.noisevisionsoftware.vitema.model.newsletter.ExternalRecipient;
 import com.noisevisionsoftware.vitema.repository.jpa.newsletter.ExternalRecipientRepository;
-import com.noisevisionsoftware.vitema.service.email.newsletter.ExternalRecipientsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

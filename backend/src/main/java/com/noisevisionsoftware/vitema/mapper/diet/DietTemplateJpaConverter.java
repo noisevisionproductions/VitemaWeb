@@ -121,7 +121,7 @@ public class DietTemplateJpaConverter {
         }
     }
 
-    private DietTemplateDayEntity convertDayToEntity(DietTemplateDayData day, DietTemplateEntity template) {
+    protected DietTemplateDayEntity convertDayToEntity(DietTemplateDayData day, DietTemplateEntity template) {
         DietTemplateDayEntity dayEntity = DietTemplateDayEntity.builder()
                 .dietTemplate(template)
                 .dayNumber(day.getDayNumber())
@@ -142,7 +142,7 @@ public class DietTemplateJpaConverter {
         return dayEntity;
     }
 
-    private DietTemplateMealEntity convertMealToEntity(DietTemplateMealData meal, DietTemplateDayEntity day, int order) {
+    protected DietTemplateMealEntity convertMealToEntity(DietTemplateMealData meal, DietTemplateDayEntity day, int order) {
         DietTemplateMealEntity mealEntity = DietTemplateMealEntity.builder()
                 .templateDay(day)
                 .name(meal.getName())
@@ -196,14 +196,14 @@ public class DietTemplateJpaConverter {
         return mealEntity;
     }
 
-    private List<DietTemplateDayData> convertDays(List<DietTemplateDayEntity> dayEntities) {
+    protected List<DietTemplateDayData> convertDays(List<DietTemplateDayEntity> dayEntities) {
         return dayEntities.stream()
                 .sorted(Comparator.comparing(DietTemplateDayEntity::getDayNumber))
                 .map(this::convertDay)
                 .collect(Collectors.toList());
     }
 
-    private DietTemplateDayData convertDay(DietTemplateDayEntity entity) {
+    protected DietTemplateDayData convertDay(DietTemplateDayEntity entity) {
         return DietTemplateDayData.builder()
                 .dayNumber(entity.getDayNumber())
                 .dayName(entity.getDayName())
@@ -212,14 +212,14 @@ public class DietTemplateJpaConverter {
                 .build();
     }
 
-    private List<DietTemplateMealData> convertMeals(List<DietTemplateMealEntity> mealEntities) {
+    protected List<DietTemplateMealData> convertMeals(List<DietTemplateMealEntity> mealEntities) {
         return mealEntities.stream()
                 .sorted(Comparator.comparing(DietTemplateMealEntity::getMealOrder))
                 .map(this::convertMeal)
                 .collect(Collectors.toList());
     }
 
-    private DietTemplateMealData convertMeal(DietTemplateMealEntity entity) {
+    protected DietTemplateMealData convertMeal(DietTemplateMealEntity entity) {
         return DietTemplateMealData.builder()
                 .name(entity.getName())
                 .mealType(entity.getMealType())
@@ -232,7 +232,7 @@ public class DietTemplateJpaConverter {
                 .build();
     }
 
-    private List<DietTemplateIngredient> convertIngredients(List<DietTemplateIngredientEntity> ingredientEntities) {
+    protected List<DietTemplateIngredient> convertIngredients(List<DietTemplateIngredientEntity> ingredientEntities) {
         return ingredientEntities.stream()
                 .sorted(Comparator.comparing(DietTemplateIngredientEntity::getDisplayOrder))
                 .map(e -> DietTemplateIngredient.builder()
@@ -246,7 +246,7 @@ public class DietTemplateJpaConverter {
                 .collect(Collectors.toList());
     }
 
-    private List<String> convertPhotos(List<DietTemplateMealPhotoEntity> photoEntities) {
+    protected List<String> convertPhotos(List<DietTemplateMealPhotoEntity> photoEntities) {
         return photoEntities.stream()
                 .sorted(Comparator.comparing(DietTemplateMealPhotoEntity::getDisplayOrder))
                 .map(DietTemplateMealPhotoEntity::getPhotoUrl)
@@ -254,7 +254,7 @@ public class DietTemplateJpaConverter {
     }
 
     // Metody pomocnicze konwersji
-    private DietTemplateCategory convertCategory(DietTemplateCategory categoryEnum) {
+    protected DietTemplateCategory convertCategory(DietTemplateCategory categoryEnum) {
         try {
             return DietTemplateCategory.valueOf(categoryEnum.name());
         } catch (Exception e) {
@@ -263,7 +263,7 @@ public class DietTemplateJpaConverter {
         }
     }
 
-    private DietTemplateCategory convertCategoryEnum(DietTemplateCategory category) {
+    protected DietTemplateCategory convertCategoryEnum(DietTemplateCategory category) {
         try {
             return DietTemplateCategory.valueOf(category.name());
         } catch (Exception e) {
@@ -272,7 +272,7 @@ public class DietTemplateJpaConverter {
         }
     }
 
-    private DietTemplateNutrition convertNutrition(DietTemplateEntity entity) {
+    protected DietTemplateNutrition convertNutrition(DietTemplateEntity entity) {
         if (entity.getTargetCalories() == null && entity.getTargetProtein() == null &&
                 entity.getTargetFat() == null && entity.getTargetCarbs() == null) {
             return null;
@@ -287,7 +287,7 @@ public class DietTemplateJpaConverter {
                 .build();
     }
 
-    private NutritionalValues convertMealNutrition(DietTemplateMealEntity entity) {
+    protected NutritionalValues convertMealNutrition(DietTemplateMealEntity entity) {
         if (entity.getCalories() == null && entity.getProtein() == null &&
                 entity.getFat() == null && entity.getCarbs() == null) {
             return null;
@@ -302,15 +302,15 @@ public class DietTemplateJpaConverter {
     }
 
     // Metody konwersji typów
-    private BigDecimal convertToBigDecimal(Double value) {
+    protected BigDecimal convertToBigDecimal(Double value) {
         return value != null ? BigDecimal.valueOf(value) : null;
     }
 
-    private Double convertToDouble(BigDecimal value) {
+    protected Double convertToDouble(BigDecimal value) {
         return value != null ? value.doubleValue() : null;
     }
 
-    private LocalDateTime convertToLocalDateTime(Timestamp timestamp) {
+    protected LocalDateTime convertToLocalDateTime(Timestamp timestamp) {
         if (timestamp == null) return null;
         return LocalDateTime.ofInstant(
                 Instant.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos()),
@@ -318,14 +318,14 @@ public class DietTemplateJpaConverter {
         );
     }
 
-    private Timestamp convertToTimestamp(LocalDateTime localDateTime) {
+    protected Timestamp convertToTimestamp(LocalDateTime localDateTime) {
         if (localDateTime == null) return null;
         Instant instant = localDateTime.toInstant(ZoneOffset.UTC);
         return Timestamp.ofTimeSecondsAndNanos(instant.getEpochSecond(), instant.getNano());
     }
 
     // Serializacja JSON
-    private String serializeMealTimes(Map<String, String> mealTimes) {
+    protected String serializeMealTimes(Map<String, String> mealTimes) {
         if (mealTimes == null) return null;
         try {
             return objectMapper.writeValueAsString(mealTimes);
@@ -335,7 +335,7 @@ public class DietTemplateJpaConverter {
         }
     }
 
-    private Map<String, String> deserializeMealTimes(String json) {
+    protected Map<String, String> deserializeMealTimes(String json) {
         if (json == null || json.trim().isEmpty()) return new HashMap<>();
         try {
             return objectMapper.readValue(json, new TypeReference<>() {
@@ -346,7 +346,7 @@ public class DietTemplateJpaConverter {
         }
     }
 
-    private String serializeMealTypes(List<String> mealTypes) {
+    protected String serializeMealTypes(List<String> mealTypes) {
         if (mealTypes == null) return null;
         try {
             return objectMapper.writeValueAsString(mealTypes);
@@ -356,7 +356,7 @@ public class DietTemplateJpaConverter {
         }
     }
 
-    private List<String> deserializeMealTypes(String json) {
+    protected List<String> deserializeMealTypes(String json) {
         if (json == null || json.trim().isEmpty()) return new ArrayList<>();
         try {
             return objectMapper.readValue(json, new TypeReference<>() {

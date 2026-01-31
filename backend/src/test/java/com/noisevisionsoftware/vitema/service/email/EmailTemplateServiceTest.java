@@ -122,6 +122,9 @@ class EmailTemplateServiceTest {
         when(emailTemplateRepository.findById(1L)).thenReturn(Optional.of(testTemplate));
         when(emailTemplateRepository.save(any(EmailTemplate.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
+        // Act
+        EmailTemplate result = emailTemplateService.saveTemplate(testTemplateRequest);
+
         // Assert
         verify(emailTemplateRepository).findById(1L);
         verify(emailTemplateRepository).save(templateCaptor.capture());
@@ -135,6 +138,11 @@ class EmailTemplateServiceTest {
         assertTrue(capturedTemplate.isUseTemplate(), "UseTemplate powinno zostać zaktualizowane");
         assertEquals("promotional", capturedTemplate.getTemplateType(), "TemplateType powinno zostać zaktualizowane");
         assertNotNull(capturedTemplate.getUpdatedAt(), "Data aktualizacji powinna zostać ustawiona");
+        
+        // Verify the returned result
+        assertNotNull(result, "Wynik nie powinien być null");
+        assertEquals(1L, result.getId(), "Zwrócone ID powinno być poprawne");
+        assertEquals("Zaktualizowany szablon", result.getName(), "Zwrócona nazwa powinna być zaktualizowana");
     }
 
     @Test

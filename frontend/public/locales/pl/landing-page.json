@@ -300,17 +300,28 @@
     "backToHome": "Powrót do strony głównej",
     "welcomeTitle": "Panel Dietetyka",
     "welcomeGreeting": "Witaj w Vitema!",
+    "registerTitle": "Dołącz do trenerów Vitema",
+    "registerGreeting": "Zbuduj swoją markę, zarządzaj podopiecznymi i oszczędzaj czas dzięki automatyzacji diet.",
     "featureDietManagement": "Kompleksowe zarządzanie dietami",
     "loginTitle": "Zaloguj się do panelu",
+    "createAccountTitle": "Utwórz konto trenera",
+    "loginTab": "Logowanie",
+    "registerTab": "Rejestracja",
     "noAccess": "Nie masz dostępu?",
+    "alreadyHaveAccount": "Masz już konto?",
+    "signInLink": "Zaloguj się",
+    "signUpLink": "Zarejestruj się",
     "contactAdmin": "Skontaktuj się z administratorem",
     "form": {
       "emailLabel": "Email",
       "emailPlaceholder": "twoj@email.com",
       "passwordLabel": "Hasło",
-      "submit": "Zaloguj się",
-      "loading": "Logowanie...",
-      "error": "Nieprawidłowy email lub hasło"
+      "submit": "Zaloguj się na konto trenera",
+      "registerButton": "Zarejestruj konto trenera",
+      "nicknamePlaceholder": "np. Trener Jan Kowalski",
+      "loading": "Przetwarzanie...",
+      "error": "Nieprawidłowy email lub hasło",
+      "nicknameLabel": "Nazwa Trenera / Firmy"
     }
   }
 }

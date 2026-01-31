@@ -19,4 +19,5 @@ public class RecipeUpdateRequest {
     private String instructions;
     private NutritionalValuesRequest nutritionalValues;
     private List<String> photos;
+    private Boolean isPublic;
 }

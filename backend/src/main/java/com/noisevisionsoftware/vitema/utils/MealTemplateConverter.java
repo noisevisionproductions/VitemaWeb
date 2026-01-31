@@ -9,6 +9,7 @@ import com.noisevisionsoftware.vitema.dto.response.diet.manual.MealIngredientRes
 import com.noisevisionsoftware.vitema.dto.response.diet.manual.MealTemplateResponse;
 import com.noisevisionsoftware.vitema.dto.response.recipe.NutritionalValuesResponse;
 import com.noisevisionsoftware.vitema.model.meal.MealIngredient;
+import com.noisevisionsoftware.vitema.model.meal.MealType;
 import com.noisevisionsoftware.vitema.model.meal.MealTemplate;
 import com.noisevisionsoftware.vitema.model.recipe.NutritionalValues;
 import com.noisevisionsoftware.vitema.model.recipe.Recipe;
@@ -43,7 +44,7 @@ public class MealTemplateConverter {
                 .nutritionalValues(convertNutritionalValuesFromRequest(request.getNutritionalValues()))
                 .photos(request.getPhotos() != null ? new ArrayList<>(request.getPhotos()) : new ArrayList<>())
                 .ingredients(convertIngredientsFromRequest(request.getIngredients()))
-                .mealType(request.getMealType())
+                .mealType(request.getMealType() != null ? MealType.valueOf(request.getMealType()) : null)
                 .category(request.getCategory())
                 .createdAt(Timestamp.ofTimeSecondsAndNanos(
                         LocalDateTime.now().toEpochSecond(ZoneOffset.UTC), 0))
@@ -89,7 +90,7 @@ public class MealTemplateConverter {
                 .nutritionalValues(convertNutritionalValuesToResponse(template.getNutritionalValues()))
                 .photos(template.getPhotos())
                 .ingredients(convertIngredientsToResponse(template.getIngredients()))
-                .mealType(template.getMealType())
+                .mealType(template.getMealType() != null ? template.getMealType().name() : null)
                 .category(template.getCategory())
                 .createdBy(template.getCreatedBy())
                 .createdAt(template.getCreatedAt() != null ? template.getCreatedAt().toString() : null)

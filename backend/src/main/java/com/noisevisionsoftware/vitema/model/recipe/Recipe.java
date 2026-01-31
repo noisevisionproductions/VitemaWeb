@@ -21,5 +21,7 @@ public class Recipe {
     private List<RecipeIngredient> ingredients;
     private NutritionalValues nutritionalValues;
     private String parentRecipeId;
+    private String authorId;
+    private boolean isPublic;
 }
 

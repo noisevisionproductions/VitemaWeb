@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/measurements")
 @RequiredArgsConstructor
 @Slf4j
-@PreAuthorize("hasRole('ADMIN')")
+@PreAuthorize("hasAnyRole('ADMIN', 'TRAINER')")
 public class BodyMeasurementsController {
     private final BodyMeasurementsService measurementsService;
     private final BodyMeasurementsMapper measurementsMapper;

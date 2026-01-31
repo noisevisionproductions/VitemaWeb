@@ -57,6 +57,8 @@ public class RecipeJpaConverter {
                 .photos(recipe.getPhotos() != null ? new ArrayList<>(recipe.getPhotos()) : new ArrayList<>())
                 .nutritionalValues(nutritionalValuesEntity)
                 .parentRecipeId(recipe.getParentRecipeId())
+                .authorId(recipe.getAuthorId())
+                .isPublic(recipe.isPublic())
                 .build();
 
         if (recipe.getIngredients() != null) {
@@ -109,10 +111,12 @@ public class RecipeJpaConverter {
                 .ingredients(convertIngredients(entity.getIngredients()))
                 .nutritionalValues(nutritionalValues)
                 .parentRecipeId(entity.getParentRecipeId())
+                .authorId(entity.getAuthorId())
+                .isPublic(entity.isPublic())
                 .build();
     }
 
-    private List<RecipeIngredient> convertIngredients(List<RecipeIngredientEntity> ingredientEntities) {
+    protected List<RecipeIngredient> convertIngredients(List<RecipeIngredientEntity> ingredientEntities) {
         if (ingredientEntities == null) return new ArrayList<>();
 
         return ingredientEntities.stream()

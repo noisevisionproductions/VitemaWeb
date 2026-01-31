@@ -36,6 +36,7 @@ public class FirestoreUserMapper {
                         : UserRole.USER)
                 .note((String) data.get("note"))
                 .createdAt(convertToLong(data.get("createdAt")))
+                .trainerId((String) data.get("trainerId"))
                 .build();
     }
 
@@ -59,6 +60,7 @@ public class FirestoreUserMapper {
         data.put("role", user.getRole().name());
         data.put("note", user.getNote());
         data.put("createdAt", user.getCreatedAt());
+        data.put("trainerId", user.getTrainerId());
         return data;
     }
 }

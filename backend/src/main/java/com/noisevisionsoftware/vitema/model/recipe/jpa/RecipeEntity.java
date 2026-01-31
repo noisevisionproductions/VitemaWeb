@@ -52,6 +52,12 @@ public class RecipeEntity {
     @Column(name = "parent_recipe_id")
     private String parentRecipeId;
 
+    @Column(name = "author_id")
+    private String authorId;
+
+    @Column(name = "is_public")
+    private boolean isPublic;
+
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {

@@ -2,6 +2,7 @@ package com.noisevisionsoftware.vitema.mapper.meal;
 
 import com.google.cloud.Timestamp;
 import com.noisevisionsoftware.vitema.model.meal.MealIngredient;
+import com.noisevisionsoftware.vitema.model.meal.MealType;
 import com.noisevisionsoftware.vitema.model.meal.MealTemplate;
 import com.noisevisionsoftware.vitema.model.meal.jpa.MealTemplateEntity;
 import com.noisevisionsoftware.vitema.model.meal.jpa.MealTemplateIngredientEntity;
@@ -33,7 +34,7 @@ public class MealTemplateJpaConverter {
                 .nutritionalValues(convertNutritionalValues(entity))
                 .photos(convertPhotos(entity.getPhotos()))
                 .ingredients(convertIngredients(entity.getIngredients()))
-                .mealType(entity.getMealType())
+                .mealType(convertToMealType(entity.getMealType()))
                 .category(entity.getCategory())
                 .createdBy(entity.getCreatedBy())
                 .createdAt(convertToTimestamp(entity.getCreatedAt()))
@@ -50,7 +51,7 @@ public class MealTemplateJpaConverter {
                 .externalId(model.getId())
                 .name(model.getName())
                 .instructions(model.getInstructions())
-                .mealType(model.getMealType())
+                .mealType(convertToString(model.getMealType()))
                 .category(model.getCategory())
                 .createdBy(model.getCreatedBy())
                 .createdAt(convertToLocalDateTime(model.getCreatedAt()))
@@ -102,7 +103,7 @@ public class MealTemplateJpaConverter {
     public void updateEntity(MealTemplateEntity entity, MealTemplate model) {
         entity.setName(model.getName());
         entity.setInstructions(model.getInstructions());
-        entity.setMealType(model.getMealType());
+        entity.setMealType(convertToString(model.getMealType()));
         entity.setCategory(model.getCategory());
 
         if (model.getNutritionalValues() != null) {
@@ -141,7 +142,7 @@ public class MealTemplateJpaConverter {
         }
     }
 
-    private List<MealIngredient> convertIngredients(List<MealTemplateIngredientEntity> ingredientEntities) {
+    protected List<MealIngredient> convertIngredients(List<MealTemplateIngredientEntity> ingredientEntities) {
         return ingredientEntities.stream()
                 .sorted(Comparator.comparingInt(MealTemplateIngredientEntity::getDisplayOrder))
                 .map(e -> MealIngredient.builder()
@@ -156,7 +157,7 @@ public class MealTemplateJpaConverter {
                 .collect(Collectors.toList());
     }
 
-    private NutritionalValues convertNutritionalValues(MealTemplateEntity entity) {
+    protected NutritionalValues convertNutritionalValues(MealTemplateEntity entity) {
         if (entity.getCalories() == null && entity.getProtein() == null &&
                 entity.getFat() == null && entity.getCarbs() == null) {
             return null;
@@ -172,7 +173,7 @@ public class MealTemplateJpaConverter {
     }
 
 
-    private List<String> convertPhotos(List<MealTemplatePhotoEntity> photoEntities) {
+    protected List<String> convertPhotos(List<MealTemplatePhotoEntity> photoEntities) {
         return photoEntities.stream()
                 .sorted(Comparator.comparingInt(MealTemplatePhotoEntity::getDisplayOrder))
                 .map(MealTemplatePhotoEntity::getPhotoUrl)
@@ -180,14 +181,14 @@ public class MealTemplateJpaConverter {
     }
 
 
-    private BigDecimal convertToBigDecimal(Double value) {
+    protected BigDecimal convertToBigDecimal(Double value) {
         if (value == null) {
             return null;
         }
         return BigDecimal.valueOf(value);
     }
 
-    private LocalDateTime convertToLocalDateTime(Timestamp timestamp) {
+    protected LocalDateTime convertToLocalDateTime(Timestamp timestamp) {
         if (timestamp == null) {
             return null;
         }
@@ -197,7 +198,7 @@ public class MealTemplateJpaConverter {
         );
     }
 
-    private Timestamp convertToTimestamp(LocalDateTime localDateTime) {
+    protected Timestamp convertToTimestamp(LocalDateTime localDateTime) {
         if (localDateTime == null) {
             return null;
         }
@@ -208,10 +209,28 @@ public class MealTemplateJpaConverter {
         );
     }
 
-    private Double convertToDouble(BigDecimal value) {
+    protected Double convertToDouble(BigDecimal value) {
         if (value == null) {
             return null;
         }
         return value.doubleValue();
+    }
+
+    protected MealType convertToMealType(String value) {
+        if (value == null) {
+            return null;
+        }
+        try {
+            return MealType.valueOf(value);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    protected String convertToString(MealType value) {
+        if (value == null) {
+            return null;
+        }
+        return value.name();
     }
 }

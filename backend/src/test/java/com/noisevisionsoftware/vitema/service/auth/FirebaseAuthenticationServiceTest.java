@@ -10,19 +10,31 @@ import com.google.firebase.auth.FirebaseToken;
 import com.noisevisionsoftware.vitema.model.user.UserRole;
 import com.noisevisionsoftware.vitema.security.model.FirebaseUser;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.quality.Strictness;
+import org.mockito.junit.jupiter.MockitoSettings;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.concurrent.ExecutionException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class FirebaseAuthenticationServiceTest {
+
+    private static final String VALID_TOKEN = "valid-token";
+    private static final String INVALID_TOKEN = "invalid-token";
+    private static final String TEST_UID = "user123";
+    private static final String TEST_EMAIL = "user@example.com";
 
     @Mock
     private FirebaseAuth firebaseAuth;
@@ -39,157 +51,269 @@ class FirebaseAuthenticationServiceTest {
     @Mock
     private DocumentReference documentReference;
 
+    @Mock
+    private CollectionReference collectionReference;
+
+    @Mock
+    private ApiFuture<DocumentSnapshot> documentFuture;
+
+    @InjectMocks
     private FirebaseAuthenticationService authService;
 
     @BeforeEach
     void setUp() {
-        authService = new FirebaseAuthenticationService(firebaseAuth, firestore);
-    }
-
-    @Test
-    void verifyToken_WhenValidTokenAndUserExists_ShouldReturnFirebaseUser() throws Exception {
-        // given
-        String token = "valid-token";
-        String uid = "user123";
-        String email = "user@example.com";
-
-        when(firebaseAuth.verifyIdToken(token)).thenReturn(firebaseToken);
-        when(firebaseToken.getUid()).thenReturn(uid);
-        when(firebaseToken.getEmail()).thenReturn(email);
-
-        CollectionReference collectionReference = mock(CollectionReference.class);
         when(firestore.collection("users")).thenReturn(collectionReference);
-        when(collectionReference.document(uid)).thenReturn(documentReference);
-
-        @SuppressWarnings("unchecked")
-        ApiFuture<DocumentSnapshot> future = mock(ApiFuture.class);
-        when(documentReference.get()).thenReturn(future);
-        when(future.get()).thenReturn(documentSnapshot);
-
-        when(documentSnapshot.exists()).thenReturn(true);
-        when(documentSnapshot.getString("role")).thenReturn(UserRole.USER.name());
-
-        // when
-        FirebaseUser result = authService.verifyToken(token);
-
-        // then
-        assertNotNull(result);
-        assertEquals(uid, result.getUid());
-        assertEquals(email, result.getEmail());
-        assertEquals(UserRole.USER.name(), result.getRole());
-
-        verify(firebaseAuth).verifyIdToken(token);
-        verify(firestore).collection("users");
-        verify(documentReference).get();
-        verify(documentSnapshot).exists();
-        verify(documentSnapshot).getString("role");
+        when(collectionReference.document(anyString())).thenReturn(documentReference);
+        when(documentReference.get()).thenReturn(documentFuture);
     }
 
-    @Test
-    @SuppressWarnings("unchecked")
-    void verifyToken_WhenUserDocumentDoesNotExist_ShouldReturnNull() throws Exception {
-        // given
-        String token = "valid-token";
-        String uid = "user123";
+    @Nested
+    @DisplayName("verifyToken")
+    class VerifyTokenTests {
 
-        when(firebaseAuth.verifyIdToken(token)).thenReturn(firebaseToken);
-        when(firebaseToken.getUid()).thenReturn(uid);
+        @Test
+        @DisplayName("Should return FirebaseUser when token is valid and user exists with USER role")
+        void givenValidTokenAndUserExists_When_VerifyToken_Then_ReturnFirebaseUserWithUserRole() throws Exception {
+            // Given
+            when(firebaseAuth.verifyIdToken(VALID_TOKEN)).thenReturn(firebaseToken);
+            when(firebaseToken.getUid()).thenReturn(TEST_UID);
+            when(firebaseToken.getEmail()).thenReturn(TEST_EMAIL);
+            when(documentFuture.get()).thenReturn(documentSnapshot);
+            when(documentSnapshot.exists()).thenReturn(true);
+            when(documentSnapshot.getString("role")).thenReturn(UserRole.USER.name());
 
-        when(firestore.collection("users")).thenReturn(mock(com.google.cloud.firestore.CollectionReference.class));
-        when(firestore.collection("users").document(uid)).thenReturn(documentReference);
-        when(documentReference.get()).thenReturn(mock(com.google.api.core.ApiFuture.class));
-        when(documentReference.get().get()).thenReturn(documentSnapshot);
-        when(documentSnapshot.exists()).thenReturn(false);
+            // When
+            FirebaseUser result = authService.verifyToken(VALID_TOKEN);
 
-        // when
-        FirebaseUser result = authService.verifyToken(token);
+            // Then
+            assertThat(result).isNotNull();
+            assertThat(result.getUid()).isEqualTo(TEST_UID);
+            assertThat(result.getEmail()).isEqualTo(TEST_EMAIL);
+            assertThat(result.getRole()).isEqualTo(UserRole.USER.name());
+            verify(firebaseAuth).verifyIdToken(VALID_TOKEN);
+            verify(documentSnapshot).getString("role");
+        }
 
-        // then
-        assertNull(result);
+        @Test
+        @DisplayName("Should return FirebaseUser when user has ADMIN role")
+        void givenValidTokenAndUserWithAdminRole_When_VerifyToken_Then_ReturnFirebaseUser() throws Exception {
+            // Given
+            when(firebaseAuth.verifyIdToken(VALID_TOKEN)).thenReturn(firebaseToken);
+            when(firebaseToken.getUid()).thenReturn(TEST_UID);
+            when(firebaseToken.getEmail()).thenReturn(TEST_EMAIL);
+            when(documentFuture.get()).thenReturn(documentSnapshot);
+            when(documentSnapshot.exists()).thenReturn(true);
+            when(documentSnapshot.getString("role")).thenReturn(UserRole.ADMIN.name());
 
-        verify(firebaseAuth).verifyIdToken(token);
-        verify(documentSnapshot).exists();
-        verify(documentSnapshot, never()).getString(anyString());
+            // When
+            FirebaseUser result = authService.verifyToken(VALID_TOKEN);
+
+            // Then
+            assertThat(result).isNotNull();
+            assertThat(result.getRole()).isEqualTo(UserRole.ADMIN.name());
+        }
+
+        @Test
+        @DisplayName("Should return FirebaseUser when user has OWNER role")
+        void givenValidTokenAndUserWithOwnerRole_When_VerifyToken_Then_ReturnFirebaseUser() throws Exception {
+            // Given
+            when(firebaseAuth.verifyIdToken(VALID_TOKEN)).thenReturn(firebaseToken);
+            when(firebaseToken.getUid()).thenReturn(TEST_UID);
+            when(firebaseToken.getEmail()).thenReturn(TEST_EMAIL);
+            when(documentFuture.get()).thenReturn(documentSnapshot);
+            when(documentSnapshot.exists()).thenReturn(true);
+            when(documentSnapshot.getString("role")).thenReturn(UserRole.OWNER.name());
+
+            // When
+            FirebaseUser result = authService.verifyToken(VALID_TOKEN);
+
+            // Then
+            assertThat(result).isNotNull();
+            assertThat(result.getRole()).isEqualTo(UserRole.OWNER.name());
+        }
+
+        @Test
+        @DisplayName("Should return FirebaseUser when user has TRAINER role")
+        void givenValidTokenAndUserWithTrainerRole_When_VerifyToken_Then_ReturnFirebaseUser() throws Exception {
+            // Given
+            when(firebaseAuth.verifyIdToken(VALID_TOKEN)).thenReturn(firebaseToken);
+            when(firebaseToken.getUid()).thenReturn(TEST_UID);
+            when(firebaseToken.getEmail()).thenReturn(TEST_EMAIL);
+            when(documentFuture.get()).thenReturn(documentSnapshot);
+            when(documentSnapshot.exists()).thenReturn(true);
+            when(documentSnapshot.getString("role")).thenReturn(UserRole.TRAINER.name());
+
+            // When
+            FirebaseUser result = authService.verifyToken(VALID_TOKEN);
+
+            // Then
+            assertThat(result).isNotNull();
+            assertThat(result.getRole()).isEqualTo(UserRole.TRAINER.name());
+        }
+
+        @Test
+        @DisplayName("Should return null when user document does not exist in Firestore")
+        void givenValidTokenAndUserDocNotExists_When_VerifyToken_Then_ReturnNull() throws Exception {
+            // Given
+            when(firebaseAuth.verifyIdToken(VALID_TOKEN)).thenReturn(firebaseToken);
+            when(firebaseToken.getUid()).thenReturn(TEST_UID);
+            when(documentFuture.get()).thenReturn(documentSnapshot);
+            when(documentSnapshot.exists()).thenReturn(false);
+
+            // When
+            FirebaseUser result = authService.verifyToken(VALID_TOKEN);
+
+            // Then
+            assertThat(result).isNull();
+            verify(documentSnapshot).exists();
+            verify(documentSnapshot, never()).getString(anyString());
+        }
+
+        @Test
+        @DisplayName("Should return null when Firebase token verification fails")
+        void givenInvalidToken_When_VerifyToken_Then_ReturnNull() throws Exception {
+            // Given
+            when(firebaseAuth.verifyIdToken(INVALID_TOKEN))
+                    .thenThrow(new IllegalArgumentException("Invalid token"));
+
+            // When
+            FirebaseUser result = authService.verifyToken(INVALID_TOKEN);
+
+            // Then
+            assertThat(result).isNull();
+            verify(firebaseAuth).verifyIdToken(INVALID_TOKEN);
+            verify(firestore, never()).collection(anyString());
+        }
+
+        @Test
+        @DisplayName("Should return null when Firestore get throws exception")
+        void givenFirestoreGetThrows_When_VerifyToken_Then_ReturnNull() throws Exception {
+            // Given
+            when(firebaseAuth.verifyIdToken(VALID_TOKEN)).thenReturn(firebaseToken);
+            when(firebaseToken.getUid()).thenReturn(TEST_UID);
+            when(documentFuture.get()).thenThrow(new ExecutionException("Firestore error", null));
+
+            // When
+            FirebaseUser result = authService.verifyToken(VALID_TOKEN);
+
+            // Then
+            assertThat(result).isNull();
+        }
+
+        @Test
+        @DisplayName("Should return null when Firestore get throws InterruptedException")
+        void givenFirestoreGetInterrupted_When_VerifyToken_Then_ReturnNull() throws Exception {
+            // Given
+            when(firebaseAuth.verifyIdToken(VALID_TOKEN)).thenReturn(firebaseToken);
+            when(firebaseToken.getUid()).thenReturn(TEST_UID);
+            when(documentFuture.get()).thenThrow(new InterruptedException("Interrupted"));
+
+            // When
+            FirebaseUser result = authService.verifyToken(VALID_TOKEN);
+
+            // Then
+            assertThat(result).isNull();
+        }
     }
 
-    @Test
-    void verifyToken_WhenTokenVerificationFails_ShouldReturnNull() throws Exception {
-        // given
-        String token = "invalid-token";
+    @Nested
+    @DisplayName("getAuthentication")
+    class GetAuthenticationTests {
 
-        when(firebaseAuth.verifyIdToken(token)).thenThrow(new IllegalArgumentException("Invalid token"));
+        @Test
+        @DisplayName("Should return Authentication with ROLE_USER when user has USER role")
+        void givenValidTokenWithUserRole_When_GetAuthentication_Then_ReturnAuthenticationWithRoleUser() {
+            // Given
+            FirebaseAuthenticationService serviceSpy = spy(authService);
+            FirebaseUser firebaseUser = FirebaseUser.builder()
+                    .uid(TEST_UID)
+                    .email(TEST_EMAIL)
+                    .role(UserRole.USER.name())
+                    .build();
+            doReturn(firebaseUser).when(serviceSpy).verifyToken(VALID_TOKEN);
 
-        // when
-        FirebaseUser result = authService.verifyToken(token);
+            // When
+            Authentication authentication = serviceSpy.getAuthentication(VALID_TOKEN);
 
-        // then
-        assertNull(result);
+            // Then
+            assertThat(authentication).isNotNull();
+            assertThat(authentication.getPrincipal()).isEqualTo(firebaseUser);
+            assertThat(authentication.getCredentials()).isEqualTo(VALID_TOKEN);
+            assertThat(authentication.getAuthorities())
+                    .extracting("authority")
+                    .containsExactly("ROLE_USER");
+        }
 
-        verify(firebaseAuth).verifyIdToken(token);
-        verify(firestore, never()).collection(anyString());
-    }
+        @Test
+        @DisplayName("Should return Authentication with ROLE_OWNER and ROLE_ADMIN when user has OWNER role")
+        void givenValidTokenWithOwnerRole_When_GetAuthentication_Then_ReturnAuthenticationWithOwnerAndAdminRoles() {
+            // Given
+            FirebaseAuthenticationService serviceSpy = spy(authService);
+            FirebaseUser firebaseUser = FirebaseUser.builder()
+                    .uid(TEST_UID)
+                    .email(TEST_EMAIL)
+                    .role(UserRole.OWNER.name())
+                    .build();
+            doReturn(firebaseUser).when(serviceSpy).verifyToken(VALID_TOKEN);
 
-    @Test
-    void getAuthentication_WhenValidToken_ShouldReturnAuthentication() {
-        // given
-        String token = "valid-token";
-        String uid = "user123";
-        String email = "user@example.com";
+            // When
+            Authentication authentication = serviceSpy.getAuthentication(VALID_TOKEN);
 
-        FirebaseUser firebaseUser = FirebaseUser.builder()
-                .uid(uid)
-                .email(email)
-                .role(UserRole.USER.name())
-                .build();
+            // Then
+            assertThat(authentication).isNotNull();
+            assertThat(authentication.getAuthorities())
+                    .extracting("authority")
+                    .containsExactlyInAnyOrder("ROLE_OWNER", "ROLE_ADMIN");
+        }
 
-        FirebaseAuthenticationService serviceSpy = spy(authService);
-        doReturn(firebaseUser).when(serviceSpy).verifyToken(token);
+        @Test
+        @DisplayName("Should return Authentication with ROLE_ADMIN when user has ADMIN role")
+        void givenValidTokenWithAdminRole_When_GetAuthentication_Then_ReturnAuthenticationWithRoleAdmin() {
+            // Given
+            FirebaseAuthenticationService serviceSpy = spy(authService);
+            FirebaseUser firebaseUser = FirebaseUser.builder()
+                    .uid(TEST_UID)
+                    .email(TEST_EMAIL)
+                    .role(UserRole.ADMIN.name())
+                    .build();
+            doReturn(firebaseUser).when(serviceSpy).verifyToken(VALID_TOKEN);
 
-        // when
-        Authentication authentication = serviceSpy.getAuthentication(token);
+            // When
+            Authentication authentication = serviceSpy.getAuthentication(VALID_TOKEN);
 
-        // then
-        assertNotNull(authentication);
-        assertEquals(firebaseUser, authentication.getPrincipal());
-        assertEquals(token, authentication.getCredentials());
-        assertTrue(authentication.getAuthorities().contains(
-                new SimpleGrantedAuthority("ROLE_" + UserRole.USER.name())
-        ));
+            // Then
+            assertThat(authentication).isNotNull();
+            assertThat(authentication.getAuthorities())
+                    .extracting("authority")
+                    .containsExactly("ROLE_ADMIN");
+        }
 
-        verify(serviceSpy).verifyToken(token);
-    }
+        @Test
+        @DisplayName("Should return null when token verification returns null")
+        void givenTokenVerificationReturnsNull_When_GetAuthentication_Then_ReturnNull() {
+            // Given
+            FirebaseAuthenticationService serviceSpy = spy(authService);
+            doReturn(null).when(serviceSpy).verifyToken(VALID_TOKEN);
 
-    @Test
-    void getAuthentication_WhenTokenVerificationFails_ShouldReturnNull() {
-        // given
-        String token = "invalid-token";
+            // When
+            Authentication authentication = serviceSpy.getAuthentication(VALID_TOKEN);
 
-        FirebaseAuthenticationService serviceSpy = spy(authService);
-        doReturn(null).when(serviceSpy).verifyToken(token);
+            // Then
+            assertThat(authentication).isNull();
+        }
 
-        // when
-        Authentication authentication = serviceSpy.getAuthentication(token);
+        @Test
+        @DisplayName("Should return null when token verification throws exception")
+        void givenTokenVerificationThrows_When_GetAuthentication_Then_ReturnNull() {
+            // Given
+            FirebaseAuthenticationService serviceSpy = spy(authService);
+            doThrow(new RuntimeException("Verification failed")).when(serviceSpy).verifyToken(VALID_TOKEN);
 
-        // then
-        assertNull(authentication);
+            // When
+            Authentication authentication = serviceSpy.getAuthentication(VALID_TOKEN);
 
-        verify(serviceSpy).verifyToken(token);
-    }
-
-    @Test
-    void getAuthentication_WhenExceptionOccurs_ShouldReturnNull() {
-        // given
-        String token = "valid-token";
-
-        FirebaseAuthenticationService serviceSpy = spy(authService);
-        doThrow(new RuntimeException("Test exception")).when(serviceSpy).verifyToken(token);
-
-        // when
-        Authentication authentication = serviceSpy.getAuthentication(token);
-
-        // then
-        assertNull(authentication);
-
-        verify(serviceSpy).verifyToken(token);
+            // Then
+            assertThat(authentication).isNull();
+        }
     }
 }

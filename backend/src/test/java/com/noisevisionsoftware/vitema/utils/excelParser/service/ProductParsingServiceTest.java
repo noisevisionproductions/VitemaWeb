@@ -82,6 +82,17 @@ class ProductParsingServiceTest {
     @Test
     @DisplayName("Powinien wykryć i przypisać liczbę do pola quantity")
     void parseProduct_shouldDetectNumberAndAssignToQuantity() {
+        // Konfiguracja mocka dla quantityParser - parsuje liczby z stringów
+        when(quantityParser.parseQuantity(anyString())).thenAnswer(invocation -> {
+            String input = invocation.getArgument(0);
+            try {
+                // Próbuj parsować jako liczbę
+                return Double.parseDouble(input.replace(',', '.'));
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        });
+        
         // Testujemy tylko czy liczby są poprawnie wykrywane
         String[] inputs = {
                 "500 g mąka",

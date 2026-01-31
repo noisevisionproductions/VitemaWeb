@@ -24,7 +24,7 @@ const LoginForm = () => {
             await login(email, password);
             navigate('/dashboard');
         } catch (error) {
-            console.error('Login failed:', error);
+            console.error('AuthPage failed:', error);
             setError(t('auth.form.error'));
         } finally {
             setIsSubmitting(false);

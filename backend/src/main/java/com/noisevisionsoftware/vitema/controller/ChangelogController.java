@@ -35,7 +35,7 @@ public class ChangelogController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TRAINER')")
     public ResponseEntity<ChangelogEntryResponse> createEntry(
             @Valid @RequestBody ChangelogEntryRequest request,
             @AuthenticationPrincipal FirebaseUser currentUser) {
@@ -57,7 +57,8 @@ public class ChangelogController {
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<String> handleIllegalStateException(IllegalStateException e) {
-        if (e.getMessage().contains("already been closed")) {
+        String message = e.getMessage();
+        if (message != null && message.contains("already been closed")) {
             log.error("Firestore client has been closed", e);
             return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                     .body("Usługa tymczasowo niedostępna. Spróbuj ponownie.");

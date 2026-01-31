@@ -16,7 +16,7 @@ public class ExcelParserSettingsController {
     private final ExcelParserConfig excelParserConfig;
 
     @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TRAINER')")
     public ResponseEntity<Map<String, Object>> getParserSettings() {
         return ResponseEntity.ok(Map.of(
                 "skipColumnsCount", excelParserConfig.getSkipColumnsCount(),
@@ -25,7 +25,7 @@ public class ExcelParserSettingsController {
     }
 
     @PutMapping
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TRAINER')")
     public ResponseEntity<Map<String, Object>> updateSkipColumnsCount(@RequestBody Map<String, Integer> request) {
         Integer skipColumnsCount = request.get("skipColumnsCount");
 

@@ -16,6 +16,11 @@ export class UserService {
         return response.data;
     }
 
+    static async getMyClients(): Promise<User[]> {
+        const response = await api.get(`${this.BASE_URL}/my-clients`);
+        return response.data;
+    }
+
     static async getUserById(id: string): Promise<User> {
         const response = await api.get(`${this.BASE_URL}/${id}`);
         return response.data;

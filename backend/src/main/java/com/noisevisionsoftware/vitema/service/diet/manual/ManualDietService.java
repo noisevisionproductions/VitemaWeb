@@ -8,6 +8,7 @@ import com.noisevisionsoftware.vitema.dto.response.diet.manual.MealSavePreviewRe
 import com.noisevisionsoftware.vitema.dto.response.diet.manual.MealSuggestionResponse;
 import com.noisevisionsoftware.vitema.dto.response.diet.manual.MealTemplateResponse;
 import com.noisevisionsoftware.vitema.model.diet.DietFileInfo;
+import com.noisevisionsoftware.vitema.model.meal.MealType;
 import com.noisevisionsoftware.vitema.model.meal.MealTemplate;
 import com.noisevisionsoftware.vitema.model.recipe.Recipe;
 import com.noisevisionsoftware.vitema.service.RecipeService;
@@ -107,7 +108,7 @@ public class ManualDietService {
                         .nutritionalValues(mealTemplateConverter.convertNutritionalValuesFromRequest(request.getNutritionalValues()))
                         .photos(request.getPhotos() != null ? request.getPhotos() : new ArrayList<>())
                         .ingredients(mealTemplateConverter.convertIngredientsFromRequest(request.getIngredients()))
-                        .mealType(request.getMealType())
+                        .mealType(request.getMealType() != null ? MealType.valueOf(request.getMealType()) : null)
                         .category(request.getCategory())
                         .createdBy(existingTemplate.getCreatedBy())
                         .createdAt(existingTemplate.getCreatedAt())

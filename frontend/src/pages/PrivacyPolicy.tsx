@@ -28,7 +28,7 @@ const PrivacyPolicy: React.FC = () => {
                         usług.
                     </p>
                     <p className="mb-4">
-                        Vitema to platforma przeznaczona dla dietetyków i ich klientów, umożliwiająca zarządzanie
+                        Vitema to platforma przeznaczona dla trenerów i ich klientów, umożliwiająca zarządzanie
                         dietami i monitorowanie postępów. Rozumiemy, że informacje dotyczące zdrowia i diety są
                         wyjątkowo wrażliwe, dlatego przykładamy szczególną wagę do ich ochrony.
                     </p>
@@ -47,18 +47,18 @@ const PrivacyPolicy: React.FC = () => {
                 <>
                     <p className="mb-4">
                         Gromadzimy dane osobowe, które są niezbędne do świadczenia naszych usług i zapewnienia ich
-                        prawidłowego funkcjonowania. W zależności od tego, czy jesteś dietetykiem, czy klientem
-                        dietetyka, możemy gromadzić różne rodzaje danych:
+                        prawidłowego funkcjonowania. W zależności od tego, czy jesteś trenerem, czy klientem
+                        trenera, możemy gromadzić różne rodzaje danych:
                     </p>
 
-                    <h3 className="text-lg font-semibold mt-4 mb-2">Dane dietetyków:</h3>
+                    <h3 className="text-lg font-semibold mt-4 mb-2">Dane trenerów:</h3>
                     <ul className="list-disc pl-6 mb-4">
                         <li>Dane identyfikacyjne i kontaktowe (imię, nazwisko, adres email, numer telefonu)</li>
                         <li>Dane do rozliczeń i płatności związane z subskrypcją</li>
                         <li>Informacje o preferencjach dotyczących usług</li>
                     </ul>
 
-                    <h3 className="text-lg font-semibold mt-4 mb-2">Dane klientów dietetyków:</h3>
+                    <h3 className="text-lg font-semibold mt-4 mb-2">Dane klientów trenerów:</h3>
                     <ul className="list-disc pl-6 mb-4">
                         <li>Dane identyfikacyjne i kontaktowe (imię, nazwisko, adres email)</li>
                         <li>Informacje zdrowotne i dietetyczne niezbędne do opracowania indywidualnego planu
@@ -66,7 +66,7 @@ const PrivacyPolicy: React.FC = () => {
                             żywieniowe)
                         </li>
                         <li>Dane dotyczące postępów i realizacji planu dietetycznego</li>
-                        <li>Inne dane uznane przez dietetyka za istotne w procesie układania i monitorowania diety</li>
+                        <li>Inne dane uznane przez trenera za istotne w procesie układania i monitorowania diety</li>
                     </ul>
 
                     <h3 className="text-lg font-semibold mt-4 mb-2">Dane techniczne i użytkowania:</h3>
@@ -97,8 +97,8 @@ const PrivacyPolicy: React.FC = () => {
 
                     <h3 className="text-lg font-semibold mt-4 mb-2">Podstawowe cele przetwarzania:</h3>
                     <ul className="list-disc pl-6 mb-4">
-                        <li>Świadczenie usług Vitema dla dietetyków i ich klientów</li>
-                        <li>Umożliwienie dietetykom tworzenia, zarządzania i monitorowania planów dietetycznych dla
+                        <li>Świadczenie usług Vitema dla trenerów i ich klientów</li>
+                        <li>Umożliwienie trenerom tworzenia, zarządzania i monitorowania planów dietetycznych dla
                             klientów
                         </li>
                         <li>Synchronizacja danych między aplikacją webową a mobilną</li>
@@ -119,13 +119,13 @@ const PrivacyPolicy: React.FC = () => {
                     </ul>
 
                     <p className="mb-4">
-                        W przypadku dietetyków, dane są wykorzystywane również do zarządzania subskrypcją i dostępem do
+                        W przypadku trenerów, dane są wykorzystywane również do zarządzania subskrypcją i dostępem do
                         różnych funkcji platformy, zgodnie z wybranym planem.
                     </p>
 
                     <p className="mb-4">
-                        W przypadku klientów dietetyków, ich dane są przetwarzane przede wszystkim w celu umożliwienia
-                        dietetykom skutecznego świadczenia usług dietetycznych, w tym tworzenia spersonalizowanych
+                        W przypadku klientów trenerów, ich dane są przetwarzane przede wszystkim w celu umożliwienia
+                        trenerom skutecznego świadczenia usług dietetycznych, w tym tworzenia spersonalizowanych
                         planów żywieniowych, monitorowania postępów i dostosowywania zaleceń.
                     </p>
                 </>
@@ -185,8 +185,8 @@ const PrivacyPolicy: React.FC = () => {
 
                     <h3 className="text-lg font-semibold mt-4 mb-2">Udostępnianie w ramach świadczenia usług:</h3>
                     <ul className="list-disc pl-6 mb-4">
-                        <li>Dane klientów są udostępniane przypisanym im dietetykom w celu świadczenia usług
-                            dietetycznych
+                        <li>Dane klientów są udostępniane przypisanym im trenerom personalnym w celu świadczenia ich
+                            usług
                         </li>
                         <li>Korzystamy z usług Firebase (Google) do przechowywania i przetwarzania danych (Firestore,
                             Storage, Auth, Functions, Cloud, Analytics, Crashlytics)
@@ -233,7 +233,7 @@ const PrivacyPolicy: React.FC = () => {
 
                     <h3 className="text-lg font-semibold mt-4 mb-2">Nasze środki bezpieczeństwa obejmują:</h3>
                     <ul className="list-disc pl-6 mb-4">
-                        <li>Szyfrowanie danych w bazie Firebase - dane klientów dietetyków oraz dane osobowe dietetyków
+                        <li>Szyfrowanie danych w bazie Firebase - dane klientów trenerów oraz dane osobowe trenerów
                             są przechowywane w formie zaszyfrowanej
                         </li>
                         <li>Bezpieczną autoryzację i uwierzytelnianie użytkowników z wykorzystaniem Firebase
@@ -326,9 +326,9 @@ const PrivacyPolicy: React.FC = () => {
                     </p>
 
                     <p className="mb-4">
-                        W przypadku dietetyków: możesz zarządzać swoimi danymi osobowymi poprzez panel administracyjny
-                        platformy. W przypadku klientów dietetyków: wiele aspektów zarządzania Twoimi danymi może być
-                        realizowanych za pośrednictwem Twojego dietetyka lub poprzez aplikację mobilną.
+                        W przypadku trenerów: możesz zarządzać swoimi danymi osobowymi poprzez panel administracyjny
+                        platformy. W przypadku klientów trenerów: wiele aspektów zarządzania Twoimi danymi może być
+                        realizowanych za pośrednictwem Twojego trenera lub poprzez aplikację mobilną.
                     </p>
                 </>
             )
@@ -351,8 +351,8 @@ const PrivacyPolicy: React.FC = () => {
                             konta na platformie oraz przez 30 dni po jego usunięciu (w celu umożliwienia ewentualnego
                             przywrócenia konta)
                         </li>
-                        <li><strong>Dane klientów dietetyków</strong> - przechowywane zgodnie z ustaleniami między
-                            dietetykiem a klientem, jednak nie dłużej niż przez okres aktywności konta dietetyka oraz 90
+                        <li><strong>Dane klientów trenerów</strong> - przechowywane zgodnie z ustaleniami między
+                            trenerem a klientem, jednak nie dłużej niż przez okres aktywności konta trenera oraz 90
                             dni po jego dezaktywacji
                         </li>
                         <li><strong>Dane związane z płatnościami</strong> - przechowywane przez okres wymagany
@@ -403,13 +403,13 @@ const PrivacyPolicy: React.FC = () => {
                     </p>
 
                     <p className="mb-4">
-                        W przypadku usług dietetycznych dla nieletnich:
+                        W przypadku usług trenerskich dla nieletnich:
                     </p>
                     <ul className="list-disc pl-6 mb-4">
                         <li>Zakładamy, że wszelkie dane dotyczące dzieci są wprowadzane i zarządzane przez ich rodziców
                             lub opiekunów prawnych, którzy wyrazili zgodę na takie przetwarzanie
                         </li>
-                        <li>Dietetycy pracujący z nieletnimi klientami powinni uzyskać odpowiednią zgodę od rodziców lub
+                        <li>trenerzy pracujący z nieletnimi klientami powinni uzyskać odpowiednią zgodę od rodziców lub
                             opiekunów prawnych
                         </li>
                     </ul>
@@ -441,7 +441,7 @@ const PrivacyPolicy: React.FC = () => {
                     </p>
 
                     <p className="mb-4">
-                        Dietetycy korzystający z naszej platformy mogą umieszczać linki do zewnętrznych zasobów
+                        Trenerzy korzystający z naszej platformy mogą umieszczać linki do zewnętrznych zasobów
                         edukacyjnych lub innych materiałów. Vitema nie weryfikuje ani nie odpowiada za treści dostępne
                         poprzez takie linki.
                     </p>
@@ -570,7 +570,7 @@ const PrivacyPolicy: React.FC = () => {
             <Helmet>
                 <title>Polityka Prywatności - Vitema</title>
                 <meta name="description"
-                      content="Dowiedz się, jak Vitema chroni Twoje dane osobowe. Polityka prywatności aplikacji dla dietetyków i ich pacjentów."/>
+                      content="Dowiedz się, jak Vitema chroni Twoje dane osobowe. Polityka prywatności aplikacji dla trenerów i ich podobiecznych."/>
                 <link rel="canonical" href="https://vitema.pl/privacy-policy"/>
             </Helmet>
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">

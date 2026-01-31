@@ -3,8 +3,11 @@ package com.noisevisionsoftware.vitema.service;
 import com.google.cloud.Timestamp;
 import com.google.cloud.storage.*;
 import com.noisevisionsoftware.vitema.exception.NotFoundException;
+import com.noisevisionsoftware.vitema.mapper.recipe.RecipeJpaConverter;
 import com.noisevisionsoftware.vitema.model.recipe.Recipe;
 import com.noisevisionsoftware.vitema.model.recipe.RecipeImageReference;
+import com.noisevisionsoftware.vitema.model.recipe.jpa.RecipeEntity;
+import com.noisevisionsoftware.vitema.repository.jpa.recipe.RecipeJpaRepository;
 import com.noisevisionsoftware.vitema.repository.recipe.RecipeImageRepository;
 import com.noisevisionsoftware.vitema.repository.recipe.RecipeRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +23,12 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+// Dodaj import AccessDeniedException (może być ze Spring Security lub Twój własny)
+import org.springframework.security.access.AccessDeniedException;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +38,9 @@ public class RecipeService {
     private final RecipeRepository recipeRepository;
     private final RecipeImageRepository recipeImageRepository;
     private final Storage storage;
+    private final RecipeJpaRepository recipeJpaRepository;
+    private final RecipeJpaConverter recipeJpaConverter;
+    private final UserService userService;
 
     @Value("${firebase.storage.bucket-name}")
     private String storageBucket;
@@ -40,10 +49,31 @@ public class RecipeService {
     private static final String RECIPES_BATCH_CACHE = "recipesBatchCache";
     private static final String RECIPES_PAGE_CACHE = "recipesPageCache";
 
+    private void verifyOwnership(Recipe recipe) {
+        String currentUserId = userService.getCurrentUserId();
+        boolean isAdminOrOwner = userService.isCurrentUserAdminOrOwner();
+
+
+        if (!isAdminOrOwner && (currentUserId == null || !currentUserId.equals(recipe.getAuthorId()))) {
+            throw new AccessDeniedException("Nie masz uprawnień do edycji lub usunięcia tego przepisu.");
+        }
+    }
+
     @Cacheable(value = RECIPES_CACHE, key = "#id")
     public Recipe getRecipeById(String id) {
-        return recipeRepository.findById(id)
+        Recipe recipe = recipeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Recipe not found with id: " + id));
+
+        String currentUserId = userService.getCurrentUserId();
+        boolean isAdminOrOwner = userService.isCurrentUserAdminOrOwner();
+
+        if (!recipe.isPublic() &&
+                (currentUserId == null || !currentUserId.equals(recipe.getAuthorId())) &&
+                !isAdminOrOwner) {
+            throw new NotFoundException("Recipe not found or access denied");
+        }
+
+        return recipe;
     }
 
     @Cacheable(value = RECIPES_BATCH_CACHE, key = "#ids")
@@ -51,13 +81,15 @@ public class RecipeService {
         if (ids == null || ids.isEmpty()) {
             return Collections.emptyList();
         }
-
         return recipeRepository.findAllByIds(ids);
     }
 
-    @Cacheable(value = RECIPES_PAGE_CACHE, key = "{#pageable.pageNumber, #pageable.pageSize, #pageable.sort}")
+    @Cacheable(value = RECIPES_PAGE_CACHE, key = "{#pageable.pageNumber, #pageable.pageSize, #pageable.sort, @userService.getCurrentUserId()}")
     public Page<Recipe> getAllRecipes(Pageable pageable) {
-        return recipeRepository.findAll(pageable);
+        String currentUserId = userService.getCurrentUserId();
+        Page<RecipeEntity> entitiesPage = recipeJpaRepository.findAllVisible(currentUserId, pageable);
+
+        return entitiesPage.map(recipeJpaConverter::toModel);
     }
 
     @Caching(evict = {
@@ -66,9 +98,15 @@ public class RecipeService {
             @CacheEvict(value = RECIPES_PAGE_CACHE, allEntries = true)
     })
     public Recipe updateRecipe(String id, Recipe recipe) {
-        getRecipeById(id);
+        Recipe existingRecipe = getRecipeById(id);
+
+        verifyOwnership(existingRecipe);
 
         recipe.setId(id);
+
+        if (recipe.getAuthorId() == null) {
+            recipe.setAuthorId(existingRecipe.getAuthorId());
+        }
 
         return recipeRepository.update(id, recipe);
     }
@@ -81,6 +119,8 @@ public class RecipeService {
     public void deleteRecipe(String id) {
         Recipe recipe = getRecipeById(id);
 
+        verifyOwnership(recipe);
+
         if (recipe.getPhotos() != null && !recipe.getPhotos().isEmpty()) {
             for (String photoUrl : recipe.getPhotos()) {
                 try {
@@ -92,14 +132,12 @@ public class RecipeService {
         }
 
         recipeRepository.delete(id);
-
         cleanupOrphanedImages();
     }
 
     @Async
     protected void cleanupOrphanedImages() {
         List<RecipeImageReference> orphanedImages = recipeImageRepository.findAllWithZeroReferences();
-
         for (RecipeImageReference image : orphanedImages) {
             try {
                 if (image.getStoragePath() != null) {
@@ -119,6 +157,16 @@ public class RecipeService {
             recipe.setCreatedAt(Timestamp.now());
         }
 
+        String currentUserId = userService.getCurrentUserId();
+        if (currentUserId != null) {
+            recipe.setAuthorId(currentUserId);
+        }
+
+        // Trenerzy tworzą prywatne, Admin może tworzyć publiczne
+        if (!userService.isCurrentUserAdminOrOwner()) {
+            recipe.setPublic(false);
+        }
+
         return recipeRepository.save(recipe);
     }
 
@@ -127,12 +175,12 @@ public class RecipeService {
             return createRecipe(recipe);
         }
 
+        // TODO: search not only by name, but for example ingredient
         Optional<Recipe> existingRecipe = recipeRepository.findByName(recipe.getName().trim());
 
         if (existingRecipe.isPresent()) {
             Recipe existing = existingRecipe.get();
 
-            // Tworzymy kopię z aktualizacjami, aby uniknąć modyfikacji obiektu w cache
             Recipe updatedRecipe = Recipe.builder()
                     .id(existing.getId())
                     .name(existing.getName())
@@ -142,23 +190,22 @@ public class RecipeService {
                     .nutritionalValues(existing.getNutritionalValues())
                     .parentRecipeId(existing.getParentRecipeId())
                     .ingredients(existing.getIngredients())
+                    .authorId(existing.getAuthorId())
+                    .isPublic(existing.isPublic())
                     .build();
 
             boolean shouldUpdate = false;
 
-            // Jeśli nowy przepis ma instrukcje, a stary nie ma, lub nowe są dłuższe
             if ((updatedRecipe.getInstructions() == null || updatedRecipe.getInstructions().isEmpty()) &&
                     recipe.getInstructions() != null && !recipe.getInstructions().isEmpty()) {
                 updatedRecipe.setInstructions(recipe.getInstructions());
                 shouldUpdate = true;
             } else if (updatedRecipe.getInstructions() != null && recipe.getInstructions() != null &&
                     recipe.getInstructions().length() > updatedRecipe.getInstructions().length()) {
-                // Jeśli nowe instrukcje są bardziej szczegółowe (dłuższe)
                 updatedRecipe.setInstructions(recipe.getInstructions());
                 shouldUpdate = true;
             }
 
-            // Jeśli nowy przepis ma wartości odżywcze, a stary nie ma
             if (updatedRecipe.getNutritionalValues() == null && recipe.getNutritionalValues() != null) {
                 updatedRecipe.setNutritionalValues(recipe.getNutritionalValues());
                 shouldUpdate = true;
@@ -166,23 +213,23 @@ public class RecipeService {
 
             if (recipe.getPhotos() != null && !recipe.getPhotos().isEmpty()) {
                 List<String> combinedPhotos = new ArrayList<>();
-
-                if (updatedRecipe.getPhotos() != null) {
-                    combinedPhotos.addAll(updatedRecipe.getPhotos());
-                }
-
+                if (updatedRecipe.getPhotos() != null) combinedPhotos.addAll(updatedRecipe.getPhotos());
                 for (String photo : recipe.getPhotos()) {
                     if (!combinedPhotos.contains(photo)) {
                         combinedPhotos.add(photo);
                         shouldUpdate = true;
                     }
                 }
-
                 updatedRecipe.setPhotos(combinedPhotos);
             }
 
             if (shouldUpdate) {
-                return recipeRepository.update(updatedRecipe.getId(), updatedRecipe);
+                try {
+                    verifyOwnership(existing);
+                    return recipeRepository.update(updatedRecipe.getId(), updatedRecipe);
+                } catch (AccessDeniedException e) {
+                    return existing;
+                }
             }
 
             return existing;
@@ -200,40 +247,29 @@ public class RecipeService {
     public String uploadImage(String id, MultipartFile image) throws BadRequestException {
         Recipe recipe = getRecipeById(id);
 
+        verifyOwnership(recipe);
+
         try {
-            String originalFilename = Optional.ofNullable(image.getOriginalFilename())
-                    .orElse("image.jpg");
+            String originalFilename = Optional.ofNullable(image.getOriginalFilename()).orElse("image.jpg");
             String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
             String filename = UUID.randomUUID() + extension;
-
             String objectName = String.format("recipes/%s/images/%s", id, filename);
 
             BlobId blobId = BlobId.of(storageBucket, objectName);
             BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
                     .setContentType(image.getContentType())
-                    .setMetadata(Map.of(
-                            "cacheControl", "public, max-age=31536000",
-                            "contentDisposition", "inline"
-                    ))
-                    .setAcl(new ArrayList<>(Collections.singletonList(
-                            Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER)
-                    )))
+                    .setMetadata(Map.of("cacheControl", "public, max-age=31536000", "contentDisposition", "inline"))
+                    .setAcl(new ArrayList<>(Collections.singletonList(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER))))
                     .build();
-
             storage.create(blobInfo, image.getBytes());
-
-            String imageUrl = String.format("https://storage.googleapis.com/%s/%s",
-                    storageBucket, objectName);
+            String imageUrl = String.format("https://storage.googleapis.com/%s/%s", storageBucket, objectName);
 
             Optional<RecipeImageReference> existingRef = recipeImageRepository.findByImageUrl(imageUrl);
             if (existingRef.isPresent()) {
                 recipeImageRepository.incrementReferenceCount(imageUrl);
             } else {
                 RecipeImageReference newRef = RecipeImageReference.builder()
-                        .imageUrl(imageUrl)
-                        .storagePath(objectName)
-                        .referenceCount(1)
-                        .build();
+                        .imageUrl(imageUrl).storagePath(objectName).referenceCount(1).build();
                 recipeImageRepository.save(newRef);
             }
 
@@ -258,6 +294,8 @@ public class RecipeService {
     public void deleteImage(String id, String imageUrl) throws BadRequestException {
         Recipe recipe = getRecipeById(id);
 
+        verifyOwnership(recipe);
+
         if (recipe.getPhotos() == null || !recipe.getPhotos().contains(imageUrl)) {
             throw new BadRequestException("Podany obraz nie istnieje dla tego przepisu");
         }
@@ -271,16 +309,18 @@ public class RecipeService {
                 log.error("Błąd podczas usuwania obrazu z Cloud Storage", e);
             }
         }
-
         List<String> updatedPhotos = new ArrayList<>(recipe.getPhotos());
         updatedPhotos.remove(imageUrl);
         recipe.setPhotos(updatedPhotos);
-
         recipeRepository.update(id, recipe);
     }
 
     public List<Recipe> searchRecipes(String query) {
-        return recipeRepository.search(query);
+        String currentUserId = userService.getCurrentUserId();
+        List<RecipeEntity> entities = recipeJpaRepository.searchVisible(query, currentUserId);
+        return entities.stream()
+                .map(recipeJpaConverter::toModel)
+                .collect(Collectors.toList());
     }
 
     public String uploadBase64Image(String base64Image) throws BadRequestException {

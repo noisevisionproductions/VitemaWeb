@@ -1,14 +1,9 @@
-import React, { ReactNode } from 'react';
+import {ReactNode, InputHTMLAttributes} from 'react';
 
-interface InputFieldProps {
+interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
     id: string;
     label: string;
     icon?: ReactNode;
-    type?: string;
-    placeholder?: string;
-    required?: boolean;
-    value: string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     error?: string;
 }
 
@@ -21,7 +16,8 @@ const InputField = ({
                         required = false,
                         value,
                         onChange,
-                        error
+                        error,
+                        ...rest
                     }: InputFieldProps) => {
     return (
         <div>
@@ -40,7 +36,12 @@ const InputField = ({
                     value={value}
                     onChange={onChange}
                     required={required}
-                    className={`${icon ? 'pl-10' : 'pl-4'} w-full px-4 py-3 rounded-lg border ${error ? 'border-status-error' : 'border-border'} focus:ring-2 ${error ? 'focus:ring-status-error' : 'focus:ring-primary'} ${error ? 'focus:border-status-error' : 'focus:border-primary'}`}
+                    {...rest}
+                    className={`${icon ? 'pl-10' : 'pl-4'} w-full px-4 py-3 rounded-lg border ${
+                        error ? 'border-status-error' : 'border-border'
+                    } focus:ring-2 ${
+                        error ? 'focus:ring-status-error' : 'focus:ring-primary'
+                    } ${error ? 'focus:border-status-error' : 'focus:border-primary'}`}
                     placeholder={placeholder}
                 />
             </div>

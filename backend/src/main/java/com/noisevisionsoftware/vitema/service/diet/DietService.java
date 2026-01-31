@@ -6,7 +6,9 @@ import com.noisevisionsoftware.vitema.exception.DietOverlapException;
 import com.noisevisionsoftware.vitema.exception.NotFoundException;
 import com.noisevisionsoftware.vitema.model.diet.Day;
 import com.noisevisionsoftware.vitema.model.diet.Diet;
+import com.noisevisionsoftware.vitema.model.user.User;
 import com.noisevisionsoftware.vitema.repository.DietRepository;
+import com.noisevisionsoftware.vitema.service.UserService;
 import com.noisevisionsoftware.vitema.service.firebase.FirestoreService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,9 +18,7 @@ import org.springframework.cache.annotation.Caching;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -26,23 +26,55 @@ import java.util.Map;
 public class DietService {
     private final DietRepository dietRepository;
     private final FirestoreService firestoreService;
+    private final UserService userService;
 
     private static final String DIETS_CACHE = "dietsCache";
     private static final String DIETS_LIST_CACHE = "dietsListCache";
 
-    @Cacheable(value = DIETS_CACHE, key = "'allDiets'")
+    @Cacheable(value = DIETS_CACHE, key = "'allDiets_' + @userService.getCurrentUserId()")
     public List<Diet> getAllDiets() {
-        return dietRepository.findAll();
+        String currentUserId = userService.getCurrentUserId();
+        boolean isAdminOrOwner = userService.isCurrentUserAdminOrOwner();
+
+        if (isAdminOrOwner) {
+            return dietRepository.findAll();
+        } else {
+            List<User> clients = userService.getClientsForTrainer(currentUserId);
+
+            List<Diet> trainerDiets = new ArrayList<>();
+
+            for (User client : clients) {
+                trainerDiets.addAll(dietRepository.findByUserId(client.getId()));
+            }
+
+            trainerDiets.addAll(dietRepository.findByUserId(currentUserId));
+
+            return trainerDiets;
+        }
     }
 
     @Cacheable(value = DIETS_CACHE, key = "#id")
     public Diet getDietById(String id) {
-        return dietRepository.findById(id)
+        Diet diet = dietRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Diet not found with id: " + id));
+
+        verifyDietAccess(diet);
+
+        return diet;
     }
 
     @Cacheable(value = DIETS_LIST_CACHE, key = "#userId")
     public List<Diet> getDietsByUserId(String userId) {
+        if (!userService.isCurrentUserAdminOrOwner()) {
+            String currentUserId = userService.getCurrentUserId();
+            if (!userId.equals(currentUserId)) {
+                User targetUser = userService.getUserById(userId);
+                if (targetUser.getTrainerId() == null || !targetUser.getTrainerId().equals(currentUserId)) {
+                    return Collections.emptyList();
+                }
+            }
+        }
+
         return dietRepository.findByUserId(userId);
     }
 
@@ -57,13 +89,14 @@ public class DietService {
                 Timestamp latestDate = null;
 
                 for (Diet diet : userDiets) {
+                    if (diet.getDays() == null) continue;
                     for (Day day : diet.getDays()) {
                         Timestamp dayDate = day.getDate();
 
-                        if (earliestDate == null || dayDate.compareTo(earliestDate) < 0) {
+                        if (earliestDate == null || (dayDate != null && dayDate.compareTo(earliestDate) < 0)) {
                             earliestDate = dayDate;
                         }
-                        if (latestDate == null || dayDate.compareTo(latestDate) > 0) {
+                        if (latestDate == null || (dayDate != null && dayDate.compareTo(latestDate) > 0)) {
                             latestDate = dayDate;
                         }
                     }
@@ -121,7 +154,7 @@ public class DietService {
             Diet existingDiet = getDietById(diet.getId());
 
             if (!existingDiet.getUserId().equals(diet.getUserId())) {
-                throw new AccessDeniedException("You don't have permission to update this diet");
+                throw new IllegalArgumentException("Nie można zmienić właściciela diety");
             }
 
             if (diet.getDays() == null || diet.getDays().isEmpty()) {
@@ -154,10 +187,10 @@ public class DietService {
     })
     public void deleteDiet(String id) {
         try {
+            getDietById(id);
+
             firestoreService.deleteRelatedData(id);
-
             dietRepository.delete(id);
-
             refreshDietsCache();
         } catch (Exception e) {
             log.error("Error deleting diet with id: {}", "Error deleting diet", e);
@@ -214,5 +247,24 @@ public class DietService {
             return null;
         }
         return diet.getDays().getLast().getDate();
+    }
+
+    private void verifyDietAccess(Diet diet) {
+        if (userService.isCurrentUserAdminOrOwner()) {
+            return;
+        }
+
+        String currentUserId = userService.getCurrentUserId();
+
+        if (diet.getUserId().equals(currentUserId)) {
+            return;
+        }
+
+        User dietOwner = userService.getUserById(diet.getUserId());
+        if (dietOwner.getTrainerId() != null && dietOwner.getTrainerId().equals(currentUserId)) {
+            return;
+        }
+
+        throw new AccessDeniedException("Nie masz uprawnień do wyświetlania tej diety.");
     }
 }

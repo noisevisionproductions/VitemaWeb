@@ -26,6 +26,15 @@ public interface RecipeJpaRepository extends JpaRepository<RecipeEntity, Long> {
             "LOWER(r.instructions) LIKE LOWER(CONCAT('%', :query, '%'))")
     List<RecipeEntity> search(@Param("query") String query);
 
+    @Query("SELECT r FROM RecipeEntity r WHERE r.isPublic = true OR r.authorId = :userId")
+    Page<RecipeEntity> findAllVisible(@Param("userId") String userId, Pageable pageable);
+
+    @Query("SELECT r FROM RecipeEntity r WHERE (r.isPublic = true OR r.authorId = :userId) AND LOWER(r.name) LIKE LOWER(CONCAT('%', :query, '%'))")
+    List<RecipeEntity> searchVisible(@Param("query") String query, @Param("userId") String userId);
+
+    @Query("SELECT r FROM RecipeEntity r WHERE r.externalId = :id AND (r.isPublic = true OR r.authorId = :userId)")
+    Optional<RecipeEntity> findByIdAndVisible(@Param("id") String id, @Param("userId") String userId);
+
     @NonNull
     Page<RecipeEntity> findAll(@NonNull Pageable pageable);
 

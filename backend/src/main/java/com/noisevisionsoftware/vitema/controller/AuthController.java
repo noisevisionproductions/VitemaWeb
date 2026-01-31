@@ -1,7 +1,9 @@
 package com.noisevisionsoftware.vitema.controller;
 
-import com.noisevisionsoftware.vitema.dto.request.LoginRequest;
+import com.noisevisionsoftware.vitema.dto.request.auth.LoginRequest;
+import com.noisevisionsoftware.vitema.dto.request.auth.RegisterRequest;
 import com.noisevisionsoftware.vitema.dto.response.ErrorResponse;
+import com.noisevisionsoftware.vitema.dto.response.MessageResponse;
 import com.noisevisionsoftware.vitema.security.model.FirebaseUser;
 import com.noisevisionsoftware.vitema.service.auth.AuthService;
 import jakarta.validation.Valid;
@@ -71,6 +73,16 @@ public class AuthController {
             log.error("Token validation failed", e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ErrorResponse(e.getMessage()));
+        }
+    }
+
+    @PostMapping("/register-trainer")
+    public ResponseEntity<?> registerTrainer(@Valid @RequestBody RegisterRequest request) {
+        try {
+            authService.registerTrainer(request);
+            return ResponseEntity.ok(new MessageResponse("Trener zarejestrowany pomyślnie"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
         }
     }
 }

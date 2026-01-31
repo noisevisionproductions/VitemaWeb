@@ -1,8 +1,11 @@
 package com.noisevisionsoftware.vitema.controller;
 
+import com.google.cloud.Timestamp;
 import com.noisevisionsoftware.vitema.controller.diet.DietController;
 import com.noisevisionsoftware.vitema.dto.request.diet.DietRequest;
+import com.noisevisionsoftware.vitema.dto.response.diet.DietInfo;
 import com.noisevisionsoftware.vitema.dto.response.diet.DietResponse;
+import com.noisevisionsoftware.vitema.exception.DietOverlapException;
 import com.noisevisionsoftware.vitema.exception.NotFoundException;
 import com.noisevisionsoftware.vitema.mapper.diet.DietMapper;
 import com.noisevisionsoftware.vitema.model.diet.Diet;
@@ -17,8 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -219,5 +221,223 @@ class DietControllerTest {
         // Act & Assert
         assertThrows(NotFoundException.class, () -> dietController.getDietById(TEST_ID));
         verify(dietService).getDietById(TEST_ID);
+    }
+
+    // GET /api/diets/info - getDietsInfo tests
+
+    @Test
+    void getDietsInfo_WithSingleUserId_ShouldReturnDietInfo() {
+        // Arrange
+        String userIds = TEST_USER_ID;
+        List<String> userIdList = Collections.singletonList(TEST_USER_ID);
+        Timestamp startDate = Timestamp.now();
+        Timestamp endDate = Timestamp.now();
+        DietInfo dietInfo = DietInfo.builder()
+                .hasDiet(true)
+                .startDate(startDate)
+                .endDate(endDate)
+                .build();
+        Map<String, DietInfo> dietInfoMap = new HashMap<>();
+        dietInfoMap.put(TEST_USER_ID, dietInfo);
+
+        when(dietService.getDietsInfoForUsers(userIdList)).thenReturn(dietInfoMap);
+
+        // Act
+        ResponseEntity<Map<String, DietInfo>> response = dietController.getDietsInfo(userIds);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().size());
+        assertTrue(response.getBody().containsKey(TEST_USER_ID));
+        assertEquals(dietInfo, response.getBody().get(TEST_USER_ID));
+        verify(dietService).getDietsInfoForUsers(userIdList);
+    }
+
+    @Test
+    void getDietsInfo_WithMultipleUserIds_ShouldReturnMultipleDietInfos() {
+        // Arrange
+        String user2Id = "user456";
+        String userIds = TEST_USER_ID + "," + user2Id;
+        List<String> userIdList = Arrays.asList(TEST_USER_ID, user2Id);
+
+        DietInfo dietInfo1 = DietInfo.builder()
+                .hasDiet(true)
+                .startDate(Timestamp.now())
+                .endDate(Timestamp.now())
+                .build();
+        DietInfo dietInfo2 = DietInfo.builder()
+                .hasDiet(false)
+                .startDate(null)
+                .endDate(null)
+                .build();
+
+        Map<String, DietInfo> dietInfoMap = new HashMap<>();
+        dietInfoMap.put(TEST_USER_ID, dietInfo1);
+        dietInfoMap.put(user2Id, dietInfo2);
+
+        when(dietService.getDietsInfoForUsers(userIdList)).thenReturn(dietInfoMap);
+
+        // Act
+        ResponseEntity<Map<String, DietInfo>> response = dietController.getDietsInfo(userIds);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(2, response.getBody().size());
+        assertTrue(response.getBody().get(TEST_USER_ID).isHasDiet());
+        assertFalse(response.getBody().get(user2Id).isHasDiet());
+        verify(dietService).getDietsInfoForUsers(userIdList);
+    }
+
+    @Test
+    void getDietsInfo_WithUserIdsContainingSpaces_ShouldHandleCorrectly() {
+        // Arrange
+        String user2Id = "user456";
+        String userIds = TEST_USER_ID + ", " + user2Id;
+        List<String> userIdList = Arrays.asList(TEST_USER_ID, " " + user2Id);
+
+        Map<String, DietInfo> dietInfoMap = new HashMap<>();
+        when(dietService.getDietsInfoForUsers(userIdList)).thenReturn(dietInfoMap);
+
+        // Act
+        ResponseEntity<Map<String, DietInfo>> response = dietController.getDietsInfo(userIds);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        verify(dietService).getDietsInfoForUsers(userIdList);
+    }
+
+    @Test
+    void getDietsInfo_WhenServiceReturnsEmptyMap_ShouldReturnEmptyMap() {
+        // Arrange
+        String userIds = TEST_USER_ID;
+        List<String> userIdList = Collections.singletonList(TEST_USER_ID);
+        when(dietService.getDietsInfoForUsers(userIdList)).thenReturn(Collections.emptyMap());
+
+        // Act
+        ResponseEntity<Map<String, DietInfo>> response = dietController.getDietsInfo(userIds);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().isEmpty());
+        verify(dietService).getDietsInfoForUsers(userIdList);
+    }
+
+    // Exception Handler tests
+
+    @Test
+    void handleDietOverlapException_ShouldReturnConflictResponse() {
+        // Arrange
+        DietOverlapException ex = new DietOverlapException("Diety nakładają się na siebie");
+
+        // Act
+        ResponseEntity<ProblemDetail> response = dietController.handleDietOverlapException(ex);
+
+        // Assert
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(HttpStatus.CONFLICT.value(), response.getBody().getStatus());
+        assertEquals("Diety nakładają się na siebie", response.getBody().getDetail());
+        assertEquals("Konflikt terminów diet", response.getBody().getTitle());
+    }
+
+    @Test
+    void handleDietOverlapException_WithDifferentMessage_ShouldReturnCorrectMessage() {
+        // Arrange
+        String customMessage = "Diet overlaps with existing diet from 2024-01-01 to 2024-01-31";
+        DietOverlapException ex = new DietOverlapException(customMessage);
+
+        // Act
+        ResponseEntity<ProblemDetail> response = dietController.handleDietOverlapException(ex);
+
+        // Assert
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(customMessage, response.getBody().getDetail());
+        assertEquals("Konflikt terminów diet", response.getBody().getTitle());
+    }
+
+    // Additional edge case tests
+
+    @Test
+    void updateDiet_WhenUpdateThrowsException_ShouldPropagateException() {
+        // Arrange
+        when(dietMapper.toDomain(testDietRequest)).thenReturn(testDiet);
+        when(dietService.updateDiet(testDiet))
+                .thenThrow(new RuntimeException("Update failed"));
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, 
+                () -> dietController.updateDiet(TEST_ID, testDietRequest));
+        verify(dietService).updateDiet(testDiet);
+    }
+
+    @Test
+    void updateDiet_WhenDietNotFound_ShouldThrowNotFoundException() {
+        // Arrange
+        when(dietMapper.toDomain(testDietRequest)).thenReturn(testDiet);
+        when(dietService.updateDiet(testDiet))
+                .thenThrow(new NotFoundException("Diet not found"));
+
+        // Act & Assert
+        assertThrows(NotFoundException.class, 
+                () -> dietController.updateDiet(TEST_ID, testDietRequest));
+        verify(dietService).updateDiet(testDiet);
+    }
+
+    @Test
+    void createDiet_WhenServiceThrowsException_ShouldPropagateException() {
+        // Arrange
+        when(dietMapper.toDomain(testDietRequest)).thenReturn(testDiet);
+        when(dietService.createDiet(testDiet))
+                .thenThrow(new RuntimeException("Creation failed"));
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, 
+                () -> dietController.createDiet(testDietRequest));
+        verify(dietService).createDiet(testDiet);
+    }
+
+    @Test
+    void deleteDiet_WhenDietNotFound_ShouldThrowNotFoundException() {
+        // Arrange
+        doThrow(new NotFoundException("Diet not found"))
+                .when(dietService).deleteDiet(TEST_ID);
+
+        // Act & Assert
+        assertThrows(NotFoundException.class, 
+                () -> dietController.deleteDiet(TEST_ID));
+        verify(dietService).deleteDiet(TEST_ID);
+    }
+
+    @Test
+    void getAllDiets_WithUserIdAndMultipleDiets_ShouldReturnAllUserDiets() {
+        // Arrange
+        Diet diet2 = Diet.builder()
+                .id("test456")
+                .userId(TEST_USER_ID)
+                .build();
+        DietResponse response2 = DietResponse.builder()
+                .id("test456")
+                .userId(TEST_USER_ID)
+                .build();
+
+        List<Diet> diets = Arrays.asList(testDiet, diet2);
+        when(dietService.getDietsByUserId(TEST_USER_ID)).thenReturn(diets);
+        when(dietMapper.toResponse(testDiet)).thenReturn(testDietResponse);
+        when(dietMapper.toResponse(diet2)).thenReturn(response2);
+
+        // Act
+        ResponseEntity<List<DietResponse>> response = dietController.getAllDiets(TEST_USER_ID);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(2, response.getBody().size());
+        verify(dietService).getDietsByUserId(TEST_USER_ID);
+        verify(dietMapper, times(2)).toResponse(any(Diet.class));
     }
 }

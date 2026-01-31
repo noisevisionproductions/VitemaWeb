@@ -202,4 +202,247 @@ class ShoppingListServiceTest {
                 .isInstanceOf(NotFoundException.class)
                 .hasMessageContaining(SAMPLE_ID);
     }
+
+    @Test
+    void addItemToCategory_WhenCategoryExists_ShouldAddToExistingList() {
+        // given
+        List<CategorizedShoppingListItem> existingItems = new ArrayList<>();
+        existingItems.add(CategorizedShoppingListItem.builder()
+                .name("Pomidor")
+                .quantity(2.0)
+                .unit("kg")
+                .build());
+        sampleShoppingList.getItems().put(SAMPLE_CATEGORY, existingItems);
+
+        when(shoppingListRepository.findById(SAMPLE_ID))
+                .thenReturn(Optional.of(sampleShoppingList));
+
+        CategorizedShoppingListItem newItem = CategorizedShoppingListItem.builder()
+                .name("Marchewka")
+                .quantity(1.0)
+                .unit("kg")
+                .build();
+
+        // when
+        ShoppingList result = shoppingListService.addItemToCategory(SAMPLE_ID, SAMPLE_CATEGORY, newItem);
+
+        // then
+        assertThat(result.getItems().get(SAMPLE_CATEGORY))
+                .hasSize(2)
+                .contains(newItem);
+        verify(shoppingListRepository).save(sampleShoppingList);
+    }
+
+    @Test
+    void updateShoppingListItems_WhenEmptyItems_ShouldReturnUnmodifiedList() {
+        // given
+        when(shoppingListRepository.findById(SAMPLE_ID))
+                .thenReturn(Optional.of(sampleShoppingList));
+
+        // when
+        ShoppingList result = shoppingListService.updateShoppingListItems(SAMPLE_ID, new HashMap<>());
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getItems()).isEmpty();
+        verify(shoppingListRepository, never()).save(any());
+    }
+
+    @Test
+    void updateShoppingListItems_WhenNullItems_ShouldReturnUnmodifiedList() {
+        // given
+        when(shoppingListRepository.findById(SAMPLE_ID))
+                .thenReturn(Optional.of(sampleShoppingList));
+
+        // when
+        ShoppingList result = shoppingListService.updateShoppingListItems(SAMPLE_ID, null);
+
+        // then
+        assertThat(result).isNotNull();
+        verify(shoppingListRepository, never()).save(any());
+    }
+
+    @Test
+    void updateShoppingListItems_WhenItemsContainNull_ShouldSkipNullValues() {
+        // given
+        Map<String, List<CategorizedShoppingListItem>> items = new HashMap<>();
+        items.put(SAMPLE_CATEGORY, Collections.singletonList(
+                CategorizedShoppingListItem.builder()
+                        .name("Marchewka")
+                        .quantity(1.0)
+                        .unit("kg")
+                        .build()
+        ));
+        items.put("owoce", null);
+
+        when(shoppingListRepository.findById(SAMPLE_ID))
+                .thenReturn(Optional.of(sampleShoppingList));
+        when(shoppingListRepository.save(any(ShoppingList.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // when
+        ShoppingList result = shoppingListService.updateShoppingListItems(SAMPLE_ID, items);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.getItems()).containsKey(SAMPLE_CATEGORY);
+        assertThat(result.getItems()).doesNotContainKey("owoce");
+        verify(shoppingListRepository).save(sampleShoppingList);
+    }
+
+    @Test
+    void updateShoppingListItems_WhenSaveFails_ShouldThrowRuntimeException() {
+        // given
+        Map<String, List<CategorizedShoppingListItem>> items = new HashMap<>();
+        items.put(SAMPLE_CATEGORY, Collections.singletonList(
+                CategorizedShoppingListItem.builder()
+                        .name("Marchewka")
+                        .build()
+        ));
+
+        when(shoppingListRepository.findById(SAMPLE_ID))
+                .thenReturn(Optional.of(sampleShoppingList));
+        when(shoppingListRepository.save(any(ShoppingList.class)))
+                .thenThrow(new RuntimeException("Database error"));
+
+        // when/then
+        assertThatThrownBy(() ->
+                shoppingListService.updateShoppingListItems(SAMPLE_ID, items)
+        )
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Failed to update shopping list items");
+    }
+
+    @Test
+    void removeItemFromCategory_WhenNotExists_ShouldThrowNotFoundException() {
+        // given
+        when(shoppingListRepository.findById(SAMPLE_ID))
+                .thenReturn(Optional.empty());
+
+        // when/then
+        assertThatThrownBy(() ->
+                shoppingListService.removeItemFromCategory(SAMPLE_ID, SAMPLE_CATEGORY, 0)
+        )
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining(SAMPLE_ID);
+    }
+
+    @Test
+    void removeItemFromCategory_WhenCategoryNotExists_ShouldNotModifyList() {
+        // given
+        when(shoppingListRepository.findById(SAMPLE_ID))
+                .thenReturn(Optional.of(sampleShoppingList));
+
+        // when
+        shoppingListService.removeItemFromCategory(SAMPLE_ID, "non-existent-category", 0);
+
+        // then
+        verify(shoppingListRepository, never()).save(any());
+    }
+
+    @Test
+    void removeItemFromCategory_WhenNegativeIndex_ShouldNotModifyList() {
+        // given
+        List<CategorizedShoppingListItem> items = new ArrayList<>();
+        items.add(CategorizedShoppingListItem.builder().name("Marchewka").build());
+        sampleShoppingList.getItems().put(SAMPLE_CATEGORY, items);
+
+        when(shoppingListRepository.findById(SAMPLE_ID))
+                .thenReturn(Optional.of(sampleShoppingList));
+
+        // when
+        shoppingListService.removeItemFromCategory(SAMPLE_ID, SAMPLE_CATEGORY, -1);
+
+        // then
+        assertThat(sampleShoppingList.getItems().get(SAMPLE_CATEGORY)).hasSize(1);
+        verify(shoppingListRepository, never()).save(any());
+    }
+
+    @Test
+    void removeItemFromCategory_WhenRemovingLastItem_ShouldRemoveCategory() {
+        // given
+        List<CategorizedShoppingListItem> items = new ArrayList<>();
+        items.add(CategorizedShoppingListItem.builder().name("Marchewka").build());
+        sampleShoppingList.getItems().put(SAMPLE_CATEGORY, items);
+
+        when(shoppingListRepository.findById(SAMPLE_ID))
+                .thenReturn(Optional.of(sampleShoppingList));
+
+        // when
+        shoppingListService.removeItemFromCategory(SAMPLE_ID, SAMPLE_CATEGORY, 0);
+
+        // then
+        assertThat(sampleShoppingList.getItems()).doesNotContainKey(SAMPLE_CATEGORY);
+        verify(shoppingListRepository).save(sampleShoppingList);
+    }
+
+    @Test
+    void removeItemFromCategory_WhenRemovingItemButCategoryHasMore_ShouldKeepCategory() {
+        // given
+        List<CategorizedShoppingListItem> items = new ArrayList<>();
+        items.add(CategorizedShoppingListItem.builder().name("Marchewka").build());
+        items.add(CategorizedShoppingListItem.builder().name("Pomidor").build());
+        sampleShoppingList.getItems().put(SAMPLE_CATEGORY, items);
+
+        when(shoppingListRepository.findById(SAMPLE_ID))
+                .thenReturn(Optional.of(sampleShoppingList));
+
+        // when
+        shoppingListService.removeItemFromCategory(SAMPLE_ID, SAMPLE_CATEGORY, 0);
+
+        // then
+        assertThat(sampleShoppingList.getItems().get(SAMPLE_CATEGORY))
+                .hasSize(1)
+                .extracting(CategorizedShoppingListItem::getName)
+                .contains("Pomidor");
+        verify(shoppingListRepository).save(sampleShoppingList);
+    }
+
+    @Test
+    void updateDates_WhenExists_ShouldUpdateDatesAndReturn() {
+        // given
+        com.google.cloud.Timestamp newStartDate = com.google.cloud.Timestamp.of(
+                new Timestamp(Instant.now().plusSeconds(86400).toEpochMilli()));
+        com.google.cloud.Timestamp newEndDate = com.google.cloud.Timestamp.of(
+                new Timestamp(Instant.now().plusSeconds(172800).toEpochMilli()));
+
+        when(shoppingListRepository.findById(SAMPLE_ID))
+                .thenReturn(Optional.of(sampleShoppingList));
+
+        // when
+        ShoppingList result = shoppingListService.updateDates(SAMPLE_ID, newStartDate, newEndDate);
+
+        // then
+        assertThat(result.getStartDate()).isEqualTo(newStartDate);
+        assertThat(result.getEndDate()).isEqualTo(newEndDate);
+        verify(shoppingListRepository).save(sampleShoppingList);
+    }
+
+    @Test
+    void updateDates_WhenNotExists_ShouldThrowNotFoundException() {
+        // given
+        com.google.cloud.Timestamp newStartDate = com.google.cloud.Timestamp.of(
+                new Timestamp(Instant.now().toEpochMilli()));
+        com.google.cloud.Timestamp newEndDate = com.google.cloud.Timestamp.of(
+                new Timestamp(Instant.now().toEpochMilli()));
+
+        when(shoppingListRepository.findById(SAMPLE_ID))
+                .thenReturn(Optional.empty());
+
+        // when/then
+        assertThatThrownBy(() ->
+                shoppingListService.updateDates(SAMPLE_ID, newStartDate, newEndDate)
+        )
+                .isInstanceOf(NotFoundException.class)
+                .hasMessageContaining(SAMPLE_ID);
+    }
+
+    @Test
+    void refreshShoppingListCache_ShouldExecuteSuccessfully() {
+        // when
+        shoppingListService.refreshShoppingListCache();
+
+        // then - method should complete without exception
+        // Cache eviction is handled by Spring @CacheEvict annotation
+    }
 }

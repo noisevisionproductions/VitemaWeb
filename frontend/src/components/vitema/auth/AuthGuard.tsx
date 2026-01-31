@@ -1,22 +1,16 @@
 import React from 'react';
 import {Navigate} from 'react-router-dom';
 import {useAuth} from '../../../contexts/AuthContext';
-import {UserRole} from '../../../types/user';
+import {RoleHierarchy, UserRole} from '../../../types/user';
 
 interface AuthGuardProps {
     children: React.ReactNode;
     requiredRole?: UserRole;
 }
 
-const roleHierarchy: Record<UserRole, number> = {
-    [UserRole.USER]: 1,
-    [UserRole.ADMIN]: 2,
-    [UserRole.OWNER]: 3
-};
-
 const AuthGuard: React.FC<AuthGuardProps> = ({
                                                  children,
-                                                 requiredRole = UserRole.ADMIN
+                                                 requiredRole = UserRole.TRAINER
                                              }) => {
     const {currentUser, userData, loading} = useAuth();
 
@@ -32,8 +26,8 @@ const AuthGuard: React.FC<AuthGuardProps> = ({
         return <Navigate to="/"/>;
     }
 
-    const userRoleLevel = roleHierarchy[userData.role];
-    const requiredRoleLevel = roleHierarchy[requiredRole];
+    const userRoleLevel = RoleHierarchy[userData.role];
+    const requiredRoleLevel = RoleHierarchy[requiredRole];
 
     if (userRoleLevel < requiredRoleLevel) {
         return <Navigate to="/unauthorized"/>;

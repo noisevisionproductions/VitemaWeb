@@ -21,4 +21,6 @@ public class RecipeResponse {
     private List<String> photos;
     private NutritionalValuesResponse nutritionalValues;
     private String parentRecipeId;
+    private boolean isPublic;
+    private boolean isMine;
 }

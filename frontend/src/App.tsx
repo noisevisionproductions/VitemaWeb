@@ -9,7 +9,7 @@ import {ToastProvider} from "./contexts/ToastContext";
 import LandingLayout from "./components/landing/layout/LandingLayout";
 import Landing from "./pages/Landing";
 import About from "./pages/About";
-import Login from "./pages/Login";
+import AuthPage from "./pages/AuthPage";
 import Unsubscribe from "./pages/newsletter/Unsubscribe";
 import VerifyEmail from "./pages/newsletter/VerifyEmail";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -102,8 +102,8 @@ function App() {
                                         </LandingLayout>
                                     }/>
 
-                                    {/* Auth routes */}
-                                    <Route path="/login" element={<Login/>}/>
+                                    {/* AuthPage routes */}
+                                    <Route path="/login" element={<AuthPage/>}/>
                                     <Route path="/unauthorized" element={<Unauthorized/>}/>
                                     <Route path="/error" element={<ErrorPage/>}/>
 
@@ -111,7 +111,7 @@ function App() {
                                     <Route
                                         path="/dashboard/*"
                                         element={
-                                            <ProtectedRoute requiredRole={UserRole.ADMIN}>
+                                            <ProtectedRoute requiredRole={UserRole.TRAINER}>
                                                 <SettingsProvider>
                                                     <SuggestedCategoriesProvider>
                                                         <ProductCategoriesProvider>

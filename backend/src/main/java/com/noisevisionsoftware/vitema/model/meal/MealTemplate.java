@@ -21,7 +21,7 @@ public class MealTemplate {
     private NutritionalValues nutritionalValues;
     private List<String> photos;
     private List<MealIngredient> ingredients;
-    private String mealType;
+    private MealType mealType;
     private String category;
     private String createdBy;
     private Timestamp createdAt;

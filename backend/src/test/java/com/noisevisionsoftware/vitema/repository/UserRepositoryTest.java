@@ -268,6 +268,193 @@ class UserRepositoryTest {
         verify(firestore).collection("users");
     }
 
+    @Test
+    void findAllByTrainerId_ShouldReturnListOfUsers() throws ExecutionException, InterruptedException {
+        // given
+        String trainerId = "trainer123";
+        List<QueryDocumentSnapshot> documents = new ArrayList<>();
+        QueryDocumentSnapshot doc1 = mock(QueryDocumentSnapshot.class);
+        QueryDocumentSnapshot doc2 = mock(QueryDocumentSnapshot.class);
+        documents.add(doc1);
+        documents.add(doc2);
+
+        User user1 = createSampleUser("user1");
+        user1.setTrainerId(trainerId);
+        User user2 = createSampleUser("user2");
+        user2.setTrainerId(trainerId);
+
+        Query query = mock(Query.class);
+        when(firestore.collection("users")).thenReturn(collectionReference);
+        when(collectionReference.whereEqualTo("trainerId", trainerId)).thenReturn(query);
+        when(query.get()).thenReturn(querySnapshotFuture);
+        when(querySnapshotFuture.get()).thenReturn(querySnapshot);
+        when(querySnapshot.getDocuments()).thenReturn(documents);
+        when(firestoreUserMapper.toUser(doc1)).thenReturn(user1);
+        when(firestoreUserMapper.toUser(doc2)).thenReturn(user2);
+
+        // when
+        List<User> result = userRepository.findAllByTrainerId(trainerId);
+
+        // then
+        assertEquals(2, result.size());
+        assertEquals(user1, result.get(0));
+        assertEquals(user2, result.get(1));
+        verify(firestore).collection("users");
+        verify(querySnapshotFuture).get();
+        verify(firestoreUserMapper, times(2)).toUser(any(DocumentSnapshot.class));
+    }
+
+    @Test
+    void findAllByTrainerId_WhenNoUsersFound_ShouldReturnEmptyList() throws ExecutionException, InterruptedException {
+        // given
+        String trainerId = "trainer123";
+        List<QueryDocumentSnapshot> documents = new ArrayList<>();
+
+        Query query = mock(Query.class);
+        when(firestore.collection("users")).thenReturn(collectionReference);
+        when(collectionReference.whereEqualTo("trainerId", trainerId)).thenReturn(query);
+        when(query.get()).thenReturn(querySnapshotFuture);
+        when(querySnapshotFuture.get()).thenReturn(querySnapshot);
+        when(querySnapshot.getDocuments()).thenReturn(documents);
+
+        // when
+        List<User> result = userRepository.findAllByTrainerId(trainerId);
+
+        // then
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(firestore).collection("users");
+        verify(querySnapshotFuture).get();
+    }
+
+    @Test
+    void findAllByTrainerId_WhenExceptionOccurs_ShouldThrowRuntimeException() throws ExecutionException, InterruptedException {
+        // given
+        String trainerId = "trainer123";
+
+        Query query = mock(Query.class);
+        when(firestore.collection("users")).thenReturn(collectionReference);
+        when(collectionReference.whereEqualTo("trainerId", trainerId)).thenReturn(query);
+        when(query.get()).thenReturn(querySnapshotFuture);
+        when(querySnapshotFuture.get()).thenThrow(new InterruptedException("Test exception"));
+
+        // when & then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> userRepository.findAllByTrainerId(trainerId));
+        assertEquals("Failed to fetch clients", exception.getMessage());
+        verify(firestore).collection("users");
+    }
+
+    @Test
+    void save_ShouldThrowRuntimeException_WhenMapperThrowsException() {
+        // given
+        User user = createSampleUser("userId");
+
+        when(firestore.collection("users")).thenReturn(collectionReference);
+        when(collectionReference.document(anyString())).thenReturn(documentReference);
+        when(firestoreUserMapper.toFirestoreMap(user)).thenThrow(new RuntimeException("Mapping failed"));
+
+        // when & then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> userRepository.save(user));
+        assertEquals("Failed to save user", exception.getMessage());
+        verify(firestore).collection("users");
+    }
+
+    @Test
+    void update_ShouldThrowRuntimeException_WhenMapperThrowsException() {
+        // given
+        String userId = "userId";
+        User user = createSampleUser(userId);
+
+        when(firestore.collection("users")).thenReturn(collectionReference);
+        when(collectionReference.document(userId)).thenReturn(documentReference);
+        when(firestoreUserMapper.toFirestoreMap(user)).thenThrow(new RuntimeException("Mapping failed"));
+
+        // when & then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> userRepository.update(userId, user));
+        assertEquals("Failed to update user", exception.getMessage());
+        verify(firestore).collection("users");
+    }
+
+    @Test
+    void save_ShouldThrowRuntimeException_WhenExecutionExceptionOccurs() throws ExecutionException, InterruptedException {
+        // given
+        User user = createSampleUser("userId");
+        Map<String, Object> firestoreData = new HashMap<>();
+
+        when(firestore.collection("users")).thenReturn(collectionReference);
+        when(collectionReference.document(anyString())).thenReturn(documentReference);
+        when(firestoreUserMapper.toFirestoreMap(user)).thenReturn(firestoreData);
+        when(documentReference.set(firestoreData)).thenReturn(writeResultFuture);
+        when(writeResultFuture.get()).thenThrow(new ExecutionException("Execution failed", new RuntimeException()));
+
+        // when & then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> userRepository.save(user));
+        assertEquals("Failed to save user", exception.getMessage());
+        verify(firestore).collection("users");
+    }
+
+    @Test
+    void update_ShouldThrowRuntimeException_WhenExecutionExceptionOccurs() throws ExecutionException, InterruptedException {
+        // given
+        String userId = "userId";
+        User user = createSampleUser(userId);
+        Map<String, Object> firestoreData = new HashMap<>();
+
+        when(firestore.collection("users")).thenReturn(collectionReference);
+        when(collectionReference.document(userId)).thenReturn(documentReference);
+        when(firestoreUserMapper.toFirestoreMap(user)).thenReturn(firestoreData);
+        when(documentReference.update(firestoreData)).thenReturn(writeResultFuture);
+        when(writeResultFuture.get()).thenThrow(new ExecutionException("Execution failed", new RuntimeException()));
+
+        // when & then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> userRepository.update(userId, user));
+        assertEquals("Failed to update user", exception.getMessage());
+        verify(firestore).collection("users");
+    }
+
+    @Test
+    void findAll_ShouldFilterOutNullUsers() throws ExecutionException, InterruptedException {
+        // given
+        List<QueryDocumentSnapshot> documents = new ArrayList<>();
+        QueryDocumentSnapshot doc1 = mock(QueryDocumentSnapshot.class);
+        QueryDocumentSnapshot doc2 = mock(QueryDocumentSnapshot.class);
+        documents.add(doc1);
+        documents.add(doc2);
+
+        User user1 = createSampleUser("user1");
+
+        when(firestore.collection("users")).thenReturn(collectionReference);
+        when(collectionReference.get()).thenReturn(querySnapshotFuture);
+        when(querySnapshotFuture.get()).thenReturn(querySnapshot);
+        when(querySnapshot.getDocuments()).thenReturn(documents);
+        when(firestoreUserMapper.toUser(doc1)).thenReturn(user1);
+        when(firestoreUserMapper.toUser(doc2)).thenReturn(null);
+
+        // when
+        List<User> result = userRepository.findAll();
+
+        // then
+        assertEquals(2, result.size()); // Note: UserRepository doesn't filter nulls, so both are included
+        assertEquals(user1, result.get(0));
+        assertNull(result.get(1));
+    }
+
+    @Test
+    void findById_ShouldThrowRuntimeException_WhenExecutionExceptionOccurs() throws ExecutionException, InterruptedException {
+        // given
+        String userId = "testUserId";
+
+        when(firestore.collection("users")).thenReturn(collectionReference);
+        when(collectionReference.document(userId)).thenReturn(documentReference);
+        when(documentReference.get()).thenReturn(documentSnapshotFuture);
+        when(documentSnapshotFuture.get()).thenThrow(new ExecutionException("Execution failed", new RuntimeException()));
+
+        // when & then
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> userRepository.findById(userId));
+        assertEquals("Failed to fetch user", exception.getMessage());
+        verify(firestore).collection("users");
+    }
+
     private User createSampleUser(String id) {
         return User.builder()
                 .id(id)

@@ -1,10 +1,9 @@
-package com.noisevisionsoftware.vitema.service;
+package com.noisevisionsoftware.vitema.service.firebase;
 
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.Storage;
-import com.noisevisionsoftware.vitema.service.firebase.FileStorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

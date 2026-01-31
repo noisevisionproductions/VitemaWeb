@@ -43,6 +43,22 @@ public class UserRepository {
         }
     }
 
+    public List<User> findAllByTrainerId(String trainerId) {
+        try {
+            QuerySnapshot snapshot = firestore.collection("users")
+                    .whereEqualTo("trainerId", trainerId)
+                    .get()
+                    .get();
+
+            return snapshot.getDocuments().stream()
+                    .map(firestoreUserMapper::toUser)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("Failed to fetch clients for trainer: {}", trainerId, e);
+            throw new RuntimeException("Failed to fetch clients", e);
+        }
+    }
+
     public User save(User user) {
         try {
             DocumentReference docRef;

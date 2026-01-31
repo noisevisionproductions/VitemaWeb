@@ -1,8 +1,7 @@
-package com.noisevisionsoftware.vitema.service;
+package com.noisevisionsoftware.vitema.service.firebase;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
-import com.noisevisionsoftware.vitema.service.firebase.FirestoreService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

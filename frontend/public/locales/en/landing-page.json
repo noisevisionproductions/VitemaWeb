@@ -300,17 +300,28 @@
     "backToHome": "Back to Home",
     "welcomeTitle": "Dietitian Panel",
     "welcomeGreeting": "Welcome to Vitema!",
+    "registerTitle": "Join Vitema Trainers",
+    "registerGreeting": "Build your brand, manage clients, and save time with diet automation.",
     "featureDietManagement": "Comprehensive diet management",
     "loginTitle": "Log in to the panel",
+    "createAccountTitle": "Create trainer account",
+    "loginTab": "Login",
+    "registerTab": "Register",
     "noAccess": "Don't have access?",
+    "alreadyHaveAccount": "Already have an account?",
+    "signInLink": "Log in",
+    "signUpLink": "Sign up",
     "contactAdmin": "Contact support",
     "form": {
       "emailLabel": "Email",
       "emailPlaceholder": "your@email.com",
       "passwordLabel": "Password",
-      "submit": "Log in",
-      "loading": "Logging in...",
-      "error": "Invalid email or password"
+      "submit": "Log in to your trainer account",
+      "registerButton": "Register your trainer account",
+      "nicknamePlaceholder": "e.g. Coach John Doe",
+      "loading": "Processing...",
+      "error": "Invalid email or password",
+      "nicknameLabel": "Trainer / Company name"
     }
   }
 }

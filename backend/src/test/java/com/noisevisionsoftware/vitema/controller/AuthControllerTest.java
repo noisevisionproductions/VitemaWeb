@@ -1,7 +1,9 @@
 package com.noisevisionsoftware.vitema.controller;
 
-import com.noisevisionsoftware.vitema.dto.request.LoginRequest;
+import com.noisevisionsoftware.vitema.dto.request.auth.LoginRequest;
+import com.noisevisionsoftware.vitema.dto.request.auth.RegisterRequest;
 import com.noisevisionsoftware.vitema.dto.response.ErrorResponse;
+import com.noisevisionsoftware.vitema.dto.response.MessageResponse;
 import com.noisevisionsoftware.vitema.security.model.FirebaseUser;
 import com.noisevisionsoftware.vitema.service.auth.AuthService;
 import org.junit.jupiter.api.BeforeEach;
@@ -300,5 +302,106 @@ class AuthControllerTest {
         assertEquals("Invalid authorization header", errorResponse.getMessage());
 
         verifyNoInteractions(authService);
+    }
+
+    @Test
+    void registerTrainer_WithValidRequest_ShouldReturnOk() {
+        // Arrange
+        RegisterRequest registerRequest = new RegisterRequest();
+        registerRequest.setEmail("trainer@example.com");
+        registerRequest.setPassword("password123");
+        registerRequest.setNickname("TrainerNick");
+
+        doNothing().when(authService).registerTrainer(registerRequest);
+
+        // Act
+        ResponseEntity<?> response = authController.registerTrainer(registerRequest);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertInstanceOf(MessageResponse.class, response.getBody());
+
+        MessageResponse messageResponse = (MessageResponse) response.getBody();
+        assertEquals("Trener zarejestrowany pomyślnie", messageResponse.getMessage());
+
+        verify(authService).registerTrainer(registerRequest);
+    }
+
+    @Test
+    void registerTrainer_WhenServiceThrowsException_ShouldReturnBadRequest() {
+        // Arrange
+        RegisterRequest registerRequest = new RegisterRequest();
+        registerRequest.setEmail("trainer@example.com");
+        registerRequest.setPassword("password123");
+        registerRequest.setNickname("TrainerNick");
+
+        String errorMessage = "Rejestracja nie powiodła się: Email already exists";
+        doThrow(new RuntimeException(errorMessage))
+                .when(authService).registerTrainer(registerRequest);
+
+        // Act
+        ResponseEntity<?> response = authController.registerTrainer(registerRequest);
+
+        // Assert
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertInstanceOf(ErrorResponse.class, response.getBody());
+
+        ErrorResponse errorResponse = (ErrorResponse) response.getBody();
+        assertEquals(errorMessage, errorResponse.getMessage());
+
+        verify(authService).registerTrainer(registerRequest);
+    }
+
+    @Test
+    void registerTrainer_WhenServiceThrowsExceptionWithNullMessage_ShouldReturnBadRequest() {
+        // Arrange
+        RegisterRequest registerRequest = new RegisterRequest();
+        registerRequest.setEmail("trainer@example.com");
+        registerRequest.setPassword("password123");
+        registerRequest.setNickname("TrainerNick");
+
+        doThrow(new RuntimeException())
+                .when(authService).registerTrainer(registerRequest);
+
+        // Act
+        ResponseEntity<?> response = authController.registerTrainer(registerRequest);
+
+        // Assert
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertInstanceOf(ErrorResponse.class, response.getBody());
+
+        ErrorResponse errorResponse = (ErrorResponse) response.getBody();
+        assertNull(errorResponse.getMessage());
+
+        verify(authService).registerTrainer(registerRequest);
+    }
+
+    @Test
+    void registerTrainer_WhenServiceThrowsIllegalArgumentException_ShouldReturnBadRequest() {
+        // Arrange
+        RegisterRequest registerRequest = new RegisterRequest();
+        registerRequest.setEmail("invalid-email");
+        registerRequest.setPassword("short");
+        registerRequest.setNickname("");
+
+        String errorMessage = "Invalid registration data";
+        doThrow(new IllegalArgumentException(errorMessage))
+                .when(authService).registerTrainer(registerRequest);
+
+        // Act
+        ResponseEntity<?> response = authController.registerTrainer(registerRequest);
+
+        // Assert
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertInstanceOf(ErrorResponse.class, response.getBody());
+
+        ErrorResponse errorResponse = (ErrorResponse) response.getBody();
+        assertEquals(errorMessage, errorResponse.getMessage());
+
+        verify(authService).registerTrainer(registerRequest);
     }
 }

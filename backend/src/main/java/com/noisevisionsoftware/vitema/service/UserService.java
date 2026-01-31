@@ -4,12 +4,16 @@ import com.noisevisionsoftware.vitema.exception.NotFoundException;
 import com.noisevisionsoftware.vitema.model.user.User;
 import com.noisevisionsoftware.vitema.model.user.UserRole;
 import com.noisevisionsoftware.vitema.repository.UserRepository;
+import com.noisevisionsoftware.vitema.security.model.FirebaseUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -23,10 +27,46 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    public List<User> getClientsForTrainer(String loggedInTrainerId) {
+        return userRepository.findAllByTrainerId(loggedInTrainerId);
+    }
+
+    public List<User> getUsersBasedOnRole(String requesterId, UserRole role) {
+        if (role == UserRole.ADMIN || role == UserRole.OWNER) {
+            return userRepository.findAll();
+        } else if (role == UserRole.TRAINER) {
+            return userRepository.findAllByTrainerId(requesterId);
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    public User createOrUpdateClient(String trainerId, User clientData) {
+        clientData.setTrainerId(trainerId);
+        return userRepository.save(clientData);
+    }
+
     @Cacheable(value = "usersCache", key = "#id")
     public User getUserById(String id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found with id: " + id));
+    }
+
+    public String getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof FirebaseUser) {
+            return ((FirebaseUser) authentication.getPrincipal()).getUid();
+        }
+        return null;
+    }
+
+    public boolean isCurrentUserAdminOrOwner() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof FirebaseUser) {
+            String role = ((FirebaseUser) authentication.getPrincipal()).getRole();
+            return UserRole.ADMIN.name().equals(role) || UserRole.OWNER.name().equals(role);
+        }
+        return false;
     }
 
     @Cacheable(value = "userEmailCache", key = "#userId")

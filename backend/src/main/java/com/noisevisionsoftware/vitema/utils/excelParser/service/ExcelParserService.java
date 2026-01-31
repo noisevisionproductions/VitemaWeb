@@ -100,6 +100,7 @@ public class ExcelParserService {
             meal.setInstructions(instructions);
 
             // Parsowanie składników-trzecia kolumna po pominiętych
+            List<ParsedProduct> mealIngredients = new ArrayList<>();
             if (row.size() > skipColumnsCount + 2 && !row.get(skipColumnsCount + 2).trim().isEmpty()) {
                 List<String> shoppingItems = splitIngredientsList(row.get(skipColumnsCount + 2));
                 for (String item : shoppingItems) {
@@ -107,6 +108,9 @@ public class ExcelParserService {
                     if (!item.isEmpty()) {
                         try {
                             ParsedProduct product = parseProduct(item);
+                            
+                            // Dodawanie do składników posiłku
+                            mealIngredients.add(product);
 
                             // Dodawanie bezpośrednio do listy zakupów
                             String key = product.getOriginal().toLowerCase().trim();
@@ -128,6 +132,9 @@ public class ExcelParserService {
                                     .hasCustomUnit(false)
                                     .build();
 
+                            // Dodawanie do składników posiłku
+                            mealIngredients.add(fallbackProduct);
+
                             // Dodawanie do listy zakupów
                             String key = item.toLowerCase().trim();
                             uniqueItems.put(key, fallbackProduct);
@@ -148,7 +155,7 @@ public class ExcelParserService {
             meal.setMealType(MealType.BREAKFAST);
             meal.setTime("");
 
-            meal.setIngredients(new ArrayList<>());
+            meal.setIngredients(mealIngredients);
 
             meals.add(meal);
         }
