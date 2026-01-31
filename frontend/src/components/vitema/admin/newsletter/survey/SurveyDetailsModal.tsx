@@ -23,28 +23,33 @@ const SurveyDetailsModal: React.FC<SurveyDetailsModalProps> = ({
     // Definicja pytań ankiety-musi odpowiadać strukturze w dietitiansurvey.tsx
     const questions: SurveyQuestion[] = [
         {
-            id: 'dietSoftwareExperience',
-            question: 'Czy korzystałeś/aś wcześniej z oprogramowania do układania diet?',
+            id: 'dietExperience',
+            question: 'Jak obecnie rozwiązujesz kwestię diety?',
             type: 'radio'
         },
         {
             id: 'currentTools',
-            question: 'Z jakich narzędzi aktualnie korzystasz przy układaniu diet?',
+            question: 'Narzędzia pracy',
             type: 'checkbox'
         },
         {
             id: 'clientsPerMonth',
-            question: 'Ilu klientów przeciętnie prowadzisz miesięcznie?',
+            question: 'Liczba podopiecznych',
             type: 'radio',
         },
         {
-            id: 'softwareKeyFeatures',
-            question: 'Które funkcje w aplikacji do układania diet są dla Ciebie najważniejsze?',
+            id: 'biggestPain',
+            question: 'Największy problem',
+            type: 'radio'
+        },
+        {
+            id: 'featuresPriority',
+            question: 'Co przekonałoby do zmiany?',
             type: 'checkbox'
         },
         {
             id: 'additionalInfo',
-            question: 'Czy masz jakieś pytania, dodatkowe informacje lub wymagania?',
+            question: 'Dodatkowe informacje',
             type: 'text'
         }
     ];

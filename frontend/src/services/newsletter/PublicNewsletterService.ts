@@ -1,4 +1,4 @@
-import { NewsletterFormData } from "../../types/newsletter";
+import {NewsletterFormData} from "../../types/newsletter";
 import api from "../../config/axios";
 
 interface ApiResponse {

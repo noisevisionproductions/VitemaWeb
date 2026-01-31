@@ -25,63 +25,73 @@ const DietitianSurvey: React.FC<SurveyProps> = ({
 
     const questions: SurveyQuestion[] = [
         {
-            id: 'dietSoftwareExperience',
-            question: 'Czy korzystałeś/aś wcześniej z oprogramowania do układania diet?',
+            id: 'dietExperience',
+            question: 'Jak obecnie rozwiązujesz kwestię diety u swoich podopiecznych?',
             type: 'radio',
             options: [
-                'Tak, korzystam obecnie',
-                'Tak, korzystałem/am w przeszłości',
-                'Nie, nigdy nie korzystałem/am'
+                'Układam jadłospisy samodzielnie',
+                'Wysyłam tylko ogólne zalecenia / makro',
+                'Współpracuję z dietetykiem',
+                'Nie oferuję wsparcia żywieniowego'
             ],
             required: true
         },
         {
             id: 'currentTools',
-            question: 'Z jakich narzędzi aktualnie korzystasz przy układaniu diet?',
+            question: 'Z jakich narzędzi korzystasz do prowadzenia podopiecznych?',
             type: 'checkbox',
             options: [
-                'Excel/Arkusze kalkulacyjne',
-                'Dedykowane oprogramowanie dietetyczne',
-                'Aplikacje mobilne',
-                'Kalkulatory online',
-                'Własne szablony',
+                'Excel / Google Sheets',
+                'Aplikacje treningowe',
+                'PDF / Word / Canva',
+                'Email / WhatsApp',
                 'Papier i długopis',
-                'Inne'
+                'Dedykowane programy dietetyczne'
             ],
             required: true
         },
         {
             id: 'clientsPerMonth',
-            question: 'Ilu klientów przeciętnie prowadzisz miesięcznie?',
+            question: 'Ilu podopiecznych prowadzisz miesięcznie?',
             type: 'radio',
             options: [
                 '1-5',
-                '6-10',
-                '11-20',
-                '21-50',
-                'Powyżej 50'
+                '6-15',
+                '16-40',
+                '40+',
             ],
             required: true
         },
         {
-            id: 'softwareKeyFeatures',
-            question: 'Które funkcje w aplikacji do układania diet są dla Ciebie najważniejsze?',
+            id: 'biggestPain',
+            question: 'Co jest Twoim największym problemem w obecnym modelu pracy?',
+            type: 'radio',
+            options: [
+                'Strata czasu na układanie/kopiowanie diet',
+                'Brak trzymania diety przez podopiecznych',
+                'Chaos w komunikacji (SMS/Mail/Messenger)',
+                'Trudność w rozliczaniu płatności',
+                'Brak profesjonalnego wizerunku (wysyłanie PDF)',
+                'Inny'
+            ],
+            required: true
+        },
+        {
+            id: 'featuresPriority',
+            question: 'Co przekonałoby Cię do zmiany narzędzia na Vitema?',
             type: 'checkbox',
             options: [
-                'Automatyczne obliczanie makroskładników',
-                'Baza produktów z wartościami odżywczymi',
-                'Szablony diet',
-                'Komunikacja z klientami',
-                'Raportowanie postępów klientów',
-                'Generowanie raportów i faktur',
-                'Gotową bazę przepisów',
-                'Inne'
+                'Gotowa baza szablonów diet (redukcja/masa)',
+                'Aplikacja mobilna dla klienta z listą zakupów',
+                'Szybka edycja diety na telefonie',
+                'Możliwość dodania własnego logo',
+                'Automatyczne wyliczanie makro'
             ],
             required: true
         },
         {
             id: 'additionalInfo',
-            question: 'Czy masz jakieś pytania, dodatkowe informacje lub wymagania?',
+            question: 'Czy masz jakieś pytania lub sugestie do twórców? (opcjonalne)',
             type: 'text',
             required: false
         }
@@ -188,7 +198,7 @@ const DietitianSurvey: React.FC<SurveyProps> = ({
                 <h2 className="text-2xl font-semibold text-text-primary mb-2">Pomóż nam ulepszyć Vitema</h2>
                 <p className="text-text-secondary">
                     Dziękujemy za potwierdzenie adresu email. Twoje odpowiedzi na poniższe pytania pomogą nam lepiej
-                    zrozumieć potrzeby dietetyków.
+                    zrozumieć potrzeby trenerów.
                 </p>
 
                 <div className="mt-4 mb-2 bg-gray-200 rounded-full h-2.5">

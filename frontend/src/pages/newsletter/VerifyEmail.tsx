@@ -59,7 +59,8 @@ const VerifyEmail = () => {
                         });
                     }
 
-                    if (result.subscriberRole === 'DIETITIAN') {
+                    const role = result.subscriberRole;
+                    if (role === 'DIETITIAN' || role === 'FREELANCER' || role === 'STUDIO') {
                         setShowSurvey(true);
                     }
                 }
@@ -106,7 +107,8 @@ const VerifyEmail = () => {
                                     {verificationDetails && (
                                         <div className="mt-1 text-sm text-green-700">
                                             <p>Email <strong>{verificationDetails.email}</strong> został
-                                                zweryfikowany {verificationDetails.verifiedAt ? formatTimestamp(verificationDetails.verifiedAt) : 'teraz'}.</p>
+                                                zweryfikowany {verificationDetails.verifiedAt ? formatTimestamp(verificationDetails.verifiedAt) : 'teraz'}.
+                                            </p>
                                         </div>
                                     )}
                                 </div>
