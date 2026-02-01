@@ -68,7 +68,7 @@ class ValidationCacheServiceTest {
         // then
         assertNotNull(key1);
         assertNotNull(key2);
-        assertNotEquals(key1, key2); // klucze powinny być różne dla różnych żądań
+        assertNotEquals(key1, key2);
     }
 
     @Test
@@ -137,7 +137,6 @@ class ValidationCacheServiceTest {
         ValidationResponse response2 = new ValidationResponse();
         response2.setValid(true);
 
-        // Dostęp do prywatnych pól
         Field validationCacheField = ValidationCacheService.class.getDeclaredField("validationCache");
         validationCacheField.setAccessible(true);
         Map<String, ValidationResponse> validationCache = (Map<String, ValidationResponse>) validationCacheField.get(cacheService);
@@ -146,36 +145,33 @@ class ValidationCacheServiceTest {
         cacheTimestampsField.setAccessible(true);
         Map<String, Long> cacheTimestamps = (Map<String, Long>) cacheTimestampsField.get(cacheService);
 
-        // Ustaw jeden wpis jako stary
         validationCache.put(key1, response1);
         validationCache.put(key2, response2);
 
         long now = System.currentTimeMillis();
-        long ttl = 10 * 60 * 1000; // 10 minut w milisekundach
+        long ttl = 10 * 60 * 1000;
 
-        cacheTimestamps.put(key1, now - ttl - 1000); // Stary wpis (przekroczony TTL)
-        cacheTimestamps.put(key2, now); // Nowy wpis
+        cacheTimestamps.put(key1, now - ttl - 1000);
+        cacheTimestamps.put(key2, now);
 
         // when
-        cacheService.getFromCache("any-key"); // To wywoła cleanExpiredCacheEntries()
+        cacheService.getFromCache("any-key");
 
         // then
-        assertFalse(validationCache.containsKey(key1)); // Stary wpis powinien być usunięty
-        assertTrue(validationCache.containsKey(key2)); // Nowy wpis powinien pozostać
+        assertFalse(validationCache.containsKey(key1));
+        assertTrue(validationCache.containsKey(key2));
     }
 
     @Test
     @DisplayName("Powinien usuwać najstarsze wpisy gdy cache jest przepełniony")
     void cleanExpiredCacheEntries_shouldRemoveOldestEntriesWhenCacheIsFull() throws Exception {
         // given
-        // Dostęp do prywatnych pól
         Field validationCacheField = ValidationCacheService.class.getDeclaredField("validationCache");
         validationCacheField.setAccessible(true);
 
         Field cacheTimestampsField = ValidationCacheService.class.getDeclaredField("cacheTimestamps");
         cacheTimestampsField.setAccessible(true);
 
-        // Utworzenie nowej instancji z małymi mapami dla testów
         ValidationCacheService testCacheService = new ValidationCacheService();
         Map<String, ValidationResponse> validationCache = new ConcurrentHashMap<>();
         Map<String, Long> cacheTimestamps = new ConcurrentHashMap<>();
@@ -183,7 +179,6 @@ class ValidationCacheServiceTest {
         validationCacheField.set(testCacheService, validationCache);
         cacheTimestampsField.set(testCacheService, cacheTimestamps);
 
-        // Dodajemy 110 wpisów (przekraczamy limit 100)
         long now = System.currentTimeMillis();
         ValidationResponse validResponse = new ValidationResponse();
         validResponse.setValid(true);
@@ -191,14 +186,13 @@ class ValidationCacheServiceTest {
         for (int i = 0; i < 110; i++) {
             String key = "key-" + i;
             validationCache.put(key, validResponse);
-            cacheTimestamps.put(key, now - (i * 1000)); // Każdy kolejny wpis jest starszy
+            cacheTimestamps.put(key, now - (i * 1000));
         }
 
         // when
-        testCacheService.getFromCache("any-key"); // To wywoła cleanExpiredCacheEntries()
+        testCacheService.getFromCache("any-key");
 
         // then
-        // Powinno zostać usunięte co najmniej 20% najstarszych wpisów (22 wpisy)
         assertTrue(validationCache.size() <= 88);
 
         for (int i = 100; i < 110; i++) {
@@ -221,11 +215,11 @@ class ValidationCacheServiceTest {
 
             // then
             assertNotNull(result);
-            assertTrue(result.contains("test.xlsx")); // Powinien zawierać nazwę pliku
-            assertTrue(result.contains(String.valueOf(mockFile.getSize()))); // Powinien zawierać rozmiar pliku
-            assertTrue(result.contains("3")); // Powinien zawierać liczbę posiłków
-            assertTrue(result.contains("7")); // Powinien zawierać długość diety
-            assertTrue(result.contains("2023-10-15")); // Powinien zawierać datę rozpoczęcia
+            assertTrue(result.contains("test.xlsx"));
+            assertTrue(result.contains(String.valueOf(mockFile.getSize())));
+            assertTrue(result.contains("3"));
+            assertTrue(result.contains("7"));
+            assertTrue(result.contains("2023-10-15"));
         }
     }
 }

@@ -52,7 +52,6 @@ class FileStorageServiceTest {
     @Test
     void uploadFile_SuccessfulUpload_ReturnsMediaLink() throws IOException {
         // Arrange
-        Storage.BucketGetOption bucketGetOption = Storage.BucketGetOption.fields();
         Bucket mockBucket = mock(Bucket.class);
         when(storage.get(eq(testBucketName), any(Storage.BucketGetOption.class))).thenReturn(mockBucket);
         when(mockBucket.exists()).thenReturn(true);

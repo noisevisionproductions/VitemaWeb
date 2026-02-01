@@ -59,13 +59,12 @@ class AdminEmailServiceTest {
     @Captor
     private ArgumentCaptor<String> contentCaptor;
 
-    private NewsletterSubscriber testSubscriber;
     private ExternalRecipient testExternalRecipient;
     private List<NewsletterSubscriber> activeSubscribers;
 
     @BeforeEach
     void setUp() {
-        testSubscriber = NewsletterSubscriber.builder()
+        NewsletterSubscriber testSubscriber = NewsletterSubscriber.builder()
                 .id(1L)
                 .email("subscriber@example.com")
                 .role(SubscriberRole.DIETITIAN)

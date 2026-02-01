@@ -47,7 +47,6 @@ class ExcelParserServiceTest {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("DietTemplate");
 
-        // Wiersz nagłówkowy
         Row headerRow = sheet.createRow(0);
         headerRow.createCell(0).setCellValue("Lp.");
         headerRow.createCell(1).setCellValue("Nazwa posiłku");
@@ -55,8 +54,6 @@ class ExcelParserServiceTest {
         headerRow.createCell(3).setCellValue("Składniki");
         headerRow.createCell(4).setCellValue("Wartości odżywcze (kcal,białko,tłuszcz,węglowodany)");
 
-        // Dane posiłków
-        // Posiłek 1
         Row mealRow1 = sheet.createRow(1);
         mealRow1.createCell(0).setCellValue(1);
         mealRow1.createCell(1).setCellValue("Owsianka z owocami");
@@ -64,7 +61,6 @@ class ExcelParserServiceTest {
         mealRow1.createCell(3).setCellValue("50g płatki owsiane, 200ml mleko 2%, 1 banan");
         mealRow1.createCell(4).setCellValue("350,15,7,60");
 
-        // Posiłek 2
         Row mealRow2 = sheet.createRow(2);
         mealRow2.createCell(0).setCellValue(2);
         mealRow2.createCell(1).setCellValue("Sałatka z kurczakiem");
@@ -72,15 +68,12 @@ class ExcelParserServiceTest {
         mealRow2.createCell(3).setCellValue("100g pierś z kurczaka, 50g sałata, 20g pomidor");
         mealRow2.createCell(4).setCellValue("250,30,10,5");
 
-        // Pusty wiersz
         sheet.createRow(3);
 
-        // Posiłek 3 (niepełny)
         Row mealRow3 = sheet.createRow(4);
         mealRow3.createCell(0).setCellValue(3);
         mealRow3.createCell(1).setCellValue("Koktajl proteinowy");
 
-        // Zapisanie do strumienia bajtów
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         workbook.write(bos);
         workbook.close();
@@ -97,7 +90,6 @@ class ExcelParserServiceTest {
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("DietTemplate");
 
-        // Wiersz nagłówkowy
         Row headerRow = sheet.createRow(0);
         headerRow.createCell(0).setCellValue("Lp.");
         headerRow.createCell(1).setCellValue("Nazwa posiłku");
@@ -105,8 +97,6 @@ class ExcelParserServiceTest {
         headerRow.createCell(3).setCellValue("Składniki");
         headerRow.createCell(4).setCellValue("Wartości odżywcze (kcal,białko,tłuszcz,węglowodany)");
 
-        // Dane posiłków
-        // Posiłek 1
         Row mealRow1 = sheet.createRow(1);
         mealRow1.createCell(0).setCellValue(1);
         mealRow1.createCell(1).setCellValue("Owsianka z owocami");
@@ -114,7 +104,6 @@ class ExcelParserServiceTest {
         mealRow1.createCell(3).setCellValue("50g płatki owsiane, 200ml mleko 2%, 1 banan");
         mealRow1.createCell(4).setCellValue("350,15,7,60");
 
-        // Posiłek 2
         Row mealRow2 = sheet.createRow(2);
         mealRow2.createCell(0).setCellValue(2);
         mealRow2.createCell(1).setCellValue("Sałatka z kurczakiem");
@@ -122,7 +111,6 @@ class ExcelParserServiceTest {
         mealRow2.createCell(3).setCellValue("100g pierś z kurczaka, 50g sałata, 20g pomidor");
         mealRow2.createCell(4).setCellValue("250,30,10,5");
 
-        // Zapisanie do strumienia bajtów
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         workbook.write(bos);
         workbook.close();
@@ -150,21 +138,16 @@ class ExcelParserServiceTest {
         ExcelParserService.ParsedExcelResult result3 = excelParserService.parseDietExcel(file, 0);
 
         // then
-        // Dla domyślnej wartości skipColumnsCount (1)
         assertNotNull(result1);
         assertFalse(result1.meals().isEmpty());
         assertEquals("Owsianka z owocami", result1.meals().getFirst().getName());
 
-        // Dla skipColumnsCount = 2
         assertNotNull(result2);
         assertFalse(result2.meals().isEmpty());
-        // Powinien odczytać wartość z kolumny 2 (po przeskoczeniu 2 kolumn)
         assertEquals("Ugotować płatki na mleku, dodać owoce", result2.meals().getFirst().getName());
 
-        // Dla skipColumnsCount = 0
         assertNotNull(result3);
         assertFalse(result3.meals().isEmpty());
-        // Powinien odczytać wartość z kolumny 0
         assertEquals("1", result3.meals().getFirst().getName());
     }
 
@@ -178,13 +161,12 @@ class ExcelParserServiceTest {
         ExcelParserService.ParsedExcelResult result = excelParserService.parseDietExcel(file);
 
         // then
-        assertEquals(3, result.totalMeals()); // Tylko 3 posiłki, jeden pusty wiersz został pominięty
+        assertEquals(3, result.totalMeals());
     }
 
     @Test
     @DisplayName("Powinien poprawnie parsować wartości odżywcze")
     void parseNutritionalValues_shouldCorrectlyParseNutritionalValues() throws Exception {
-        // Użycie refleksji do wywołania prywatnej metody
         java.lang.reflect.Method method = ExcelParserService.class.getDeclaredMethod("parseNutritionalValues", String.class);
         method.setAccessible(true);
 
@@ -209,16 +191,15 @@ class ExcelParserServiceTest {
         assertEquals(10.0, result2.getFat());
         assertEquals(5.0, result2.getCarbs());
 
-        assertNull(result3); // null wejściowy
-        assertNull(result4); // pusty string
-        assertNull(result5); // niepoprawny format
-        assertNull(result6); // za duża wartość
+        assertNull(result3);
+        assertNull(result4);
+        assertNull(result5);
+        assertNull(result6);
     }
 
     @Test
     @DisplayName("Powinien poprawnie parsować pojedynczą wartość odżywczą")
     void parseNutritionalValue_shouldCorrectlyParseNutritionalValue() throws Exception {
-        // Użycie refleksji do wywołania prywatnej metody
         java.lang.reflect.Method method = ExcelParserService.class.getDeclaredMethod("parseNutritionalValue", String.class);
         method.setAccessible(true);
 
@@ -232,7 +213,6 @@ class ExcelParserServiceTest {
     @Test
     @DisplayName("Powinien poprawnie walidować wartość odżywczą")
     void isValidNutritionalValue_shouldCorrectlyValidateNutritionalValue() throws Exception {
-        // Użycie refleksji do wywołania prywatnej metody
         java.lang.reflect.Method method = ExcelParserService.class.getDeclaredMethod("isValidNutritionalValue", double.class);
         method.setAccessible(true);
 
@@ -249,7 +229,6 @@ class ExcelParserServiceTest {
     @Test
     @DisplayName("Powinien poprawnie parseProduct")
     void parseProduct_shouldCorrectlyParseProduct() throws Exception {
-        // Użycie refleksji do wywołania prywatnej metody
         java.lang.reflect.Method method = ExcelParserService.class.getDeclaredMethod("parseProduct", String.class);
         method.setAccessible(true);
 
@@ -283,7 +262,6 @@ class ExcelParserServiceTest {
     @Test
     @DisplayName("Powinien obsłużyć błędy w parseProduct")
     void parseProduct_shouldHandleErrorsGracefully() throws Exception {
-        // Użycie refleksji do wywołania prywatnej metody
         java.lang.reflect.Method method = ExcelParserService.class.getDeclaredMethod("parseProduct", String.class);
         method.setAccessible(true);
 
@@ -315,7 +293,6 @@ class ExcelParserServiceTest {
         when(productParsingService.parseProduct(anyString())).thenAnswer(invocation -> {
             String ingredient = invocation.getArgument(0);
 
-            // Bardzo uproszczone parsowanie na potrzeby testu
             ParsedProduct product = ParsedProduct.builder()
                     .name(ingredient.replaceAll("\\d+[gml]+\\s*", ""))
                     .quantity(1.0)
@@ -336,16 +313,13 @@ class ExcelParserServiceTest {
         assertNotNull(result);
         assertFalse(result.meals().isEmpty());
 
-        // Sprawdzenie pierwszego posiłku
         ParsedMeal firstMeal = result.meals().getFirst();
         assertEquals("Owsianka z owocami", firstMeal.getName());
         assertEquals("Ugotować płatki na mleku, dodać owoce", firstMeal.getInstructions());
 
-        // Sprawdzenie składników
         assertNotNull(firstMeal.getIngredients());
         assertFalse(firstMeal.getIngredients().isEmpty());
 
-        // Sprawdzenie wartości odżywczych
         assertNotNull(firstMeal.getNutritionalValues());
         assertEquals(350.0, firstMeal.getNutritionalValues().getCalories());
         assertEquals(15.0, firstMeal.getNutritionalValues().getProtein());

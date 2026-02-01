@@ -49,15 +49,11 @@ class DietServiceTest {
     private static final String TEST_CLIENT_ID = "client123";
 
     private Diet testDiet;
-    private User testUser;
-    private User testTrainer;
     private User testClient;
 
     @BeforeEach
     void setUp() {
         testDiet = createTestDiet(TEST_DIET_ID, TEST_USER_ID);
-        testUser = createTestUser(TEST_USER_ID, null);
-        testTrainer = createTestUser(TEST_TRAINER_ID, null);
         testClient = createTestUser(TEST_CLIENT_ID, TEST_TRAINER_ID);
     }
 
@@ -380,7 +376,7 @@ class DietServiceTest {
             // Given
             String user1 = "user1";
             String user2 = "user2";
-            
+
             Timestamp startDate = Timestamp.ofTimeSecondsAndNanos(1646092800, 0);
             Timestamp endDate = Timestamp.ofTimeSecondsAndNanos(1646179200, 0);
             Diet diet1 = createTestDietWithDates("diet1", user1, startDate, endDate);
@@ -428,7 +424,7 @@ class DietServiceTest {
             // Given
             Day day1 = Day.builder().date(null).build();
             Day day2 = Day.builder().date(Timestamp.ofTimeSecondsAndNanos(1646092800, 0)).build();
-            
+
             Diet diet = Diet.builder()
                     .id(TEST_DIET_ID)
                     .userId(TEST_USER_ID)
@@ -702,7 +698,7 @@ class DietServiceTest {
         void givenDaysWithNullDates_When_UpdateDiet_Then_SetDates() {
             // Given
             Diet existingDiet = createTestDiet(TEST_DIET_ID, TEST_USER_ID);
-            
+
             Day dayWithoutDate = Day.builder().date(null).build();
             Diet updatedDiet = Diet.builder()
                     .id(TEST_DIET_ID)
@@ -993,7 +989,7 @@ class DietServiceTest {
         Day startDay = Day.builder()
                 .date(startDate)
                 .build();
-        
+
         Day endDay = Day.builder()
                 .date(endDate)
                 .build();

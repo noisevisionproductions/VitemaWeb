@@ -23,7 +23,6 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -75,8 +74,7 @@ class ChangelogControllerTest {
     @Test
     void getAllEntries_WithEntries_ShouldReturnOkWithList() {
         // Arrange
-        List<ChangelogEntry> entries = Arrays.asList(changelogEntry);
-        List<ChangelogEntryResponse> expectedResponses = Arrays.asList(changelogEntryResponse);
+        List<ChangelogEntry> entries = Collections.singletonList(changelogEntry);
 
         when(changelogService.getAllEntries()).thenReturn(entries);
         when(changelogMapper.toResponse(changelogEntry)).thenReturn(changelogEntryResponse);
@@ -88,8 +86,8 @@ class ChangelogControllerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).hasSize(1);
-        assertThat(response.getBody().get(0).getId()).isEqualTo("entry-123");
-        assertThat(response.getBody().get(0).getDescription()).isEqualTo("Test changelog entry");
+        assertThat(response.getBody().getFirst().getId()).isEqualTo("entry-123");
+        assertThat(response.getBody().getFirst().getDescription()).isEqualTo("Test changelog entry");
 
         verify(changelogService).getAllEntries();
         verify(changelogMapper).toResponse(changelogEntry);

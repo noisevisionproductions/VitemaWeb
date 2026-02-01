@@ -94,7 +94,6 @@ class EmailServiceTest {
         verify(mailSender).send(mimeMessageCaptor.capture());
         verify(templateEngine, times(2)).process(anyString(), contextCaptor.capture());
 
-        // Weryfikacja wywołań szablonów
         verify(templateEngine).process(eq("email/content/welcome-email-content"), any(Context.class));
         verify(templateEngine).process(eq("email/layouts/base-layout"), any(Context.class));
     }
@@ -136,7 +135,6 @@ class EmailServiceTest {
         // Assert
         verify(mailSender).send(any(MimeMessage.class));
 
-        // Weryfikacja wywołań szablonów
         verify(templateEngine).process(eq("email/content/" + templateName + "-content"), any(Context.class));
         verify(templateEngine).process(eq("email/layouts/base-layout"), any(Context.class));
     }

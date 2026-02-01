@@ -345,7 +345,7 @@ class DietRepositoryTest {
         // Assert
         assertNotNull(results);
         assertEquals(1, results.size());
-        assertEquals(diet1, results.get(0));
+        assertEquals(diet1, results.getFirst());
     }
 
     @Test
@@ -423,7 +423,7 @@ class DietRepositoryTest {
         // Assert
         assertNotNull(results);
         assertEquals(1, results.size());
-        assertEquals(diet1, results.get(0));
+        assertEquals(diet1, results.getFirst());
     }
 
     @Test
@@ -498,7 +498,7 @@ class DietRepositoryTest {
         // Assert
         assertNotNull(results);
         assertEquals(1, results.size());
-        assertEquals(diet1, results.get(0));
+        assertEquals(diet1, results.getFirst());
     }
 
     @Test

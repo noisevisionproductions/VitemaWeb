@@ -99,8 +99,7 @@ class UserControllerTest {
     @Test
     void getAllUsers_WithAdminRole_ShouldReturnAllUsers() {
         // Arrange
-        List<User> users = Arrays.asList(testUser);
-        List<UserResponse> expectedResponses = Arrays.asList(testUserResponse);
+        List<User> users = Collections.singletonList(testUser);
 
         when(authentication.getPrincipal()).thenReturn(firebaseUser);
         when(firebaseUser.getUid()).thenReturn("admin-123");
@@ -115,8 +114,8 @@ class UserControllerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).hasSize(1);
-        assertThat(response.getBody().get(0).getId()).isEqualTo(TEST_USER_ID);
-        assertThat(response.getBody().get(0).getEmail()).isEqualTo(TEST_EMAIL);
+        assertThat(response.getBody().getFirst().getId()).isEqualTo(TEST_USER_ID);
+        assertThat(response.getBody().getFirst().getEmail()).isEqualTo(TEST_EMAIL);
 
         verify(authentication).getPrincipal();
         verify(firebaseUser).getUid();
@@ -128,8 +127,7 @@ class UserControllerTest {
     @Test
     void getAllUsers_WithTrainerRole_ShouldReturnTrainerClients() {
         // Arrange
-        List<User> clients = Arrays.asList(testUser);
-        List<UserResponse> expectedResponses = Arrays.asList(testUserResponse);
+        List<User> clients = Collections.singletonList(testUser);
 
         when(authentication.getPrincipal()).thenReturn(firebaseUser);
         when(firebaseUser.getUid()).thenReturn(TEST_TRAINER_ID);
@@ -487,8 +485,7 @@ class UserControllerTest {
     @Test
     void getMyClients_WithValidTrainer_ShouldReturnOkWithClients() {
         // Arrange
-        List<User> clients = Arrays.asList(testUser);
-        List<UserResponse> expectedResponses = Arrays.asList(testUserResponse);
+        List<User> clients = Collections.singletonList(testUser);
 
         when(principal.getName()).thenReturn(TEST_TRAINER_ID);
         when(userService.getClientsForTrainer(TEST_TRAINER_ID)).thenReturn(clients);
@@ -501,7 +498,7 @@ class UserControllerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).hasSize(1);
-        assertThat(response.getBody().get(0).getId()).isEqualTo(TEST_USER_ID);
+        assertThat(response.getBody().getFirst().getId()).isEqualTo(TEST_USER_ID);
 
         verify(principal).getName();
         verify(userService).getClientsForTrainer(TEST_TRAINER_ID);

@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,8 +47,6 @@ class DietTemplateControllerTest {
         mockTemplateRequest = new DietTemplateRequest();
         mockStatsResponse = new DietTemplateStatsResponse();
     }
-
-    // GET /api/diet-templates - getAllTemplates tests
 
     @Test
     void getAllTemplates_WithValidUser_ShouldReturnOkWithTemplates() {
@@ -99,8 +96,6 @@ class DietTemplateControllerTest {
         verify(dietTemplateService).getAllTemplatesForUser(USER_ID);
     }
 
-    // GET /api/diet-templates/{id} - getTemplate tests
-
     @Test
     void getTemplate_WithValidId_ShouldReturnOkWithTemplate() {
         // Arrange
@@ -130,17 +125,15 @@ class DietTemplateControllerTest {
         verify(dietTemplateService).getTemplateById(TEMPLATE_ID);
     }
 
-    // GET /api/diet-templates/category/{category} - getTemplatesByCategory tests
-
     @Test
     void getTemplatesByCategory_WithValidCategory_ShouldReturnOkWithTemplates() {
         // Arrange
         when(authentication.getName()).thenReturn(USER_ID);
-        List<DietTemplateResponse> templates = Arrays.asList(mockTemplateResponse);
+        List<DietTemplateResponse> templates = Collections.singletonList(mockTemplateResponse);
         when(dietTemplateService.getTemplatesByCategory(CATEGORY, USER_ID)).thenReturn(templates);
 
         // Act
-        ResponseEntity<List<DietTemplateResponse>> response = 
+        ResponseEntity<List<DietTemplateResponse>> response =
                 dietTemplateController.getTemplatesByCategory(CATEGORY, authentication);
 
         // Assert
@@ -158,7 +151,7 @@ class DietTemplateControllerTest {
                 .thenReturn(Collections.emptyList());
 
         // Act
-        ResponseEntity<List<DietTemplateResponse>> response = 
+        ResponseEntity<List<DietTemplateResponse>> response =
                 dietTemplateController.getTemplatesByCategory(CATEGORY, authentication);
 
         // Assert
@@ -176,7 +169,7 @@ class DietTemplateControllerTest {
                 .thenThrow(new RuntimeException("Error"));
 
         // Act
-        ResponseEntity<List<DietTemplateResponse>> response = 
+        ResponseEntity<List<DietTemplateResponse>> response =
                 dietTemplateController.getTemplatesByCategory(CATEGORY, authentication);
 
         // Assert
@@ -184,17 +177,15 @@ class DietTemplateControllerTest {
         verify(dietTemplateService).getTemplatesByCategory(CATEGORY, USER_ID);
     }
 
-    // GET /api/diet-templates/popular - getPopularTemplates tests
-
     @Test
     void getPopularTemplates_WithDefaultLimit_ShouldReturnOkWithTemplates() {
         // Arrange
         when(authentication.getName()).thenReturn(USER_ID);
-        List<DietTemplateResponse> templates = Arrays.asList(mockTemplateResponse);
+        List<DietTemplateResponse> templates = Collections.singletonList(mockTemplateResponse);
         when(dietTemplateService.getMostUsedTemplates(USER_ID, 10)).thenReturn(templates);
 
         // Act
-        ResponseEntity<List<DietTemplateResponse>> response = 
+        ResponseEntity<List<DietTemplateResponse>> response =
                 dietTemplateController.getPopularTemplates(10, authentication);
 
         // Assert
@@ -209,11 +200,11 @@ class DietTemplateControllerTest {
         // Arrange
         when(authentication.getName()).thenReturn(USER_ID);
         int customLimit = 5;
-        List<DietTemplateResponse> templates = Arrays.asList(mockTemplateResponse);
+        List<DietTemplateResponse> templates = Collections.singletonList(mockTemplateResponse);
         when(dietTemplateService.getMostUsedTemplates(USER_ID, customLimit)).thenReturn(templates);
 
         // Act
-        ResponseEntity<List<DietTemplateResponse>> response = 
+        ResponseEntity<List<DietTemplateResponse>> response =
                 dietTemplateController.getPopularTemplates(customLimit, authentication);
 
         // Assert
@@ -230,7 +221,7 @@ class DietTemplateControllerTest {
                 .thenThrow(new RuntimeException("Error"));
 
         // Act
-        ResponseEntity<List<DietTemplateResponse>> response = 
+        ResponseEntity<List<DietTemplateResponse>> response =
                 dietTemplateController.getPopularTemplates(10, authentication);
 
         // Assert
@@ -238,18 +229,16 @@ class DietTemplateControllerTest {
         verify(dietTemplateService).getMostUsedTemplates(USER_ID, 10);
     }
 
-    // GET /api/diet-templates/search - searchTemplates tests
-
     @Test
     void searchTemplates_WithValidQuery_ShouldReturnOkWithResults() {
         // Arrange
         when(authentication.getName()).thenReturn(USER_ID);
         String query = "high protein";
-        List<DietTemplateResponse> templates = Arrays.asList(mockTemplateResponse);
+        List<DietTemplateResponse> templates = Collections.singletonList(mockTemplateResponse);
         when(dietTemplateService.searchTemplates(query, USER_ID, 20)).thenReturn(templates);
 
         // Act
-        ResponseEntity<List<DietTemplateResponse>> response = 
+        ResponseEntity<List<DietTemplateResponse>> response =
                 dietTemplateController.searchTemplates(query, 20, authentication);
 
         // Assert
@@ -265,11 +254,11 @@ class DietTemplateControllerTest {
         when(authentication.getName()).thenReturn(USER_ID);
         String query = "vegan";
         int customLimit = 15;
-        List<DietTemplateResponse> templates = Arrays.asList(mockTemplateResponse);
+        List<DietTemplateResponse> templates = Collections.singletonList(mockTemplateResponse);
         when(dietTemplateService.searchTemplates(query, USER_ID, customLimit)).thenReturn(templates);
 
         // Act
-        ResponseEntity<List<DietTemplateResponse>> response = 
+        ResponseEntity<List<DietTemplateResponse>> response =
                 dietTemplateController.searchTemplates(query, customLimit, authentication);
 
         // Assert
@@ -287,7 +276,7 @@ class DietTemplateControllerTest {
                 .thenReturn(Collections.emptyList());
 
         // Act
-        ResponseEntity<List<DietTemplateResponse>> response = 
+        ResponseEntity<List<DietTemplateResponse>> response =
                 dietTemplateController.searchTemplates(query, 20, authentication);
 
         // Assert
@@ -306,15 +295,13 @@ class DietTemplateControllerTest {
                 .thenThrow(new RuntimeException("Search error"));
 
         // Act
-        ResponseEntity<List<DietTemplateResponse>> response = 
+        ResponseEntity<List<DietTemplateResponse>> response =
                 dietTemplateController.searchTemplates(query, 20, authentication);
 
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         verify(dietTemplateService).searchTemplates(query, USER_ID, 20);
     }
-
-    // POST /api/diet-templates - createTemplate tests
 
     @Test
     void createTemplate_WithValidRequest_ShouldReturnOkWithCreatedTemplate() {
@@ -324,7 +311,7 @@ class DietTemplateControllerTest {
                 .thenReturn(mockTemplateResponse);
 
         // Act
-        ResponseEntity<DietTemplateResponse> response = 
+        ResponseEntity<DietTemplateResponse> response =
                 dietTemplateController.createTemplate(mockTemplateRequest, authentication);
 
         // Assert
@@ -342,15 +329,13 @@ class DietTemplateControllerTest {
                 .thenThrow(new RuntimeException("Creation failed"));
 
         // Act
-        ResponseEntity<DietTemplateResponse> response = 
+        ResponseEntity<DietTemplateResponse> response =
                 dietTemplateController.createTemplate(mockTemplateRequest, authentication);
 
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         verify(dietTemplateService).createTemplate(mockTemplateRequest, USER_ID);
     }
-
-    // POST /api/diet-templates/from-diet - createTemplateFromDiet tests
 
     @Test
     void createTemplateFromDiet_WithValidRequest_ShouldReturnOkWithCreatedTemplate() {
@@ -360,7 +345,7 @@ class DietTemplateControllerTest {
                 .thenReturn(mockTemplateResponse);
 
         // Act
-        ResponseEntity<DietTemplateResponse> response = 
+        ResponseEntity<DietTemplateResponse> response =
                 dietTemplateController.createTemplateFromDiet(mockTemplateRequest, authentication);
 
         // Assert
@@ -378,15 +363,13 @@ class DietTemplateControllerTest {
                 .thenThrow(new RuntimeException("Creation failed"));
 
         // Act
-        ResponseEntity<DietTemplateResponse> response = 
+        ResponseEntity<DietTemplateResponse> response =
                 dietTemplateController.createTemplateFromDiet(mockTemplateRequest, authentication);
 
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         verify(dietTemplateService).createTemplateFromManualDiet(mockTemplateRequest, USER_ID);
     }
-
-    // PUT /api/diet-templates/{id} - updateTemplate tests
 
     @Test
     void updateTemplate_WithValidRequest_ShouldReturnOkWithUpdatedTemplate() {
@@ -396,7 +379,7 @@ class DietTemplateControllerTest {
                 .thenReturn(mockTemplateResponse);
 
         // Act
-        ResponseEntity<DietTemplateResponse> response = 
+        ResponseEntity<DietTemplateResponse> response =
                 dietTemplateController.updateTemplate(TEMPLATE_ID, mockTemplateRequest, authentication);
 
         // Assert
@@ -414,15 +397,13 @@ class DietTemplateControllerTest {
                 .thenThrow(new RuntimeException("Update failed"));
 
         // Act
-        ResponseEntity<DietTemplateResponse> response = 
+        ResponseEntity<DietTemplateResponse> response =
                 dietTemplateController.updateTemplate(TEMPLATE_ID, mockTemplateRequest, authentication);
 
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         verify(dietTemplateService).updateTemplate(TEMPLATE_ID, mockTemplateRequest, USER_ID);
     }
-
-    // DELETE /api/diet-templates/{id} - deleteTemplate tests
 
     @Test
     void deleteTemplate_WithValidId_ShouldReturnOk() {
@@ -453,8 +434,6 @@ class DietTemplateControllerTest {
         verify(dietTemplateService).deleteTemplate(TEMPLATE_ID, USER_ID);
     }
 
-    // POST /api/diet-templates/{id}/use - incrementUsage tests
-
     @Test
     void incrementUsage_WithValidId_ShouldReturnOk() {
         // Arrange
@@ -482,8 +461,6 @@ class DietTemplateControllerTest {
         verify(dietTemplateService).incrementUsageCount(TEMPLATE_ID);
     }
 
-    // GET /api/diet-templates/stats - getTemplateStats tests
-
     @Test
     void getTemplateStats_WithValidUser_ShouldReturnOkWithStats() {
         // Arrange
@@ -491,7 +468,7 @@ class DietTemplateControllerTest {
         when(dietTemplateService.getTemplateStats(USER_ID)).thenReturn(mockStatsResponse);
 
         // Act
-        ResponseEntity<DietTemplateStatsResponse> response = 
+        ResponseEntity<DietTemplateStatsResponse> response =
                 dietTemplateController.getTemplateStats(authentication);
 
         // Assert
@@ -509,7 +486,7 @@ class DietTemplateControllerTest {
                 .thenThrow(new RuntimeException("Stats retrieval failed"));
 
         // Act
-        ResponseEntity<DietTemplateStatsResponse> response = 
+        ResponseEntity<DietTemplateStatsResponse> response =
                 dietTemplateController.getTemplateStats(authentication);
 
         // Assert

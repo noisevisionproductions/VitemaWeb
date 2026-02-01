@@ -84,7 +84,7 @@ class RecipeServiceTest {
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(recipeService, "storageBucket", TEST_BUCKET_NAME);
-        
+
         // Set up default behaviors for UserService (lenient to avoid unnecessary stubbing exceptions)
         lenient().when(userService.getCurrentUserId()).thenReturn("test-user-id");
         lenient().when(userService.isCurrentUserAdminOrOwner()).thenReturn(true);
@@ -111,7 +111,6 @@ class RecipeServiceTest {
         when(recipeRepository.findById(TEST_RECIPE_ID)).thenReturn(Optional.empty());
 
         // when/then
-        // Używamy contains() zamiast hasMessage(), aby sprawdzić tylko część komunikatu
         assertThatThrownBy(() -> recipeService.getRecipeById(TEST_RECIPE_ID))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessageContaining("Recipe not found")
@@ -424,7 +423,7 @@ class RecipeServiceTest {
                 .id("existing-id")
                 .name("Existing Recipe")
                 .instructions("Basic instructions")
-                .photos(Arrays.asList("existing-photo.jpg"))
+                .photos(List.of("existing-photo.jpg"))
                 .createdAt(Timestamp.now())
                 .build();
 
@@ -476,7 +475,7 @@ class RecipeServiceTest {
     }
 
     @Test
-    void uploadImage_ShouldUploadAndUpdateRecipe() throws BadRequestException, IOException {
+    void uploadImage_ShouldUploadAndUpdateRecipe() throws IOException {
         // given
         Recipe recipe = createTestRecipe();
         when(recipeRepository.findById(TEST_RECIPE_ID)).thenReturn(Optional.of(recipe));
@@ -509,9 +508,6 @@ class RecipeServiceTest {
             Recipe capturedRecipe = recipeCaptor.getValue();
             RecipeImageReference capturedReference = imageReferenceCaptor.getValue();
 
-            String expectedFilename = "12345678-1234-1234-1234-123456789012.jpg";
-            String expectedPath = "recipes/test-recipe-id/images/" + expectedFilename;
-
             assertThat(capturedBlobInfo.getBlobId().getBucket()).isEqualTo("test-bucket");
             // Verify the path structure (UUID might not be mocked correctly, so check structure)
             String actualPath = capturedBlobInfo.getBlobId().getName();
@@ -541,7 +537,7 @@ class RecipeServiceTest {
     }
 
     @Test
-    void uploadImage_WithExistingImageReference_ShouldIncrementReferenceCount() throws BadRequestException, IOException {
+    void uploadImage_WithExistingImageReference_ShouldIncrementReferenceCount() throws IOException {
         // given
         Recipe recipe = createTestRecipe();
         when(recipeRepository.findById(TEST_RECIPE_ID)).thenReturn(Optional.of(recipe));
@@ -633,7 +629,6 @@ class RecipeServiceTest {
         recipe.setPhotos(Arrays.asList("photo1.jpg", TEST_IMAGE_URL, "photo3.jpg"));
         when(recipeRepository.findById(TEST_RECIPE_ID)).thenReturn(Optional.of(recipe));
 
-        // Symuluj, że wszystkie zdjęcia mają jeszcze inne referencje
         when(recipeImageRepository.decrementReferenceCount(any())).thenReturn(1);
 
         // when
@@ -642,12 +637,10 @@ class RecipeServiceTest {
         // then
         verify(recipeRepository).delete(TEST_RECIPE_ID);
 
-        // Weryfikuj, że zmniejszono liczbę referencji dla każdego zdjęcia
         verify(recipeImageRepository).decrementReferenceCount("photo1.jpg");
         verify(recipeImageRepository).decrementReferenceCount(TEST_IMAGE_URL);
         verify(recipeImageRepository).decrementReferenceCount("photo3.jpg");
 
-        // Nie usuwaj żadnych zdjęć fizycznie
         verify(storage, never()).delete(any(BlobId.class));
     }
 
@@ -660,19 +653,16 @@ class RecipeServiceTest {
         recipe.setPhotos(Arrays.asList("photo1.jpg", orphanedImageUrl));
         when(recipeRepository.findById(TEST_RECIPE_ID)).thenReturn(Optional.of(recipe));
 
-        // Symulujemy, że pierwsze zdjęcie ma inne referencje
         when(recipeImageRepository.decrementReferenceCount("photo1.jpg")).thenReturn(1);
 
-        // Symulujemy, że drugie zdjęcie nie ma już referencji
         when(recipeImageRepository.decrementReferenceCount(orphanedImageUrl)).thenReturn(0);
 
-        // Mock dla cleanupOrphanedImages - zwraca obraz z zerowymi referencjami
         RecipeImageReference orphanedRef = RecipeImageReference.builder()
                 .imageUrl(orphanedImageUrl)
                 .storagePath(orphanedStoragePath)
                 .referenceCount(0)
                 .build();
-        when(recipeImageRepository.findAllWithZeroReferences()).thenReturn(Arrays.asList(orphanedRef));
+        when(recipeImageRepository.findAllWithZeroReferences()).thenReturn(Collections.singletonList(orphanedRef));
 
         // when
         recipeService.deleteRecipe(TEST_RECIPE_ID);
@@ -680,12 +670,8 @@ class RecipeServiceTest {
         // then
         verify(recipeRepository).delete(TEST_RECIPE_ID);
 
-        // Weryfikuj, że zmniejszono liczbę referencji dla obu zdjęć
         verify(recipeImageRepository).decrementReferenceCount("photo1.jpg");
         verify(recipeImageRepository).decrementReferenceCount(orphanedImageUrl);
-
-        // Note: cleanupOrphanedImages is @Async, so it may not execute synchronously in tests
-        // We verify that decrementReferenceCount was called, which is the main behavior
     }
 
     @Test
@@ -712,7 +698,6 @@ class RecipeServiceTest {
         // then
         verify(recipeImageRepository).findAllWithZeroReferences();
 
-        // Weryfikuj, że usunięto oba obrazy fizycznie
         ArgumentCaptor<BlobId> blobIdCaptor = ArgumentCaptor.forClass(BlobId.class);
         verify(storage, times(2)).delete(blobIdCaptor.capture());
 
@@ -721,7 +706,6 @@ class RecipeServiceTest {
         assertThat(capturedBlobIds.get(0).getName()).isEqualTo("images/orphaned1.jpg");
         assertThat(capturedBlobIds.get(1).getName()).isEqualTo("images/orphaned2.jpg");
 
-        // Weryfikuj, że usunięto obie referencje
         verify(recipeImageRepository).deleteByImageUrl("https://storage.googleapis.com/test-bucket/images/orphaned1.jpg");
         verify(recipeImageRepository).deleteByImageUrl("https://storage.googleapis.com/test-bucket/images/orphaned2.jpg");
     }
@@ -826,7 +810,6 @@ class RecipeServiceTest {
         Blob blob = mock(Blob.class);
         when(storage.create(any(BlobInfo.class), any(byte[].class))).thenReturn(blob);
 
-        // Mockujemy generowanie UUID, aby test był deterministyczny
         try (MockedStatic<UUID> mockedUuid = mockStatic(UUID.class)) {
             UUID mockUuid = UUID.fromString("12345678-1234-1234-1234-123456789012");
             mockedUuid.when(UUID::randomUUID).thenReturn(mockUuid);

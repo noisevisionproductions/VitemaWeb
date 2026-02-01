@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.list;
 
 @ExtendWith(MockitoExtension.class)
 class DietValidationServiceTest {
@@ -29,11 +30,10 @@ class DietValidationServiceTest {
     private ManualDietRequest validRequest;
     private ParsedDay validDay;
     private ParsedMeal validMeal;
-    private ParsedProduct validProduct;
 
     @BeforeEach
     void setUp() {
-        validProduct = ParsedProduct.builder()
+        ParsedProduct validProduct = ParsedProduct.builder()
                 .name("Chicken Breast")
                 .quantity(200.0)
                 .unit("g")
@@ -92,19 +92,6 @@ class DietValidationServiceTest {
     class ValidateManualDietTests {
 
         @Test
-        @DisplayName("Should return valid result for correct request")
-        void givenValidRequest_When_ValidateManualDiet_Then_ReturnValid() {
-            // When
-            Map<String, Object> result = dietValidationService.validateManualDiet(validRequest);
-
-            // Then
-            assertThat(result).isNotNull();
-            assertThat(result.get("isValid")).isEqualTo(true);
-            assertThat((List<String>) result.get("errors")).isEmpty();
-            assertThat(result.get("summary")).isNotNull();
-        }
-
-        @Test
         @DisplayName("Should handle null request")
         void givenNullRequest_When_ValidateManualDiet_Then_HandleGracefully() {
             // When & Then
@@ -126,6 +113,19 @@ class DietValidationServiceTest {
         }
 
         @Test
+        @DisplayName("Should return valid result for correct request")
+        void givenValidRequest_When_ValidateManualDiet_Then_ReturnValid() {
+            // When
+            Map<String, Object> result = dietValidationService.validateManualDiet(validRequest);
+
+            // Then
+            assertThat(result).isNotNull();
+            assertThat(result.get("isValid")).isEqualTo(true);
+            assertThat(result.get("errors")).asInstanceOf(list(String.class)).isEmpty();
+            assertThat(result.get("summary")).isNotNull();
+        }
+
+        @Test
         @DisplayName("Should return error for missing userId")
         void givenRequestWithoutUserId_When_ValidateManualDiet_Then_ReturnError() {
             // Given
@@ -142,7 +142,7 @@ class DietValidationServiceTest {
 
             // Then
             assertThat(result.get("isValid")).isEqualTo(false);
-            assertThat((List<String>) result.get("errors"))
+            assertThat(result.get("errors")).asInstanceOf(list(String.class))
                     .contains("ID użytkownika jest wymagane");
         }
 
@@ -163,7 +163,7 @@ class DietValidationServiceTest {
 
             // Then
             assertThat(result.get("isValid")).isEqualTo(false);
-            assertThat((List<String>) result.get("errors"))
+            assertThat(result.get("errors")).asInstanceOf(list(String.class))
                     .anyMatch(error -> error.contains("Liczba posiłków dziennie"));
         }
 
@@ -184,7 +184,7 @@ class DietValidationServiceTest {
 
             // Then
             assertThat(result.get("isValid")).isEqualTo(false);
-            assertThat((List<String>) result.get("errors"))
+            assertThat(result.get("errors")).asInstanceOf(list(String.class))
                     .anyMatch(error -> error.contains("Czas trwania diety"));
         }
 
@@ -205,7 +205,7 @@ class DietValidationServiceTest {
 
             // Then
             assertThat(result.get("isValid")).isEqualTo(false);
-            assertThat((List<String>) result.get("errors"))
+            assertThat(result.get("errors")).asInstanceOf(list(String.class))
                     .contains("Data rozpoczęcia diety jest wymagana");
         }
 
@@ -226,7 +226,7 @@ class DietValidationServiceTest {
 
             // Then
             assertThat(result.get("isValid")).isEqualTo(false);
-            assertThat((List<String>) result.get("errors"))
+            assertThat(result.get("errors")).asInstanceOf(list(String.class))
                     .anyMatch(error -> error.contains("Nieprawidłowy format daty"));
         }
 
@@ -247,7 +247,7 @@ class DietValidationServiceTest {
             Map<String, Object> result = dietValidationService.validateManualDiet(request);
 
             // Then
-            assertThat((List<String>) result.get("warnings"))
+            assertThat(result.get("warnings")).asInstanceOf(list(String.class))
                     .anyMatch(warning -> warning.contains("przeszłości"));
         }
 
@@ -268,7 +268,7 @@ class DietValidationServiceTest {
             Map<String, Object> result = dietValidationService.validateManualDiet(request);
 
             // Then
-            assertThat((List<String>) result.get("warnings"))
+            assertThat(result.get("warnings")).asInstanceOf(list(String.class))
                     .anyMatch(warning -> warning.contains("przyszłości"));
         }
 
@@ -288,7 +288,7 @@ class DietValidationServiceTest {
             Map<String, Object> result = dietValidationService.validateManualDiet(request);
 
             // Then
-            assertThat((List<String>) result.get("warnings"))
+            assertThat(result.get("warnings")).asInstanceOf(list(String.class))
                     .anyMatch(warning -> warning.contains("nie odpowiada"));
         }
 
@@ -317,7 +317,7 @@ class DietValidationServiceTest {
             Map<String, Object> result = dietValidationService.validateManualDiet(request);
 
             // Then
-            assertThat((List<String>) result.get("warnings"))
+            assertThat(result.get("warnings")).asInstanceOf(list(String.class))
                     .anyMatch(warning -> warning.contains("bez składników"));
         }
 
@@ -346,7 +346,7 @@ class DietValidationServiceTest {
             Map<String, Object> result = dietValidationService.validateManualDiet(request);
 
             // Then
-            assertThat((List<String>) result.get("warnings"))
+            assertThat(result.get("warnings")).asInstanceOf(list(String.class))
                     .anyMatch(warning -> warning.contains("nie zawiera żadnych składników"));
         }
 

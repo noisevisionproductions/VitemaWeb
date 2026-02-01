@@ -217,13 +217,13 @@ class DietTemplateMapperTest {
 
             // Then
             assertThat(result.getDays()).hasSize(1);
-            assertThat(result.getDays().get(0).getDayNumber()).isEqualTo(1);
-            assertThat(result.getDays().get(0).getDayName()).isEqualTo("Day 1");
-            assertThat(result.getDays().get(0).getNotes()).isEqualTo("First day");
-            assertThat(result.getDays().get(0).getMeals()).hasSize(1);
-            assertThat(result.getDays().get(0).getMeals().get(0).getName()).isEqualTo("Breakfast");
-            assertThat(result.getDays().get(0).getMeals().get(0).getMealType()).isEqualTo("BREAKFAST");
-            assertThat(result.getDays().get(0).getMeals().get(0).getIngredients().get(0).getName()).isEqualTo("Oatmeal");
+            assertThat(result.getDays().getFirst().getDayNumber()).isEqualTo(1);
+            assertThat(result.getDays().getFirst().getDayName()).isEqualTo("Day 1");
+            assertThat(result.getDays().getFirst().getNotes()).isEqualTo("First day");
+            assertThat(result.getDays().getFirst().getMeals()).hasSize(1);
+            assertThat(result.getDays().getFirst().getMeals().getFirst().getName()).isEqualTo("Breakfast");
+            assertThat(result.getDays().getFirst().getMeals().getFirst().getMealType()).isEqualTo("BREAKFAST");
+            assertThat(result.getDays().getFirst().getMeals().getFirst().getIngredients().getFirst().getName()).isEqualTo("Oatmeal");
         }
     }
 

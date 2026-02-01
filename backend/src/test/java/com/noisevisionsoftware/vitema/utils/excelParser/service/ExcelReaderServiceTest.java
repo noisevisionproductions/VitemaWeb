@@ -72,7 +72,7 @@ class ExcelReaderServiceTest {
         assertEquals(4, result.size(), "Should read 4 rows (including header)");
 
         // Check header row
-        assertEquals("Header1", result.get(0).get(0));
+        assertEquals("Header1", result.getFirst().getFirst());
         assertEquals("Header2", result.get(0).get(1));
         assertEquals("Header3", result.get(0).get(2));
 
@@ -224,8 +224,8 @@ class ExcelReaderServiceTest {
                 .build();
 
         assertEquals(1, config.getSheetNumber());
-        assertEquals(0, config.getHeaderRowNumber()); // domyślna wartość
-        assertTrue(config.shouldSkipEmptyRows()); // domyślna wartość
-        assertTrue(config.shouldTrimCells()); // domyślna wartość
+        assertEquals(0, config.getHeaderRowNumber());
+        assertTrue(config.shouldSkipEmptyRows());
+        assertTrue(config.shouldTrimCells());
     }
 }

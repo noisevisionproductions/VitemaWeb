@@ -43,18 +43,15 @@ class PublicNewsletterServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Przygotowanie poprawnego żądania
         validRequest = new SubscriptionRequest();
         validRequest.setEmail("test@example.com");
         validRequest.setRole("dietetyk");
 
-        // Przygotowanie istniejącego niezweryfikowanego subskrybenta
         existingUnverifiedSubscriber = NewsletterSubscriber.create("test@example.com", SubscriberRole.DIETITIAN);
         existingUnverifiedSubscriber.setId(1L);
         existingUnverifiedSubscriber.setVerified(false);
         existingUnverifiedSubscriber.setLastEmailSent(LocalDateTime.now().minusHours(1));
 
-        // Przygotowanie istniejącego zweryfikowanego subskrybenta
         existingVerifiedSubscriber = NewsletterSubscriber.create("verified@example.com", SubscriberRole.DIETITIAN);
         existingVerifiedSubscriber.setId(2L);
         existingVerifiedSubscriber.setVerified(true);

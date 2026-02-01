@@ -45,21 +45,19 @@ class EmailServiceIntegrationTest {
 
         when(templateEngine.process(anyString(), any())).thenReturn("<html><body>Test email content</body></html>");
 
-        // Inicjalizacja serwisu
         emailService = new EmailService(sender, templateEngine);
         String frontendUrl = "https://test-vitema.pl";
         ReflectionTestUtils.setField(emailService, "frontendUrl", frontendUrl);
         String fromEmail = "test@vitema.pl";
         ReflectionTestUtils.setField(emailService, "fromEmail", fromEmail);
 
-        // Reset serwera GreenMail przed każdym testem
         greenMail.reset();
     }
 
     private static JavaMailSenderImpl getJavaMailSender() {
         JavaMailSenderImpl sender = new JavaMailSenderImpl();
         sender.setHost("localhost");
-        sender.setPort(3025); // Port GreenMail
+        sender.setPort(3025);
 
         sender.setUsername("");
         sender.setPassword("");
@@ -154,7 +152,7 @@ class EmailServiceIntegrationTest {
         // Arrange
         String to = "test@example.com";
         String subject = "Test Templated Email";
-        String templateName = "welcome-email"; // Zakładamy, że ten szablon istnieje
+        String templateName = "welcome-email";
         Map<String, Object> variables = new HashMap<>();
         variables.put("testVariable", "testValue");
 

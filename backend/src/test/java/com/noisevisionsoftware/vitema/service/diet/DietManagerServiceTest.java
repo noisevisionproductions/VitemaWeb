@@ -137,6 +137,7 @@ class DietManagerServiceTest {
             dietManagerService.saveDietWithShoppingList(testParsedDietData, TEST_USER_ID, testFileInfo);
 
             // Then
+            @SuppressWarnings("unchecked")
             ArgumentCaptor<Map<String, Object>> shoppingListCaptor = ArgumentCaptor.forClass(Map.class);
             verify(shoppingListsCollectionRef).add(shoppingListCaptor.capture());
 
@@ -194,7 +195,7 @@ class DietManagerServiceTest {
         @DisplayName("Should create diet with correct metadata")
         void givenValidData_When_SaveDietWithShoppingList_Then_CreateDietWithCorrectMetadata() throws Exception {
             // Given
-            DocumentReference dietDocRef = setupMockDietDocRef();
+            setupMockDietDocRef();
             setupMockShoppingList();
             setupMockProductParsing();
             setupMockRecipeService();
@@ -311,7 +312,7 @@ class DietManagerServiceTest {
             List<Recipe> capturedRecipes = recipeCaptor.getAllValues();
             assertThat(capturedRecipes).hasSizeGreaterThan(0);
 
-            Recipe firstRecipe = capturedRecipes.get(0);
+            Recipe firstRecipe = capturedRecipes.getFirst();
             assertThat(firstRecipe.getName()).isEqualTo("Owsianka z owocami");
             assertThat(firstRecipe.getInstructions()).isNotNull();
             assertThat(firstRecipe.getNutritionalValues()).isNotNull();
@@ -339,7 +340,7 @@ class DietManagerServiceTest {
             List<RecipeReference> references = referenceCaptor.getAllValues();
             assertThat(references).hasSizeGreaterThan(0);
 
-            RecipeReference firstRef = references.get(0);
+            RecipeReference firstRef = references.getFirst();
             assertThat(firstRef.getRecipeId()).isEqualTo(TEST_RECIPE_ID);
             assertThat(firstRef.getDietId()).isEqualTo(TEST_DIET_ID);
             assertThat(firstRef.getUserId()).isEqualTo(TEST_USER_ID);
@@ -387,7 +388,7 @@ class DietManagerServiceTest {
 
             // Then
             assertThat(result).hasSize(testParsedDietData.getDays().size());
-            assertThat(result.get(0)).containsKeys("date", "meals");
+            assertThat(result.getFirst()).containsKeys("date", "meals");
         }
 
         @Test
@@ -404,10 +405,10 @@ class DietManagerServiceTest {
 
             // Then
             @SuppressWarnings("unchecked")
-            List<Map<String, Object>> meals = (List<Map<String, Object>>) result.get(0).get("meals");
+            List<Map<String, Object>> meals = (List<Map<String, Object>>) result.getFirst().get("meals");
             assertThat(meals).isNotEmpty();
 
-            Map<String, Object> firstMeal = meals.get(0);
+            Map<String, Object> firstMeal = meals.getFirst();
             assertThat(firstMeal).containsKeys("recipeId", "mealType", "time");
             assertThat(firstMeal.get("recipeId")).isEqualTo(TEST_RECIPE_ID);
             assertThat(firstMeal.get("mealType")).isEqualTo("BREAKFAST");
@@ -446,6 +447,7 @@ class DietManagerServiceTest {
             dietManagerService.saveShoppingList(testParsedDietData, TEST_USER_ID, TEST_DIET_ID);
 
             // Then
+            @SuppressWarnings("unchecked")
             ArgumentCaptor<Map<String, Object>> shoppingListCaptor = ArgumentCaptor.forClass(Map.class);
             verify(shoppingListsCollectionRef).add(shoppingListCaptor.capture());
 
@@ -470,12 +472,13 @@ class DietManagerServiceTest {
             dietManagerService.saveShoppingList(dataWithoutProducts, TEST_USER_ID, TEST_DIET_ID);
 
             // Then
+            @SuppressWarnings("unchecked")
             ArgumentCaptor<Map<String, Object>> shoppingListCaptor = ArgumentCaptor.forClass(Map.class);
             verify(shoppingListsCollectionRef).add(shoppingListCaptor.capture());
 
             Map<String, Object> shoppingList = shoppingListCaptor.getValue();
             @SuppressWarnings("unchecked")
-            Map<String, List<Map<String, Object>>> items = 
+            Map<String, List<Map<String, Object>>> items =
                     (Map<String, List<Map<String, Object>>>) shoppingList.get("items");
             assertThat(items).isEmpty();
         }
@@ -511,14 +514,15 @@ class DietManagerServiceTest {
             dietManagerService.saveShoppingList(testParsedDietData, TEST_USER_ID, TEST_DIET_ID);
 
             // Then
+            @SuppressWarnings("unchecked")
             ArgumentCaptor<Map<String, Object>> shoppingListCaptor = ArgumentCaptor.forClass(Map.class);
             verify(shoppingListsCollectionRef).add(shoppingListCaptor.capture());
 
             Map<String, Object> shoppingList = shoppingListCaptor.getValue();
             assertThat(shoppingList.get("startDate"))
-                    .isEqualTo(testParsedDietData.getDays().get(0).getDate());
+                    .isEqualTo(testParsedDietData.getDays().getFirst().getDate());
             assertThat(shoppingList.get("endDate"))
-                    .isEqualTo(testParsedDietData.getDays().get(testParsedDietData.getDays().size() - 1).getDate());
+                    .isEqualTo(testParsedDietData.getDays().getLast().getDate());
         }
 
         private CollectionReference setupMockShoppingListCollection() throws Exception {
@@ -570,7 +574,7 @@ class DietManagerServiceTest {
 
             // Then
             assertThat(result).hasSize(2);
-            assertThat(result.get(0))
+            assertThat(result.getFirst())
                     .containsEntry("name", "jabłka")
                     .containsEntry("quantity", 1.0)
                     .containsEntry("unit", "kg")
@@ -596,7 +600,7 @@ class DietManagerServiceTest {
 
             // Then
             assertThat(parsedProducts).hasSize(1);
-            assertThat(parsedProducts.get(0))
+            assertThat(parsedProducts.getFirst())
                     .containsEntry("name", "invalid product format")
                     .containsEntry("quantity", 1.0)
                     .containsEntry("unit", "szt")
@@ -622,7 +626,7 @@ class DietManagerServiceTest {
                     productStrings, categoryId);
 
             // Then
-            assertThat(parsedProducts.get(0)).containsEntry("id", "product123");
+            assertThat(parsedProducts.getFirst()).containsEntry("id", "product123");
         }
 
         @Test
@@ -657,7 +661,7 @@ class DietManagerServiceTest {
                     productStrings, categoryId);
 
             // Then
-            assertThat(parsedProducts.get(0)).containsEntry("hasCustomUnit", true);
+            assertThat(parsedProducts.getFirst()).containsEntry("hasCustomUnit", true);
         }
     }
 
@@ -694,7 +698,7 @@ class DietManagerServiceTest {
 
             // Then
             assertThat(result).hasSize(2);
-            assertThat(result.get(0))
+            assertThat(result.getFirst())
                     .satisfies(ingredient -> {
                         assertThat(ingredient.getId()).isNotNull();
                         assertThat(ingredient.getName()).isEqualTo("mąka");

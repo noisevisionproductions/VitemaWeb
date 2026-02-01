@@ -85,7 +85,6 @@ class DietExcelTemplateServiceTest {
         ValidationResponse cachedResponse = new ValidationResponse();
         cachedResponse.setValid(true);
 
-        // Zmień "" na null, aby dopasować do faktycznego wywołania
         when(cacheService.generateCacheKey(validRequest, null)).thenReturn(cacheKey);
         when(cacheService.getFromCache(cacheKey)).thenReturn(Optional.of(cachedResponse));
 
@@ -115,7 +114,7 @@ class DietExcelTemplateServiceTest {
     @Test
     void shouldFailValidationWhenMealsPerDayIsInvalid() {
         // given
-        validRequest.setMealsPerDay(11); // przekroczony limit 10 posiłków
+        validRequest.setMealsPerDay(11);
 
         // when
         ValidationResponse result = dietExcelTemplateService.validateDietTemplate(validRequest);
@@ -133,10 +132,8 @@ class DietExcelTemplateServiceTest {
         when(excelStructureValidator.validateExcelStructure(any()))
                 .thenReturn(Collections.singletonList(new ValidationResult(true, "OK", ValidationSeverity.SUCCESS)));
 
-        // Tworzenie przykładowej listy posiłków
         List<ParsedMeal> meals = new ArrayList<>();
 
-        // Tworzenie przykładowej listy zakupów
         List<Map.Entry<String, ParsedProduct>> shoppingList = new ArrayList<>();
 
         when(excelParserService.parseDietExcel(any()))

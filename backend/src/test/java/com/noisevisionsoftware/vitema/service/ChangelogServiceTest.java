@@ -35,7 +35,6 @@ class ChangelogServiceTest {
     void setUp() {
         testUserId = "user123";
 
-        // Utwórz znaczniki czasowe do testów
         olderTimestamp = Timestamp.ofTimeSecondsAndNanos(1614556800, 0); // 2021-03-01
         Timestamp newerTimestamp = Timestamp.ofTimeSecondsAndNanos(1646092800, 0); // 2022-03-01
 
@@ -106,7 +105,6 @@ class ChangelogServiceTest {
     @Test
     void hasUnreadEntries_WhenNoNewerEntries_ShouldReturnFalse() {
         // given
-        // Użytkownik czytał po dodaniu najnowszego wpisu
         Timestamp veryNewTimestamp = Timestamp.ofTimeSecondsAndNanos(1677628800, 0); // 2023-03-01
         when(changelogRepository.getLastReadTimestamp(testUserId)).thenReturn(veryNewTimestamp);
         when(changelogRepository.findAll()).thenReturn(Arrays.asList(testEntry1, testEntry2));

@@ -186,7 +186,7 @@ class MealTemplateJpaConverterTest {
 
             // Then
             assertThat(result.getIngredients()).hasSize(1);
-            MealIngredient ingredient = result.getIngredients().get(0);
+            MealIngredient ingredient = result.getIngredients().getFirst();
             assertThat(ingredient.getId()).isEqualTo("1");
             assertThat(ingredient.getName()).isEqualTo("Egg");
             assertThat(ingredient.getQuantity()).isEqualTo(2.0);
@@ -299,7 +299,7 @@ class MealTemplateJpaConverterTest {
 
             // Then
             assertThat(result.getIngredients()).hasSize(1);
-            MealTemplateIngredientEntity ingEntity = result.getIngredients().get(0);
+            MealTemplateIngredientEntity ingEntity = result.getIngredients().getFirst();
             assertThat(ingEntity.getName()).isEqualTo("Tomato");
             assertThat(ingEntity.getQuantity()).isEqualByComparingTo(BigDecimal.valueOf(3.0));
             assertThat(ingEntity.getUnit()).isEqualTo("szt");
@@ -466,8 +466,8 @@ class MealTemplateJpaConverterTest {
 
             // Then
             assertThat(entity.getIngredients()).hasSize(1);
-            assertThat(entity.getIngredients().get(0).getName()).isEqualTo("New Ingredient");
-            assertThat(entity.getIngredients().get(0).getQuantity()).isEqualByComparingTo(BigDecimal.valueOf(5.0));
+            assertThat(entity.getIngredients().getFirst().getName()).isEqualTo("New Ingredient");
+            assertThat(entity.getIngredients().getFirst().getQuantity()).isEqualByComparingTo(BigDecimal.valueOf(5.0));
         }
     }
 

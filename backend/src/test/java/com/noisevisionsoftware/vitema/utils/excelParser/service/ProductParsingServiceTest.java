@@ -82,18 +82,15 @@ class ProductParsingServiceTest {
     @Test
     @DisplayName("Powinien wykryć i przypisać liczbę do pola quantity")
     void parseProduct_shouldDetectNumberAndAssignToQuantity() {
-        // Konfiguracja mocka dla quantityParser - parsuje liczby z stringów
         when(quantityParser.parseQuantity(anyString())).thenAnswer(invocation -> {
             String input = invocation.getArgument(0);
             try {
-                // Próbuj parsować jako liczbę
                 return Double.parseDouble(input.replace(',', '.'));
             } catch (NumberFormatException e) {
                 return null;
             }
         });
-        
-        // Testujemy tylko czy liczby są poprawnie wykrywane
+
         String[] inputs = {
                 "500 g mąka",
                 "marchew 500 g",
@@ -124,7 +121,6 @@ class ProductParsingServiceTest {
     @Test
     @DisplayName("Powinien poprawnie czyścić nazwę produktu")
     void parseProduct_shouldCleanProductNames() {
-        // Testujemy tylko czyszczenie nazw
         String[] inputs = {
                 "500 g mąka pszenna",
                 "marchew 500 g",
@@ -151,7 +147,6 @@ class ProductParsingServiceTest {
     @Test
     @DisplayName("Powinien wykryć jednostkę lub przypisać domyślną")
     void parseProduct_shouldDetectUnitOrAssignDefault() {
-        // Testujemy tylko wykrywanie jednostek
         String[] inputs = {
                 "500 g mąka",
                 "marchew 500 g",
@@ -163,8 +158,8 @@ class ProductParsingServiceTest {
         String[] expectedUnits = {
                 "g",
                 "g",
-                "szt", // domyślna jednostka
-                "szt", // domyślna jednostka
+                "szt",
+                "szt",
                 "g"
         };
 
@@ -193,7 +188,6 @@ class ProductParsingServiceTest {
     @Test
     @DisplayName("Powinien poprawnie czyścić nazwę produktu - metoda cleanProductName")
     void cleanProductName_shouldCorrectlyCleanName() throws Exception {
-        // Użycie refleksji do wywołania prywatnej metody
         java.lang.reflect.Method method = ProductParsingService.class.getDeclaredMethod("cleanProductName", String.class);
         method.setAccessible(true);
 
@@ -222,7 +216,6 @@ class ProductParsingServiceTest {
     @Test
     @DisplayName("Powinien poprawnie sprawdzać czy string jest liczbą")
     void isNumeric_shouldCorrectlyCheckIfStringIsNumeric() throws Exception {
-        // Użycie refleksji do wywołania prywatnej metody
         java.lang.reflect.Method method = ProductParsingService.class.getDeclaredMethod("isNumeric", String.class);
         method.setAccessible(true);
 
@@ -241,7 +234,6 @@ class ProductParsingServiceTest {
     @Test
     @DisplayName("Powinien poprawnie czyścić string wejściowy")
     void cleanInputString_shouldCorrectlyCleanInput() throws Exception {
-        // Użycie refleksji do wywołania prywatnej metody
         java.lang.reflect.Method method = ProductParsingService.class.getDeclaredMethod("cleanInputString", String.class);
         method.setAccessible(true);
 
@@ -259,7 +251,6 @@ class ProductParsingServiceTest {
                 new UnitDetectionResult("g", "weight", true)
         );
 
-        // Użycie refleksji do wywołania prywatnej metody
         java.lang.reflect.Method method = ProductParsingService.class.getDeclaredMethod(
                 "processUnitAndName", String.class, String.class);
         method.setAccessible(true);
@@ -283,7 +274,6 @@ class ProductParsingServiceTest {
                 new UnitDetectionResult("g", "weight", true)
         );
 
-        // Użycie refleksji do wywołania prywatnej metody
         java.lang.reflect.Method method = ProductParsingService.class.getDeclaredMethod(
                 "processUnitAndName", String.class, String.class);
         method.setAccessible(true);
@@ -293,14 +283,13 @@ class ProductParsingServiceTest {
 
         // then
         assertEquals("g", result.getUnit());
-        assertEquals("mąka z", result.getName()); // jednostka powinna być usunięta z nazwy
+        assertEquals("mąka z", result.getName());
         assertTrue(result.isFoundKnownUnit());
     }
 
     @Test
     @DisplayName("Powinien poprawnie przetwarzać jednostki i nazwy")
     void processUnitAndName_shouldProcessUnitsAndNames() throws Exception {
-        // Użycie refleksji do wywołania prywatnej metody
         Method method = ProductParsingService.class.getDeclaredMethod(
                 "processUnitAndName", String.class, String.class);
         method.setAccessible(true);
@@ -321,30 +310,25 @@ class ProductParsingServiceTest {
                 new UnitDetectionResult("szt", "piece", false)
         );
 
-        // Case 1: Jednostka w potentialUnit
         UnitProcessingResult result1 = (UnitProcessingResult) method.invoke(parsingService, "g", "mąka");
         assertEquals("g", result1.getUnit());
         assertEquals("mąka", result1.getName());
         assertTrue(result1.isFoundKnownUnit());
 
-        // Case 2: Jednostka w remainingText
         UnitProcessingResult result2 = (UnitProcessingResult) method.invoke(parsingService, null, "2 g mąka");
         assertEquals("g", result2.getUnit());
-        // Nazwa powinna być oczyszczona z jednostki, więc oczekujemy "2 mąka" lub podobnej wartości
         assertFalse(result2.getName().contains("g"));
         assertTrue(result2.isFoundKnownUnit());
 
-        // Case 3: Brak znanej jednostki
         UnitProcessingResult result3 = (UnitProcessingResult) method.invoke(parsingService, "xyz", "mąka");
-        assertEquals("szt", result3.getUnit()); // Domyślna jednostka
+        assertEquals("szt", result3.getUnit());
         assertEquals("mąka", result3.getName());
-        assertTrue(result3.isFoundKnownUnit()); // W twojej implementacji zawsze zwraca true
+        assertTrue(result3.isFoundKnownUnit());
     }
 
     @Test
     @DisplayName("Powinien poprawnie czyścić nazwę produktu")
     void cleanProductName_shouldCleanProductName() throws Exception {
-        // Użycie refleksji do wywołania prywatnej metody
         java.lang.reflect.Method method = ProductParsingService.class.getDeclaredMethod(
                 "cleanProductName", String.class);
         method.setAccessible(true);
@@ -358,7 +342,6 @@ class ProductParsingServiceTest {
     @Test
     @DisplayName("Powinien poprawnie sprawdzać, czy string jest numeryczny")
     void isNumeric_shouldCheckIfStringIsNumeric() throws Exception {
-        // Użycie refleksji do wywołania prywatnej metody
         java.lang.reflect.Method method = ProductParsingService.class.getDeclaredMethod(
                 "isNumeric", String.class);
         method.setAccessible(true);
@@ -385,7 +368,6 @@ class ProductParsingServiceTest {
                 "extractQuantityAndUnit", String.class);
         extractQuantityMethod.setAccessible(true);
 
-        // Używamy doReturn().when() z PowerMock lub Mockito Spy
         doReturn(quantityInfo).when(parsingService).extractQuantityAndUnit(anyString());
 
         // when
@@ -420,7 +402,6 @@ class ProductParsingServiceTest {
     @Test
     @DisplayName("Powinien testować metodę extractQuantityAndUnit")
     void extractQuantityAndUnit_shouldExtractQuantityAndUnit() throws Exception {
-        // Używamy refleksji
         Method method = ProductParsingService.class.getDeclaredMethod(
                 "extractQuantityAndUnit", String.class);
         method.setAccessible(true);
@@ -429,19 +410,16 @@ class ProductParsingServiceTest {
         when(quantityParser.parseQuantity("500")).thenReturn(500.0);
         when(quantityParser.parseQuantity("pół")).thenReturn(0.5);
 
-        // Przypadek 1: "2 kg mąki"
         QuantityInfo result1 = (QuantityInfo) method.invoke(parsingService, "2 kg mąki");
         assertEquals(2.0, result1.getQuantity());
         assertEquals("kg", result1.getPotentialUnit());
         assertEquals("mąki", result1.getRemainingText());
 
-        // Przypadek 2: "mąka 500 g"
         QuantityInfo result2 = (QuantityInfo) method.invoke(parsingService, "mąka 500 g");
         assertEquals(500.0, result2.getQuantity());
         assertEquals("g", result2.getPotentialUnit());
         assertEquals("mąka", result2.getRemainingText());
 
-        // Przypadek 3: "pół kg mąki"
         QuantityInfo result3 = (QuantityInfo) method.invoke(parsingService, "pół kg mąki");
         assertEquals(0.5, result3.getQuantity());
         assertEquals("kg", result3.getPotentialUnit());
@@ -451,12 +429,10 @@ class ProductParsingServiceTest {
     @Test
     @DisplayName("Powinien testować metodę cleanInputString")
     void cleanInputString_shouldCleanInput() throws Exception {
-        // Używamy refleksji
         Method method = ProductParsingService.class.getDeclaredMethod(
                 "cleanInputString", String.class);
         method.setAccessible(true);
 
-        // Testowanie różnych przypadków
         assertEquals("500 g mąki", method.invoke(parsingService, "• 500 g mąki"));
         assertEquals("500 g mąki", method.invoke(parsingService, "- 500 g mąki"));
         assertEquals("500 g mąki", method.invoke(parsingService, "  500  g   mąki  "));
@@ -475,11 +451,11 @@ class ProductParsingServiceTest {
         ParsingResult result = parsingService.parseProduct(input);
 
         // then
-        assertTrue(result.isSuccess()); // zawsze zwraca success = true
+        assertTrue(result.isSuccess());
         ParsedProduct product = result.getProduct();
         assertNotNull(product);
-        assertEquals(1.0, product.getQuantity()); // domyślna ilość
-        assertEquals("szt", product.getUnit());   // domyślna jednostka
+        assertEquals(1.0, product.getQuantity());
+        assertEquals("szt", product.getUnit());
         assertEquals(input, product.getOriginal());
     }
 
@@ -493,11 +469,11 @@ class ProductParsingServiceTest {
         ParsingResult result = parsingService.parseProduct(input);
 
         // then
-        assertTrue(result.isSuccess()); // zawsze zwraca success = true
+        assertTrue(result.isSuccess());
         ParsedProduct product = result.getProduct();
         assertNotNull(product);
-        assertEquals(2.0, product.getQuantity()); // zachowuje quantity z QuantityInfo
-        assertEquals("kg", product.getUnit());    // zachowuje jednostkę z QuantityInfo
+        assertEquals(2.0, product.getQuantity());
+        assertEquals("kg", product.getUnit());
         assertEquals(input, product.getOriginal());
     }
 
@@ -515,7 +491,7 @@ class ProductParsingServiceTest {
         assertEquals("serka", product.getName());
         assertEquals(1.0, product.getQuantity());
         assertEquals("opakowanie", product.getUnit());
-        assertFalse(product.isHasCustomUnit()); // zmieniamy oczekiwanie
+        assertFalse(product.isHasCustomUnit());
         assertEquals(input, product.getOriginal());
     }
 }

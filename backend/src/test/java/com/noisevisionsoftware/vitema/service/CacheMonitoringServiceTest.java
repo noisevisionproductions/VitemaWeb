@@ -120,7 +120,6 @@ class CacheMonitoringServiceTest {
         when(nativeUserCache.stats()).thenReturn(userCacheStats);
         when(nativeRecipesCache.stats()).thenReturn(recipesCacheStats);
 
-        // Tylko dla tego testu potrzebujemy wartości statystyk
         when(userCacheStats.hitRate()).thenReturn(0.75);
         when(userCacheStats.hitCount()).thenReturn(75L);
         when(userCacheStats.missCount()).thenReturn(25L);

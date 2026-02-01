@@ -125,14 +125,13 @@ class FirestoreChangelogMapperTest {
     @Test
     void toFirestoreMap_WithValidEntry_ShouldMapAllFields() {
         // given
-        String title = "Naprawa błędu";
         String description = "Naprawiono problem z logowaniem";
         Timestamp createdAt = Timestamp.now();
         String author = "adam.nowak@example.com";
         ChangelogEntryType type = ChangelogEntryType.FIX;
 
         ChangelogEntry entry = ChangelogEntry.builder()
-                .id("entry-id-123")  // id nie powinno być mapowane do mapy Firestore
+                .id("entry-id-123")
                 .description(description)
                 .createdAt(createdAt)
                 .author(author)
@@ -144,11 +143,11 @@ class FirestoreChangelogMapperTest {
 
         // then
         assertNotNull(result);
-        assertEquals(4, result.size());  // sprawdzamy, czy mamy 5 pól (bez id)
+        assertEquals(4, result.size());
         assertEquals(description, result.get("description"));
         assertEquals(createdAt, result.get("createdAt"));
         assertEquals(author, result.get("author"));
-        assertEquals("fix", result.get("type"));  // typ powinien być małymi literami
+        assertEquals("fix", result.get("type"));
     }
 
     @Test
@@ -197,7 +196,7 @@ class FirestoreChangelogMapperTest {
         data.put("description", "Test");
         data.put("createdAt", Timestamp.now());
         data.put("author", "author");
-        data.put("type", "fEaTuRe");  // mieszane wielkości liter
+        data.put("type", "fEaTuRe");  
 
         when(documentSnapshot.exists()).thenReturn(true);
         when(documentSnapshot.getId()).thenReturn("test-id");

@@ -211,7 +211,7 @@ class MealTemplateServiceTest {
 
             // Then
             assertThat(result).hasSize(1);
-            assertThat(result.get(0)).isEqualTo(testTemplate);
+            assertThat(result.getFirst()).isEqualTo(testTemplate);
             verify(mealTemplateRepository).searchByName(query, limit);
         }
 

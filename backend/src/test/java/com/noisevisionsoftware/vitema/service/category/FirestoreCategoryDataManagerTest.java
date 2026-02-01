@@ -110,7 +110,6 @@ class FirestoreCategoryDataManagerTest {
         // Then
         assertNotNull(result);
         assertEquals(2, result.size());
-        // Sprawdzamy, czy klucze są znormalizowane
         assertTrue(result.containsKey("marchewka"));
         assertTrue(result.containsKey("jabłko"));
         assertEquals(categoryData1, result.get("marchewka"));
@@ -132,12 +131,11 @@ class FirestoreCategoryDataManagerTest {
         when(firestore.batch()).thenReturn(writeBatch);
         when(writeBatch.commit()).thenReturn(writeResultsApiFuture);
 
-        // Mock sprawdzania istniejącego dokumentu
         when(collectionReference.whereEqualTo(eq("productName"), anyString())).thenReturn(query);
         when(query.limit(1)).thenReturn(query);
         when(query.get()).thenReturn(querySnapshotApiFuture);
         when(querySnapshotApiFuture.get()).thenReturn(querySnapshot);
-        when(querySnapshot.isEmpty()).thenReturn(true); // Brak istniejącego dokumentu
+        when(querySnapshot.isEmpty()).thenReturn(true);
 
         when(collectionReference.document(anyString())).thenReturn(documentReference);
         when(documentReference.get()).thenReturn(documentSnapshotApiFuture);
@@ -200,7 +198,6 @@ class FirestoreCategoryDataManagerTest {
                 .categoryId("kategoria1")
                 .build();
 
-        // Mock braku istniejącego dokumentu
         when(collectionReference.whereEqualTo(eq("productName"), anyString())).thenReturn(query);
         when(query.limit(1)).thenReturn(query);
         when(query.get()).thenReturn(querySnapshotApiFuture);

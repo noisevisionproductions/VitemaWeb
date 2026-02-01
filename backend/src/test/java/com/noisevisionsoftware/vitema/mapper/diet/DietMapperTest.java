@@ -48,7 +48,6 @@ class DietMapperTest {
     void setUp() {
         Timestamp now = Timestamp.now();
 
-        // Przygotowanie obiektu domenowego
         DayMeal meal = DayMeal.builder()
                 .recipeId(TEST_RECIPE_ID)
                 .mealType(MealType.BREAKFAST)
@@ -75,7 +74,6 @@ class DietMapperTest {
                 .metadata(metadata)
                 .build();
 
-        // Przygotowanie obiektu request
         DayMealRequest mealRequest = DayMealRequest.builder()
                 .recipeId(TEST_RECIPE_ID)
                 .mealType(MealType.BREAKFAST)

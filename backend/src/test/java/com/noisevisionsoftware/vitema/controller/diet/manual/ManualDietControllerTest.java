@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,7 +34,6 @@ class ManualDietControllerTest {
     private ManualDietController manualDietController;
 
     private ManualDietRequest mockDietRequest;
-    private ManualDietResponse mockDietResponse;
     private ParsedProduct mockParsedProduct;
     private MealTemplateResponse mockMealTemplateResponse;
     private SaveMealTemplateRequest mockSaveMealTemplateRequest;
@@ -52,7 +50,6 @@ class ManualDietControllerTest {
     @BeforeEach
     void setUp() {
         mockDietRequest = new ManualDietRequest();
-        mockDietResponse = new ManualDietResponse(DIET_ID, "Success");
         mockParsedProduct = new ParsedProduct();
         mockMealTemplateResponse = new MealTemplateResponse();
         mockSaveMealTemplateRequest = new SaveMealTemplateRequest();
@@ -106,7 +103,7 @@ class ManualDietControllerTest {
         when(manualDietService.searchIngredients(QUERY, 10)).thenReturn(ingredients);
 
         // Act
-        ResponseEntity<List<ParsedProduct>> response = 
+        ResponseEntity<List<ParsedProduct>> response =
                 manualDietController.searchIngredients(QUERY, 10);
 
         // Assert
@@ -120,11 +117,11 @@ class ManualDietControllerTest {
     void searchIngredients_WithCustomLimit_ShouldReturnOkWithLimitedResults() {
         // Arrange
         int customLimit = 5;
-        List<ParsedProduct> ingredients = Arrays.asList(mockParsedProduct);
+        List<ParsedProduct> ingredients = Collections.singletonList(mockParsedProduct);
         when(manualDietService.searchIngredients(QUERY, customLimit)).thenReturn(ingredients);
 
         // Act
-        ResponseEntity<List<ParsedProduct>> response = 
+        ResponseEntity<List<ParsedProduct>> response =
                 manualDietController.searchIngredients(QUERY, customLimit);
 
         // Assert
@@ -140,7 +137,7 @@ class ManualDietControllerTest {
         when(manualDietService.searchIngredients(QUERY, 10)).thenReturn(Collections.emptyList());
 
         // Act
-        ResponseEntity<List<ParsedProduct>> response = 
+        ResponseEntity<List<ParsedProduct>> response =
                 manualDietController.searchIngredients(QUERY, 10);
 
         // Assert
@@ -157,7 +154,7 @@ class ManualDietControllerTest {
                 .thenThrow(new RuntimeException("Search error"));
 
         // Act
-        ResponseEntity<List<ParsedProduct>> response = 
+        ResponseEntity<List<ParsedProduct>> response =
                 manualDietController.searchIngredients(QUERY, 10);
 
         // Assert
@@ -221,7 +218,7 @@ class ManualDietControllerTest {
         // Arrange
         Map<String, Object> validationResult = new HashMap<>();
         validationResult.put("valid", false);
-        validationResult.put("errors", Arrays.asList("Missing required field"));
+        validationResult.put("errors", List.of("Missing required field"));
         when(manualDietService.validateManualDiet(mockDietRequest)).thenReturn(validationResult);
 
         // Act
@@ -288,7 +285,7 @@ class ManualDietControllerTest {
                 .thenReturn(mockMealTemplateResponse);
 
         // Act
-        ResponseEntity<MealTemplateResponse> response = 
+        ResponseEntity<MealTemplateResponse> response =
                 manualDietController.saveMealTemplate(mockSaveMealTemplateRequest);
 
         // Assert
@@ -305,7 +302,7 @@ class ManualDietControllerTest {
                 .thenThrow(new RuntimeException("Save failed"));
 
         // Act
-        ResponseEntity<MealTemplateResponse> response = 
+        ResponseEntity<MealTemplateResponse> response =
                 manualDietController.saveMealTemplate(mockSaveMealTemplateRequest);
 
         // Assert
@@ -322,7 +319,7 @@ class ManualDietControllerTest {
                 .thenReturn(mockMealSavePreviewResponse);
 
         // Act
-        ResponseEntity<MealSavePreviewResponse> response = 
+        ResponseEntity<MealSavePreviewResponse> response =
                 manualDietController.previewMealSave(mockPreviewMealSaveRequest);
 
         // Assert
@@ -339,7 +336,7 @@ class ManualDietControllerTest {
                 .thenThrow(new RuntimeException("Preview failed"));
 
         // Act
-        ResponseEntity<MealSavePreviewResponse> response = 
+        ResponseEntity<MealSavePreviewResponse> response =
                 manualDietController.previewMealSave(mockPreviewMealSaveRequest);
 
         // Assert
@@ -355,7 +352,7 @@ class ManualDietControllerTest {
         when(manualDietService.uploadMealImage(multipartFile, MEAL_ID)).thenReturn(IMAGE_URL);
 
         // Act
-        ResponseEntity<MealImageResponse> response = 
+        ResponseEntity<MealImageResponse> response =
                 manualDietController.uploadMealImage(multipartFile, MEAL_ID);
 
         // Assert
@@ -371,7 +368,7 @@ class ManualDietControllerTest {
         when(manualDietService.uploadMealImage(multipartFile, null)).thenReturn(IMAGE_URL);
 
         // Act
-        ResponseEntity<MealImageResponse> response = 
+        ResponseEntity<MealImageResponse> response =
                 manualDietController.uploadMealImage(multipartFile, null);
 
         // Assert
@@ -388,7 +385,7 @@ class ManualDietControllerTest {
                 .thenThrow(new RuntimeException("Upload failed"));
 
         // Act
-        ResponseEntity<MealImageResponse> response = 
+        ResponseEntity<MealImageResponse> response =
                 manualDietController.uploadMealImage(multipartFile, MEAL_ID);
 
         // Assert
@@ -471,11 +468,11 @@ class ManualDietControllerTest {
     @Test
     void searchMealSuggestions_WithValidQuery_ShouldReturnOkWithSuggestions() {
         // Arrange
-        List<MealSuggestionResponse> suggestions = Arrays.asList(mockMealSuggestionResponse);
+        List<MealSuggestionResponse> suggestions = Collections.singletonList(mockMealSuggestionResponse);
         when(manualDietService.searchMealSuggestions(QUERY, 10)).thenReturn(suggestions);
 
         // Act
-        ResponseEntity<List<MealSuggestionResponse>> response = 
+        ResponseEntity<List<MealSuggestionResponse>> response =
                 manualDietController.searchMealSuggestions(QUERY, 10);
 
         // Assert
@@ -489,11 +486,11 @@ class ManualDietControllerTest {
     void searchMealSuggestions_WithCustomLimit_ShouldReturnOkWithLimitedResults() {
         // Arrange
         int customLimit = 5;
-        List<MealSuggestionResponse> suggestions = Arrays.asList(mockMealSuggestionResponse);
+        List<MealSuggestionResponse> suggestions = Collections.singletonList(mockMealSuggestionResponse);
         when(manualDietService.searchMealSuggestions(QUERY, customLimit)).thenReturn(suggestions);
 
         // Act
-        ResponseEntity<List<MealSuggestionResponse>> response = 
+        ResponseEntity<List<MealSuggestionResponse>> response =
                 manualDietController.searchMealSuggestions(QUERY, customLimit);
 
         // Assert
@@ -508,7 +505,7 @@ class ManualDietControllerTest {
         when(manualDietService.searchMealSuggestions(QUERY, 10)).thenReturn(Collections.emptyList());
 
         // Act
-        ResponseEntity<List<MealSuggestionResponse>> response = 
+        ResponseEntity<List<MealSuggestionResponse>> response =
                 manualDietController.searchMealSuggestions(QUERY, 10);
 
         // Assert
@@ -525,7 +522,7 @@ class ManualDietControllerTest {
                 .thenThrow(new RuntimeException("Search failed"));
 
         // Act
-        ResponseEntity<List<MealSuggestionResponse>> response = 
+        ResponseEntity<List<MealSuggestionResponse>> response =
                 manualDietController.searchMealSuggestions(QUERY, 10);
 
         // Assert
@@ -542,7 +539,7 @@ class ManualDietControllerTest {
                 .thenReturn(mockMealTemplateResponse);
 
         // Act
-        ResponseEntity<MealTemplateResponse> response = 
+        ResponseEntity<MealTemplateResponse> response =
                 manualDietController.updateMealTemplate(TEMPLATE_ID, mockSaveMealTemplateRequest);
 
         // Assert
@@ -559,7 +556,7 @@ class ManualDietControllerTest {
                 .thenThrow(new RuntimeException("Update failed"));
 
         // Act
-        ResponseEntity<MealTemplateResponse> response = 
+        ResponseEntity<MealTemplateResponse> response =
                 manualDietController.updateMealTemplate(TEMPLATE_ID, mockSaveMealTemplateRequest);
 
         // Assert

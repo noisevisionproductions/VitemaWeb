@@ -54,7 +54,7 @@ public class CategoryDataCleanupService {
                     });
 
                     // Zachowaj pierwszy (najnowszy), usuń pozostałe
-                    DocumentSnapshot toKeep = documents.get(0);
+                    DocumentSnapshot toKeep = documents.getFirst();
                     List<String> allVariations = new ArrayList<>();
                     int totalUsageCount = 0;
 
@@ -88,7 +88,7 @@ public class CategoryDataCleanupService {
                         batchSize++;
                         duplicatesRemoved++;
 
-                        if (batchSize >= 450) { // Zostaw margines bezpieczeństwa
+                        if (batchSize >= 450) {
                             batch.commit().get();
                             batch = firestore.batch();
                             batchSize = 0;

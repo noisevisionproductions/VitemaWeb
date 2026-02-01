@@ -1,6 +1,5 @@
 package com.noisevisionsoftware.vitema.service.diet.manual;
 
-import com.google.cloud.Timestamp;
 import com.noisevisionsoftware.vitema.dto.request.diet.manual.ManualDietRequest;
 import com.noisevisionsoftware.vitema.utils.excelParser.model.ParsedDay;
 import com.noisevisionsoftware.vitema.utils.excelParser.model.ParsedDietData;
@@ -669,7 +668,7 @@ class DietDataConverterTest {
         void givenExtendedDuration_When_CloneDietWithModifications_Then_CreateNewDays() {
             // Given
             ParsedDietData original = dietDataConverter.convertToParsedDietData(manualDietRequest);
-            Integer newDuration = 10;
+            int newDuration = 10;
 
             // When
             ParsedDietData cloned = dietDataConverter.cloneDietWithModifications(
@@ -678,7 +677,7 @@ class DietDataConverterTest {
             // Then
             assertThat(cloned.getDays()).hasSize(newDuration);
             // First day should be cloned
-            assertThat(cloned.getDays().get(0).getMeals()).isNotEmpty();
+            assertThat(cloned.getDays().getFirst().getMeals()).isNotEmpty();
             // Additional days should be empty
             for (int i = original.getDays().size(); i < newDuration; i++) {
                 assertThat(cloned.getDays().get(i).getMeals()).hasSize(original.getMealsPerDay());

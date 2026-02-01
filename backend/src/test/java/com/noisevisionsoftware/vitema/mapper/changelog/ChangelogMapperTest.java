@@ -24,7 +24,6 @@ class ChangelogMapperTest {
     @Test
     void toModel_ShouldMapAllFields() {
         // given
-        String title = "Nowa funkcja";
         String description = "Dodano nową funkcjonalność";
         ChangelogEntryType type = ChangelogEntryType.FEATURE;
         String author = "testUser";
@@ -78,7 +77,6 @@ class ChangelogMapperTest {
     void toResponse_ShouldMapAllFields() {
         // given
         String id = "123";
-        String title = "Naprawiono błąd";
         String description = "Poprawiono błąd w module X";
         Timestamp createdAt = Timestamp.now();
         String author = "janKowalski";
@@ -115,7 +113,6 @@ class ChangelogMapperTest {
 
         // then
         assertNotNull(result.getCreatedAt());
-        // Sprawdzamy, czy timestamp został utworzony nie dawniej niż 10 sekund temu
         long currentTimeSeconds = Timestamp.now().getSeconds();
         long createdAtSeconds = result.getCreatedAt().getSeconds();
         assertTrue(currentTimeSeconds - createdAtSeconds < 10,
@@ -141,7 +138,6 @@ class ChangelogMapperTest {
     void toResponse_WithNullFields_ShouldMapNullValues() {
         // given
         ChangelogEntry entry = new ChangelogEntry();
-        // Celowo nie ustawiamy żadnych pól
 
         // when
         ChangelogEntryResponse result = mapper.toResponse(entry);

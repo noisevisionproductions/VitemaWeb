@@ -119,7 +119,7 @@ class ShoppingListControllerTest {
         // given
         String id = "test-id";
         String categoryId = "category-1";
-        ShoppingListResponse response = new ShoppingListResponse(); // Załóżmy, że mamy odpowiedni konstruktor
+        ShoppingListResponse response = new ShoppingListResponse();
 
         ShoppingListItemRequest request = ShoppingListItemRequest.builder()
                 .name("Test Item")

@@ -17,7 +17,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -26,7 +25,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,7 +46,6 @@ class PostgresDietTemplateRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        // Given - przygotowanie danych testowych
         mockEntity = DietTemplateEntity.builder()
                 .id(1L)
                 .externalId(TEST_TEMPLATE_ID)
@@ -184,7 +181,7 @@ class PostgresDietTemplateRepositoryTest {
 
         // then
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getCategory()).isEqualTo(category);
+        assertThat(result.getFirst().getCategory()).isEqualTo(category);
         verify(jpaRepository).findByCategoryAndCreatedByOrderByCreatedAtDesc(category, TEST_USER_ID);
         verify(converter).toModel(mockEntity);
     }
@@ -285,7 +282,7 @@ class PostgresDietTemplateRepositoryTest {
 
         // then
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getName()).containsIgnoringCase("testowy");
+        assertThat(result.getFirst().getName()).containsIgnoringCase("testowy");
         verify(jpaRepository).searchByNameOrDescription(query, TEST_USER_ID, pageable);
         verify(converter).toModel(mockEntity);
     }
@@ -468,7 +465,6 @@ class PostgresDietTemplateRepositoryTest {
         doThrow(new RuntimeException("Database error"))
                 .when(jpaRepository).incrementUsageCount(TEST_TEMPLATE_ID);
 
-        // when/then - metoda nie powinna rzucać wyjątku, tylko logować błąd
         repository.incrementUsageCount(TEST_TEMPLATE_ID);
 
         // then

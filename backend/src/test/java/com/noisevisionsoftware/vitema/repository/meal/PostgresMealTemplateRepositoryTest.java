@@ -3,8 +3,8 @@ package com.noisevisionsoftware.vitema.repository.meal;
 import com.google.cloud.Timestamp;
 import com.noisevisionsoftware.vitema.exception.NotFoundException;
 import com.noisevisionsoftware.vitema.mapper.meal.MealTemplateJpaConverter;
-import com.noisevisionsoftware.vitema.model.meal.MealType;
 import com.noisevisionsoftware.vitema.model.meal.MealTemplate;
+import com.noisevisionsoftware.vitema.model.meal.MealType;
 import com.noisevisionsoftware.vitema.model.meal.jpa.MealTemplateEntity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -48,7 +47,6 @@ class PostgresMealTemplateRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        // Given - przygotowanie danych testowych
         mockEntity = MealTemplateEntity.builder()
                 .id(1L)
                 .externalId(TEST_TEMPLATE_ID)
@@ -143,7 +141,7 @@ class PostgresMealTemplateRepositoryTest {
 
         // then
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getName()).containsIgnoringCase("testowy");
+        assertThat(result.getFirst().getName()).containsIgnoringCase("testowy");
         verify(jpaRepository).searchByNameOrInstructions(query, pageable);
         verify(converter).toModel(mockEntity);
     }
@@ -450,7 +448,7 @@ class PostgresMealTemplateRepositoryTest {
 
         // then
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getName()).containsIgnoringCase("testowy");
+        assertThat(result.getFirst().getName()).containsIgnoringCase("testowy");
         verify(jpaRepository).searchAccessibleTemplates(query, TEST_USER_ID, pageable);
         verify(converter).toModel(mockEntity);
     }

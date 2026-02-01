@@ -35,7 +35,6 @@ class ExternalRecipientsServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Przygotowanie testowego odbiorcy
         testRecipient = ExternalRecipient.builder()
                 .id(1L)
                 .email("test@example.com")
@@ -49,7 +48,6 @@ class ExternalRecipientsServiceTest {
 
         testRecipient.setTagList(Arrays.asList("tag1", "tag2"));
 
-        // Przygotowanie poprawnego żądania
         validRequest = new ExternalRecipientRequest();
         validRequest.setEmail("new@example.com");
         validRequest.setName("New Recipient");
@@ -162,9 +160,7 @@ class ExternalRecipientsServiceTest {
         when(externalRecipientRepository.findByEmail(validRequest.getEmail())).thenReturn(Optional.of(testRecipient));
 
         // Act & Assert
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-            externalRecipientsService.addRecipient(validRequest);
-        });
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> externalRecipientsService.addRecipient(validRequest));
 
         assertEquals("Odbiorca o podanym adresie email już istnieje", exception.getMessage(), "Powinien rzucić wyjątek z odpowiednim komunikatem");
         verify(externalRecipientRepository).findByEmail(validRequest.getEmail());
@@ -226,7 +222,7 @@ class ExternalRecipientsServiceTest {
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> errors = (List<Map<String, Object>>) result.get("errors");
         assertEquals(1, errors.size(), "Powinien być 1 błąd");
-        assertEquals("existing@example.com", errors.get(0).get("email"), "Błąd powinien dotyczyć istniejącego emaila");
+        assertEquals("existing@example.com", errors.getFirst().get("email"), "Błąd powinien dotyczyć istniejącego emaila");
 
         verify(externalRecipientRepository, times(2)).findByEmail(anyString());
         verify(externalRecipientRepository, times(1)).save(any(ExternalRecipient.class));
@@ -246,7 +242,7 @@ class ExternalRecipientsServiceTest {
         when(externalRecipientRepository.save(any(ExternalRecipient.class))).thenReturn(testRecipient);
 
         // Act
-        ExternalRecipient result = externalRecipientsService.updateRecipient(recipientId, updateRequest);
+        externalRecipientsService.updateRecipient(recipientId, updateRequest);
 
         // Assert
         verify(externalRecipientRepository).findById(recipientId);
@@ -269,9 +265,7 @@ class ExternalRecipientsServiceTest {
         when(externalRecipientRepository.findById(recipientId)).thenReturn(Optional.empty());
 
         // Act & Assert
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            externalRecipientsService.updateRecipient(recipientId, updateRequest);
-        });
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> externalRecipientsService.updateRecipient(recipientId, updateRequest));
 
         assertEquals("Nie znaleziono odbiorcy o podanym ID", exception.getMessage(), "Powinien rzucić wyjątek z odpowiednim komunikatem");
         verify(externalRecipientRepository).findById(recipientId);
@@ -288,7 +282,7 @@ class ExternalRecipientsServiceTest {
         when(externalRecipientRepository.save(any(ExternalRecipient.class))).thenReturn(testRecipient);
 
         // Act
-        ExternalRecipient result = externalRecipientsService.updateStatus(recipientId, newStatus);
+        externalRecipientsService.updateStatus(recipientId, newStatus);
 
         // Assert
         verify(externalRecipientRepository).findById(recipientId);
@@ -309,7 +303,7 @@ class ExternalRecipientsServiceTest {
         when(externalRecipientRepository.save(any(ExternalRecipient.class))).thenReturn(testRecipient);
 
         // Act
-        ExternalRecipient result = externalRecipientsService.updateStatus(recipientId, newStatus);
+        externalRecipientsService.updateStatus(recipientId, newStatus);
 
         // Assert
         verify(externalRecipientRepository).findById(recipientId);

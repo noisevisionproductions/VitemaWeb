@@ -69,7 +69,6 @@ class ExcelStructureValidatorTest {
     void validateExcelStructure_shouldReturnSuccessForValidStructure() throws IOException {
         // given
         List<List<String>> validRows = new ArrayList<>();
-        // Wiersz nagłówkowy
         validRows.add(Arrays.asList("ID", "Nazwa", "Opis", "Składniki", "Wartości"));
         // Dane
         validRows.add(Arrays.asList("1", "Owsianka", "Przepis", "Płatki, mleko", "300kcal"));
@@ -88,7 +87,7 @@ class ExcelStructureValidatorTest {
         assertTrue(result.isValid());
         assertEquals(ValidationSeverity.SUCCESS, result.severity());
         assertTrue(result.message().contains("poprawna"));
-        assertTrue(result.message().contains("2 posiłków")); // 3 wiersze - 1 nagłówek = 2 posiłki
+        assertTrue(result.message().contains("2 posiłków"));
     }
 
     @Test
@@ -96,7 +95,6 @@ class ExcelStructureValidatorTest {
     void validateExcelStructure_shouldReturnErrorForInvalidColumnCount() throws IOException {
         // given
         List<List<String>> invalidRows = new ArrayList<>();
-        // Wiersz nagłówkowy
         invalidRows.add(Arrays.asList("ID", "Nazwa", "Opis", "Składniki", "Wartości"));
         invalidRows.add(Arrays.asList("1", "Owsianka", "Przepis"));
 
@@ -109,7 +107,7 @@ class ExcelStructureValidatorTest {
         assertFalse(results.isEmpty());
         assertEquals(1, results.size());
 
-        ValidationResult result = results.get(0);
+        ValidationResult result = results.getFirst();
         assertFalse(result.isValid());
         assertEquals(ValidationSeverity.ERROR, result.severity());
         assertTrue(result.message().contains("Wiersz 2"));
@@ -121,7 +119,6 @@ class ExcelStructureValidatorTest {
     void validateExcelStructure_shouldReturnErrorForMissingMealName() throws IOException {
         // given
         List<List<String>> invalidRows = new ArrayList<>();
-        // Wiersz nagłówkowy
         invalidRows.add(Arrays.asList("ID", "Nazwa", "Opis", "Składniki", "Wartości"));
         invalidRows.add(Arrays.asList("1", "", "Przepis", "Składniki", "300kcal"));
 

@@ -35,7 +35,6 @@ public class ProductCategorizationServiceTest {
     void setUp() {
         testData = new ConcurrentHashMap<>();
 
-        // Przygotowanie danych testowych
         ProductCategoryData mleko = ProductCategoryData.builder()
                 .productName("mleko")
                 .categoryId("nabiał")
@@ -56,11 +55,9 @@ public class ProductCategorizationServiceTest {
                 .updatedAt(now)
                 .build();
 
-        // Dodaj produkty do danych testowych
         testData.put("mleko", mleko);
         testData.put("chleb", chleb);
 
-        // Skonfiguruj mock dataManager
         when(dataManager.loadData()).thenReturn(testData);
         service.init();
     }

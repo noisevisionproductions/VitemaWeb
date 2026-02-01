@@ -107,8 +107,7 @@ class DietTemplateServiceTest {
             newTemplate.setId(null);
 
             when(dietTemplateRepository.save(any(DietTemplate.class))).thenAnswer(invocation -> {
-                DietTemplate saved = invocation.getArgument(0);
-                return saved;
+                return invocation.<DietTemplate>getArgument(0);
             });
 
             // When

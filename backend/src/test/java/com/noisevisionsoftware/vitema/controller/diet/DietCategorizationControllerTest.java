@@ -48,7 +48,6 @@ class DietCategorizationControllerTest {
     private UpdateProductRequest updateProductRequest;
     private UpdateCategoriesRequest updateCategoriesRequest;
     private BulkCategoryRequest bulkCategoryRequest;
-    private Category testCategory;
     private ParsingResult parsingResult;
 
     private static final String TEST_PRODUCT_NAME = "Mleko 2% 1L";
@@ -77,9 +76,9 @@ class DietCategorizationControllerTest {
         categorizedProducts.put(TEST_CATEGORY_ID, Collections.singletonList(testProduct));
         updateCategoriesRequest.setCategorizedProducts(categorizedProducts);
 
-        bulkCategoryRequest = new BulkCategoryRequest(Arrays.asList(testProduct));
+        bulkCategoryRequest = new BulkCategoryRequest(Collections.singletonList(testProduct));
 
-        testCategory = new Category();
+        Category testCategory = new Category();
         testCategory.setId(TEST_CATEGORY_ID);
         testCategory.setName("Nabiał");
 
@@ -103,7 +102,7 @@ class DietCategorizationControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(2, response.getBody().size());
-        assertEquals(TEST_CATEGORY_ID, response.getBody().get(0).getCategoryId());
+        assertEquals(TEST_CATEGORY_ID, response.getBody().getFirst().getCategoryId());
         verify(productParsingService, times(2)).parseProduct(anyString());
         verify(categorizationService, times(2)).suggestCategory(any(ParsedProduct.class));
     }
@@ -156,7 +155,7 @@ class DietCategorizationControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(2, response.getBody().size());
-        ParsedProduct defaultProduct = response.getBody().get(0);
+        ParsedProduct defaultProduct = response.getBody().getFirst();
         assertEquals(TEST_PRODUCT_NAME, defaultProduct.getName());
         assertEquals(1.0, defaultProduct.getQuantity());
         assertEquals("szt", defaultProduct.getUnit());
@@ -177,7 +176,7 @@ class DietCategorizationControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(2, response.getBody().size());
-        ParsedProduct defaultProduct = response.getBody().get(0);
+        ParsedProduct defaultProduct = response.getBody().getFirst();
         assertEquals(TEST_PRODUCT_NAME, defaultProduct.getName());
         assertNull(defaultProduct.getCategoryId());
         verify(productParsingService, times(2)).parseProduct(anyString());
@@ -196,7 +195,7 @@ class DietCategorizationControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(2, response.getBody().size());
-        assertNull(response.getBody().get(0).getCategoryId());
+        assertNull(response.getBody().getFirst().getCategoryId());
         verify(categorizationService, times(2)).suggestCategory(any(ParsedProduct.class));
     }
 

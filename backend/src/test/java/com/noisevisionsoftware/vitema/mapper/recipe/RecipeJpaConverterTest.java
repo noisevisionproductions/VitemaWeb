@@ -237,7 +237,7 @@ class RecipeJpaConverterTest {
             assertThat(entity).isNotNull();
             assertThat(entity.getIngredients()).hasSize(2);
             
-            RecipeIngredientEntity ing1 = entity.getIngredients().get(0);
+            RecipeIngredientEntity ing1 = entity.getIngredients().getFirst();
             assertThat(ing1.getName()).isEqualTo("Flour");
             assertThat(ing1.getQuantity()).isEqualByComparingTo(BigDecimal.valueOf(2.5));
             assertThat(ing1.getUnit()).isEqualTo("cups");
@@ -293,7 +293,7 @@ class RecipeJpaConverterTest {
             assertThat(recipe).isNotNull();
             assertThat(recipe.getIngredients()).hasSize(2);
             
-            RecipeIngredient ingredient1 = recipe.getIngredients().get(0);
+            RecipeIngredient ingredient1 = recipe.getIngredients().getFirst();
             assertThat(ingredient1.getId()).isEqualTo("1");
             assertThat(ingredient1.getName()).isEqualTo("Flour");
             assertThat(ingredient1.getQuantity()).isEqualTo(2.5);
@@ -642,7 +642,7 @@ class RecipeJpaConverterTest {
 
             // Then
             assertThat(entity.getIngredients()).hasSize(1);
-            assertThat(entity.getIngredients().get(0).getQuantity()).isEqualByComparingTo(BigDecimal.ZERO);
+            assertThat(entity.getIngredients().getFirst().getQuantity()).isEqualByComparingTo(BigDecimal.ZERO);
         }
     }
 
@@ -700,7 +700,7 @@ class RecipeJpaConverterTest {
             assertThat(resultEntity.isPublic()).isEqualTo(originalEntity.isPublic());
             assertThat(resultEntity.getNutritionalValues().getCalories()).isEqualTo(originalEntity.getNutritionalValues().getCalories());
             assertThat(resultEntity.getIngredients()).hasSize(1);
-            assertThat(resultEntity.getIngredients().get(0).getName()).isEqualTo("Flour");
+            assertThat(resultEntity.getIngredients().getFirst().getName()).isEqualTo("Flour");
         }
 
         @Test

@@ -271,13 +271,13 @@ class DietTemplateJpaConverterTest {
 
             // Then
             assertThat(result.getDays()).hasSize(1);
-            DietTemplateDayEntity dayEntity = result.getDays().get(0);
+            DietTemplateDayEntity dayEntity = result.getDays().getFirst();
             assertThat(dayEntity.getDayNumber()).isEqualTo(1);
             assertThat(dayEntity.getDayName()).isEqualTo("Day 1");
             assertThat(dayEntity.getNotes()).isEqualTo("First day");
 
             assertThat(dayEntity.getMeals()).hasSize(1);
-            DietTemplateMealEntity mealEntity = dayEntity.getMeals().get(0);
+            DietTemplateMealEntity mealEntity = dayEntity.getMeals().getFirst();
             assertThat(mealEntity.getName()).isEqualTo("Breakfast");
             assertThat(mealEntity.getMealType()).isEqualTo(MealType.BREAKFAST);
             assertThat(mealEntity.getTime()).isEqualTo("08:00");
@@ -287,7 +287,7 @@ class DietTemplateJpaConverterTest {
             assertThat(mealEntity.getProtein()).isEqualByComparingTo(BigDecimal.valueOf(25));
 
             assertThat(mealEntity.getIngredients()).hasSize(1);
-            DietTemplateIngredientEntity ingredientEntity = mealEntity.getIngredients().get(0);
+            DietTemplateIngredientEntity ingredientEntity = mealEntity.getIngredients().getFirst();
             assertThat(ingredientEntity.getName()).isEqualTo("Eggs");
             assertThat(ingredientEntity.getQuantity()).isEqualByComparingTo(BigDecimal.valueOf(2));
             assertThat(ingredientEntity.getUnit()).isEqualTo("szt");
@@ -295,7 +295,7 @@ class DietTemplateJpaConverterTest {
             assertThat(ingredientEntity.getCategoryId()).isEqualTo("cat-1");
 
             assertThat(mealEntity.getPhotos()).hasSize(1);
-            assertThat(mealEntity.getPhotos().get(0).getPhotoUrl()).isEqualTo("photo1.jpg");
+            assertThat(mealEntity.getPhotos().getFirst().getPhotoUrl()).isEqualTo("photo1.jpg");
         }
     }
 
@@ -387,7 +387,7 @@ class DietTemplateJpaConverterTest {
 
             // Then
             assertThat(templateEntity.getDays()).hasSize(1);
-            assertThat(templateEntity.getDays().get(0).getDayName()).isEqualTo("New Day 1");
+            assertThat(templateEntity.getDays().getFirst().getDayName()).isEqualTo("New Day 1");
         }
     }
 
@@ -433,10 +433,6 @@ class DietTemplateJpaConverterTest {
             assertThat(result.getMealsPerDay()).isEqualTo(original.getMealsPerDay());
             assertThat(result.getTargetCalories()).isEqualTo(original.getTargetCalories());
         }
-    }
-
-    private DietTemplate createMinimalModel() {
-        return createModelWithDays(Collections.emptyList());
     }
 
     private DietTemplate createModelWithNutrition(DietTemplateNutrition nutrition) {
@@ -1328,7 +1324,7 @@ class DietTemplateJpaConverterTest {
 
             // Then
             assertThat(result.getIngredients()).hasSize(1);
-            DietTemplateIngredientEntity ingEntity = result.getIngredients().get(0);
+            DietTemplateIngredientEntity ingEntity = result.getIngredients().getFirst();
             assertThat(ingEntity.getName()).isEqualTo("Egg");
             assertThat(ingEntity.getQuantity()).isEqualByComparingTo(BigDecimal.valueOf(2.0));
             assertThat(ingEntity.getUnit()).isEqualTo("szt");

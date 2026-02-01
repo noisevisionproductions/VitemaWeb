@@ -227,7 +227,6 @@ class DietControllerTest {
     @Test
     void getDietsInfo_WithSingleUserId_ShouldReturnDietInfo() {
         // Arrange
-        String userIds = TEST_USER_ID;
         List<String> userIdList = Collections.singletonList(TEST_USER_ID);
         Timestamp startDate = Timestamp.now();
         Timestamp endDate = Timestamp.now();
@@ -242,7 +241,7 @@ class DietControllerTest {
         when(dietService.getDietsInfoForUsers(userIdList)).thenReturn(dietInfoMap);
 
         // Act
-        ResponseEntity<Map<String, DietInfo>> response = dietController.getDietsInfo(userIds);
+        ResponseEntity<Map<String, DietInfo>> response = dietController.getDietsInfo(TEST_USER_ID);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -311,12 +310,11 @@ class DietControllerTest {
     @Test
     void getDietsInfo_WhenServiceReturnsEmptyMap_ShouldReturnEmptyMap() {
         // Arrange
-        String userIds = TEST_USER_ID;
         List<String> userIdList = Collections.singletonList(TEST_USER_ID);
         when(dietService.getDietsInfoForUsers(userIdList)).thenReturn(Collections.emptyMap());
 
         // Act
-        ResponseEntity<Map<String, DietInfo>> response = dietController.getDietsInfo(userIds);
+        ResponseEntity<Map<String, DietInfo>> response = dietController.getDietsInfo(TEST_USER_ID);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -369,7 +367,7 @@ class DietControllerTest {
                 .thenThrow(new RuntimeException("Update failed"));
 
         // Act & Assert
-        assertThrows(RuntimeException.class, 
+        assertThrows(RuntimeException.class,
                 () -> dietController.updateDiet(TEST_ID, testDietRequest));
         verify(dietService).updateDiet(testDiet);
     }
@@ -382,7 +380,7 @@ class DietControllerTest {
                 .thenThrow(new NotFoundException("Diet not found"));
 
         // Act & Assert
-        assertThrows(NotFoundException.class, 
+        assertThrows(NotFoundException.class,
                 () -> dietController.updateDiet(TEST_ID, testDietRequest));
         verify(dietService).updateDiet(testDiet);
     }
@@ -395,7 +393,7 @@ class DietControllerTest {
                 .thenThrow(new RuntimeException("Creation failed"));
 
         // Act & Assert
-        assertThrows(RuntimeException.class, 
+        assertThrows(RuntimeException.class,
                 () -> dietController.createDiet(testDietRequest));
         verify(dietService).createDiet(testDiet);
     }
@@ -407,7 +405,7 @@ class DietControllerTest {
                 .when(dietService).deleteDiet(TEST_ID);
 
         // Act & Assert
-        assertThrows(NotFoundException.class, 
+        assertThrows(NotFoundException.class,
                 () -> dietController.deleteDiet(TEST_ID));
         verify(dietService).deleteDiet(TEST_ID);
     }

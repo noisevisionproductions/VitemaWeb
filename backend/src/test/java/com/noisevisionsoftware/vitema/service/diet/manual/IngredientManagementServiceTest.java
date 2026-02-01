@@ -32,7 +32,6 @@ class IngredientManagementServiceTest {
     private IngredientManagementService ingredientManagementService;
 
     private ParsedProduct validIngredient;
-    private ParsedProduct ingredientWithoutCategory;
 
     @BeforeEach
     void setUp() {
@@ -43,15 +42,6 @@ class IngredientManagementServiceTest {
                 .quantity(200.0)
                 .unit("ml")
                 .categoryId("nabiał")
-                .hasCustomUnit(false)
-                .build();
-
-        ingredientWithoutCategory = ParsedProduct.builder()
-                .id("ingredient-456")
-                .name("Nowy składnik")
-                .original("Nowy składnik")
-                .quantity(100.0)
-                .unit("g")
                 .hasCustomUnit(false)
                 .build();
     }
@@ -67,11 +57,11 @@ class IngredientManagementServiceTest {
             String query = "mleko";
             int limit = 5;
             List<ParsedProduct> externalResults = new ArrayList<>(List.of(
-                    createParsedProduct("Mleko 3,2%", "ml"),
-                    createParsedProduct("Mleko pełne", "ml"),
-                    createParsedProduct("Mleko odtłuszczone", "ml"),
-                    createParsedProduct("Mleko skondensowane", "ml"),
-                    createParsedProduct("Mleko kokosowe", "ml")
+                    createParsedProduct("Mleko 3,2%"),
+                    createParsedProduct("Mleko pełne"),
+                    createParsedProduct("Mleko odtłuszczone"),
+                    createParsedProduct("Mleko skondensowane"),
+                    createParsedProduct("Mleko kokosowe")
             ));
 
             when(openFoodFactsService.searchIngredients(query, limit)).thenReturn(externalResults);
@@ -92,7 +82,7 @@ class IngredientManagementServiceTest {
             String query = "mleko";
             int limit = 5;
             List<ParsedProduct> externalResults = new ArrayList<>(List.of(
-                    createParsedProduct("Mleko 3,2%", "ml")
+                    createParsedProduct("Mleko 3,2%")
             ));
 
             when(openFoodFactsService.searchIngredients(query, limit)).thenReturn(externalResults);
@@ -103,7 +93,7 @@ class IngredientManagementServiceTest {
 
             // Then
             assertThat(result).hasSizeGreaterThanOrEqualTo(1);
-            assertThat(result.get(0).getName()).isEqualTo("Mleko 3,2%");
+            assertThat(result.getFirst().getName()).isEqualTo("Mleko 3,2%");
             verify(openFoodFactsService).searchIngredients(query, limit);
         }
 
@@ -133,11 +123,11 @@ class IngredientManagementServiceTest {
             // Given
             String query = "mleko";
             int limit = 5;
-            ParsedProduct product1 = createParsedProduct("Mleko 1", "ml");
-            ParsedProduct product2 = createParsedProduct("Mleko 2", "ml");
-            ParsedProduct product3 = createParsedProduct("Mleko 3", "ml");
-            ParsedProduct product4 = createParsedProduct("Mleko 4", "ml");
-            ParsedProduct product5 = createParsedProduct("Mleko 5", "ml");
+            ParsedProduct product1 = createParsedProduct("Mleko 1");
+            ParsedProduct product2 = createParsedProduct("Mleko 2");
+            ParsedProduct product3 = createParsedProduct("Mleko 3");
+            ParsedProduct product4 = createParsedProduct("Mleko 4");
+            ParsedProduct product5 = createParsedProduct("Mleko 5");
             product1.setCategoryId(null);
             product2.setCategoryId(null);
             product3.setCategoryId(null);
@@ -333,13 +323,12 @@ class IngredientManagementServiceTest {
         void givenNullUnit_When_CreateBasicIngredient_Then_UseDefaultUnit() {
             // Given
             String name = "Jajka";
-            String unit = null;
             Double quantity = 2.0;
 
             when(categorizationService.suggestCategory(any(ParsedProduct.class))).thenReturn("nabiał");
 
             // When
-            ParsedProduct result = ingredientManagementService.createBasicIngredient(name, unit, quantity);
+            ParsedProduct result = ingredientManagementService.createBasicIngredient(name, null, quantity);
 
             // Then
             assertThat(result.getUnit()).isEqualTo("szt");
@@ -351,12 +340,11 @@ class IngredientManagementServiceTest {
             // Given
             String name = "Mleko";
             String unit = "ml";
-            Double quantity = null;
 
             when(categorizationService.suggestCategory(any(ParsedProduct.class))).thenReturn("nabiał");
 
             // When
-            ParsedProduct result = ingredientManagementService.createBasicIngredient(name, unit, quantity);
+            ParsedProduct result = ingredientManagementService.createBasicIngredient(name, unit, null);
 
             // Then
             assertThat(result.getQuantity()).isEqualTo(1.0);
@@ -619,13 +607,13 @@ class IngredientManagementServiceTest {
     }
 
     // Helper methods
-    private ParsedProduct createParsedProduct(String name, String unit) {
+    private ParsedProduct createParsedProduct(String name) {
         return ParsedProduct.builder()
                 .id("id-" + name)
                 .name(name)
                 .original(name)
                 .quantity(100.0)
-                .unit(unit)
+                .unit("ml")
                 .categoryId("category-123")
                 .build();
     }

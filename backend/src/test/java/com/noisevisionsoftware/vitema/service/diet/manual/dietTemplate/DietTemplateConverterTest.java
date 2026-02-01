@@ -29,13 +29,11 @@ class DietTemplateConverterTest {
     private DietTemplateConverter dietTemplateConverter;
 
     private ManualDietRequest manualDietRequest;
-    private ParsedDay parsedDay;
     private ParsedMeal parsedMeal;
-    private ParsedProduct parsedProduct;
 
     @BeforeEach
     void setUp() {
-        parsedProduct = ParsedProduct.builder()
+        ParsedProduct parsedProduct = ParsedProduct.builder()
                 .name("Chicken Breast")
                 .quantity(200.0)
                 .unit("g")
@@ -59,7 +57,7 @@ class DietTemplateConverterTest {
                 .photos(List.of("photo1.jpg", "photo2.jpg"))
                 .build();
 
-        parsedDay = ParsedDay.builder()
+        ParsedDay parsedDay = ParsedDay.builder()
                 .meals(List.of(parsedMeal))
                 .build();
 
@@ -153,11 +151,11 @@ class DietTemplateConverterTest {
             // Then
             assertThat(result.getDays()).isNotNull();
             assertThat(result.getDays()).hasSize(1);
-            List<DietTemplateMealData> meals = result.getDays().get(0).getMeals();
+            List<DietTemplateMealData> meals = result.getDays().getFirst().getMeals();
             assertThat(meals).isNotNull();
             assertThat(meals).hasSize(1);
 
-            DietTemplateMealData meal = meals.get(0);
+            DietTemplateMealData meal = meals.getFirst();
             assertThat(meal.getName()).isEqualTo("Grilled Chicken");
             assertThat(meal.getMealType()).isEqualTo(MealType.DINNER);
             assertThat(meal.getTime()).isEqualTo("18:00");
@@ -177,11 +175,11 @@ class DietTemplateConverterTest {
                     manualDietRequest, "Template", "Desc", DietTemplateCategory.CUSTOM, "user-123");
 
             // Then
-            List<DietTemplateIngredient> ingredients = result.getDays().get(0).getMeals().get(0).getIngredients();
+            List<DietTemplateIngredient> ingredients = result.getDays().getFirst().getMeals().getFirst().getIngredients();
             assertThat(ingredients).isNotNull();
             assertThat(ingredients).hasSize(1);
 
-            DietTemplateIngredient ingredient = ingredients.get(0);
+            DietTemplateIngredient ingredient = ingredients.getFirst();
             assertThat(ingredient.getName()).isEqualTo("Chicken Breast");
             assertThat(ingredient.getQuantity()).isEqualTo(200.0);
             assertThat(ingredient.getUnit()).isEqualTo("g");
@@ -218,7 +216,7 @@ class DietTemplateConverterTest {
                     requestWithoutIngredients, "Template", "Desc", DietTemplateCategory.CUSTOM, "user-123");
 
             // Then
-            List<DietTemplateIngredient> ingredients = result.getDays().get(0).getMeals().get(0).getIngredients();
+            List<DietTemplateIngredient> ingredients = result.getDays().getFirst().getMeals().getFirst().getIngredients();
             assertThat(ingredients).isNotNull();
             assertThat(ingredients).isEmpty();
         }
@@ -305,7 +303,7 @@ class DietTemplateConverterTest {
 
             // Then
             assertThat(result.getDays()).hasSize(1);
-            List<DietTemplateMealData> meals = result.getDays().get(0).getMeals();
+            List<DietTemplateMealData> meals = result.getDays().getFirst().getMeals();
             assertThat(meals).hasSize(3);
             assertThat(meals.get(0).getName()).isEqualTo("Breakfast");
             assertThat(meals.get(1).getName()).isEqualTo("Lunch");
@@ -367,7 +365,7 @@ class DietTemplateConverterTest {
                     requestWithMultipleIngredients, "Template", "Desc", DietTemplateCategory.CUSTOM, "user-123");
 
             // Then
-            List<DietTemplateIngredient> ingredients = result.getDays().get(0).getMeals().get(0).getIngredients();
+            List<DietTemplateIngredient> ingredients = result.getDays().getFirst().getMeals().getFirst().getIngredients();
             assertThat(ingredients).hasSize(3);
             assertThat(ingredients.get(0).getName()).isEqualTo("Chicken");
             assertThat(ingredients.get(1).getName()).isEqualTo("Rice");

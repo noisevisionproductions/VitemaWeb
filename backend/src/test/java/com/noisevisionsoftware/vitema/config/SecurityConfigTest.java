@@ -97,7 +97,6 @@ class SecurityConfigTest {
         assertNotNull(corsConfiguration);
         List<String> allowedMethods = corsConfiguration.getAllowedMethods();
 
-        // Zmiana asercji na bardziej odporne na zmiany kolejności
         assertThat(allowedMethods)
                 .containsExactlyInAnyOrderElementsOf(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
     }
@@ -128,14 +127,13 @@ class SecurityConfigTest {
                 "X-XSRF-TOKEN"
         );
 
-        // Zmiana asercji na bardziej odporne na zmiany kolejności
         assertThat(allowedHeaders).containsExactlyInAnyOrderElementsOf(expectedHeaders);
     }
 
     @Test
     void corsConfigurationSource_ShouldHaveCorrectExposedHeaders() {
         // given
-        when(environment.getActiveProfiles()).thenReturn(new String[]{"prod"}); // Zapewnienie konkretnego profilu
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"prod"});
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/api/test");
@@ -149,14 +147,13 @@ class SecurityConfigTest {
         List<String> exposedHeaders = corsConfiguration.getExposedHeaders();
         List<String> expectedExposedHeaders = List.of("Authorization", "X-XSRF-TOKEN");
 
-        // Zmiana asercji na bardziej odporne na zmiany kolejności
         assertThat(exposedHeaders).containsExactlyInAnyOrderElementsOf(expectedExposedHeaders);
     }
 
     @Test
     void corsConfigurationSource_ShouldHaveCorrectAccessSettings() {
         // given
-        when(environment.getActiveProfiles()).thenReturn(new String[]{"prod"}); // Zapewnienie konkretnego profilu
+        when(environment.getActiveProfiles()).thenReturn(new String[]{"prod"});
 
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/api/test");
@@ -167,8 +164,8 @@ class SecurityConfigTest {
 
         // then
         assertNotNull(corsConfiguration);
-        assertTrue(corsConfiguration.getAllowCredentials()); // Uproszczenie asercji
-        assertEquals(3600L, corsConfiguration.getMaxAge().longValue()); // Uproszczenie asercji
+        assertEquals(Boolean.TRUE, corsConfiguration.getAllowCredentials());
+        assertEquals(3600L, Objects.requireNonNull(corsConfiguration.getMaxAge()).longValue());
     }
 
     @Test

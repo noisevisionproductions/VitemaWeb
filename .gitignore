@@ -43,6 +43,7 @@ Thumbs.db
 .env.production
 .env.local
 .env.*.local
+.cursorrules
 
 # Tailwind CSS JIT build cache (jeśli używasz Tailwind)
 .tailwindcss/

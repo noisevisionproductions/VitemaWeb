@@ -25,10 +25,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -147,12 +145,12 @@ class BodyMeasurementsControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertInstanceOf(List.class, response.getBody());
-        
+
         @SuppressWarnings("unchecked")
         List<BodyMeasurementsResponse> responseList = (List<BodyMeasurementsResponse>) response.getBody();
         assertEquals(1, responseList.size());
-        assertEquals(measurementResponse, responseList.get(0));
-        
+        assertEquals(measurementResponse, responseList.getFirst());
+
         verify(measurementsService).getMeasurementsByUserId(TEST_USER_ID);
         verify(measurementsMapper).toResponse(measurementModel);
     }
@@ -205,11 +203,11 @@ class BodyMeasurementsControllerTest {
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         assertNotNull(response.getBody());
         assertInstanceOf(ErrorResponse.class, response.getBody());
-        
+
         ErrorResponse errorResponse = (ErrorResponse) response.getBody();
         assertEquals(HttpStatus.FORBIDDEN.value(), errorResponse.getStatus());
         assertEquals("Nie masz uprawnień do wyświetlania pomiarów tego użytkownika", errorResponse.getMessage());
-        
+
         verify(measurementsService, never()).getMeasurementsByUserId(any());
     }
 
@@ -228,7 +226,7 @@ class BodyMeasurementsControllerTest {
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         assertNotNull(response.getBody());
         assertInstanceOf(ErrorResponse.class, response.getBody());
-        
+
         verify(measurementsService, never()).getMeasurementsByUserId(any());
     }
 
@@ -245,11 +243,11 @@ class BodyMeasurementsControllerTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNotNull(response.getBody());
         assertInstanceOf(ErrorResponse.class, response.getBody());
-        
+
         ErrorResponse errorResponse = (ErrorResponse) response.getBody();
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorResponse.getStatus());
         assertTrue(errorResponse.getMessage().contains("Wystąpił błąd podczas pobierania pomiarów"));
-        
+
         verify(measurementsService).getMeasurementsByUserId(TEST_USER_ID);
     }
 
@@ -265,11 +263,11 @@ class BodyMeasurementsControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertInstanceOf(List.class, response.getBody());
-        
+
         @SuppressWarnings("unchecked")
         List<BodyMeasurementsResponse> responseList = (List<BodyMeasurementsResponse>) response.getBody();
         assertTrue(responseList.isEmpty());
-        
+
         verify(measurementsService).getMeasurementsByUserId(TEST_USER_ID);
         verify(measurementsMapper, never()).toResponse(any());
     }
@@ -286,7 +284,7 @@ class BodyMeasurementsControllerTest {
                 .measurementType(MeasurementType.FULL_BODY)
                 .sourceType(MeasurementSourceType.APP)
                 .build();
-        
+
         BodyMeasurementsResponse response2 = BodyMeasurementsResponse.builder()
                 .id("measurement456")
                 .userId(TEST_USER_ID)
@@ -308,11 +306,11 @@ class BodyMeasurementsControllerTest {
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        
+
         @SuppressWarnings("unchecked")
         List<BodyMeasurementsResponse> responseList = (List<BodyMeasurementsResponse>) response.getBody();
         assertEquals(2, responseList.size());
-        
+
         verify(measurementsService).getMeasurementsByUserId(TEST_USER_ID);
         verify(measurementsMapper, times(2)).toResponse(any(BodyMeasurements.class));
     }
@@ -334,7 +332,7 @@ class BodyMeasurementsControllerTest {
         assertNotNull(response.getBody());
         assertInstanceOf(BodyMeasurementsResponse.class, response.getBody());
         assertEquals(measurementResponse, response.getBody());
-        
+
         verify(measurementsMapper).toModel(measurementRequest, TEST_USER_ID);
         verify(measurementsService).createMeasurement(measurementModel, TEST_USER_ID);
         verify(measurementsMapper).toResponse(measurementModel);
@@ -354,11 +352,11 @@ class BodyMeasurementsControllerTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNotNull(response.getBody());
         assertInstanceOf(ErrorResponse.class, response.getBody());
-        
+
         ErrorResponse errorResponse = (ErrorResponse) response.getBody();
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorResponse.getStatus());
         assertTrue(errorResponse.getMessage().contains("Wystąpił błąd podczas tworzenia pomiaru"));
-        
+
         verify(measurementsMapper).toModel(measurementRequest, TEST_USER_ID);
         verify(measurementsService).createMeasurement(measurementModel, TEST_USER_ID);
         verify(measurementsMapper, never()).toResponse(any());
@@ -377,7 +375,7 @@ class BodyMeasurementsControllerTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNotNull(response.getBody());
         assertInstanceOf(ErrorResponse.class, response.getBody());
-        
+
         verify(measurementsMapper).toModel(measurementRequest, TEST_USER_ID);
         verify(measurementsService, never()).createMeasurement(any(), any());
     }
@@ -401,7 +399,7 @@ class BodyMeasurementsControllerTest {
         assertNotNull(response.getBody());
         assertInstanceOf(BodyMeasurementsResponse.class, response.getBody());
         assertEquals(measurementResponse, response.getBody());
-        
+
         verify(measurementsMapper).toModel(measurementRequest, TEST_USER_ID);
         verify(measurementsService).updateMeasurement(TEST_MEASUREMENT_ID, measurementModel, TEST_USER_ID);
         verify(measurementsMapper).toResponse(measurementModel);
@@ -422,11 +420,11 @@ class BodyMeasurementsControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
         assertInstanceOf(ErrorResponse.class, response.getBody());
-        
+
         ErrorResponse errorResponse = (ErrorResponse) response.getBody();
         assertEquals(HttpStatus.NOT_FOUND.value(), errorResponse.getStatus());
         assertTrue(errorResponse.getMessage().contains("Nie znaleziono pomiaru o ID"));
-        
+
         verify(measurementsService).updateMeasurement(TEST_MEASUREMENT_ID, measurementModel, TEST_USER_ID);
         verify(measurementsMapper, never()).toResponse(any());
     }
@@ -446,11 +444,11 @@ class BodyMeasurementsControllerTest {
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         assertNotNull(response.getBody());
         assertInstanceOf(ErrorResponse.class, response.getBody());
-        
+
         ErrorResponse errorResponse = (ErrorResponse) response.getBody();
         assertEquals(HttpStatus.FORBIDDEN.value(), errorResponse.getStatus());
         assertEquals("Access denied", errorResponse.getMessage());
-        
+
         verify(measurementsService).updateMeasurement(TEST_MEASUREMENT_ID, measurementModel, TEST_USER_ID);
         verify(measurementsMapper, never()).toResponse(any());
     }
@@ -470,11 +468,11 @@ class BodyMeasurementsControllerTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNotNull(response.getBody());
         assertInstanceOf(ErrorResponse.class, response.getBody());
-        
+
         ErrorResponse errorResponse = (ErrorResponse) response.getBody();
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorResponse.getStatus());
         assertTrue(errorResponse.getMessage().contains("Wystąpił błąd podczas aktualizacji pomiaru"));
-        
+
         verify(measurementsService).updateMeasurement(TEST_MEASUREMENT_ID, measurementModel, TEST_USER_ID);
     }
 
@@ -491,7 +489,7 @@ class BodyMeasurementsControllerTest {
         // Assert
         assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
         assertNull(response.getBody());
-        
+
         verify(measurementsService).deleteMeasurement(TEST_MEASUREMENT_ID, TEST_USER_ID);
     }
 
@@ -508,11 +506,11 @@ class BodyMeasurementsControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
         assertInstanceOf(ErrorResponse.class, response.getBody());
-        
+
         ErrorResponse errorResponse = (ErrorResponse) response.getBody();
         assertEquals(HttpStatus.NOT_FOUND.value(), errorResponse.getStatus());
         assertTrue(errorResponse.getMessage().contains("Nie znaleziono pomiaru o ID"));
-        
+
         verify(measurementsService).deleteMeasurement(TEST_MEASUREMENT_ID, TEST_USER_ID);
     }
 
@@ -529,11 +527,11 @@ class BodyMeasurementsControllerTest {
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
         assertNotNull(response.getBody());
         assertInstanceOf(ErrorResponse.class, response.getBody());
-        
+
         ErrorResponse errorResponse = (ErrorResponse) response.getBody();
         assertEquals(HttpStatus.FORBIDDEN.value(), errorResponse.getStatus());
         assertEquals("Access denied", errorResponse.getMessage());
-        
+
         verify(measurementsService).deleteMeasurement(TEST_MEASUREMENT_ID, TEST_USER_ID);
     }
 
@@ -550,11 +548,11 @@ class BodyMeasurementsControllerTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNotNull(response.getBody());
         assertInstanceOf(ErrorResponse.class, response.getBody());
-        
+
         ErrorResponse errorResponse = (ErrorResponse) response.getBody();
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), errorResponse.getStatus());
         assertTrue(errorResponse.getMessage().contains("Wystąpił błąd podczas usuwania pomiaru"));
-        
+
         verify(measurementsService).deleteMeasurement(TEST_MEASUREMENT_ID, TEST_USER_ID);
     }
 

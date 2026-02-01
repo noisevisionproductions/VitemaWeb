@@ -1,16 +1,12 @@
 package com.noisevisionsoftware.vitema.controller.diet;
 
-import com.google.cloud.Timestamp;
-import com.noisevisionsoftware.vitema.dto.request.diet.CalorieValidationRequest;
 import com.noisevisionsoftware.vitema.dto.request.diet.DietTemplateExcelRequest;
 import com.noisevisionsoftware.vitema.dto.response.DietPreviewResponse;
 import com.noisevisionsoftware.vitema.dto.response.ErrorResponse;
 import com.noisevisionsoftware.vitema.dto.response.ValidationResponse;
 import com.noisevisionsoftware.vitema.exception.DietValidationException;
 import com.noisevisionsoftware.vitema.model.meal.MealType;
-import com.noisevisionsoftware.vitema.utils.excelParser.model.ParsedDay;
 import com.noisevisionsoftware.vitema.utils.excelParser.model.ParsedMeal;
-import com.noisevisionsoftware.vitema.utils.excelParser.model.ParsedProduct;
 import com.noisevisionsoftware.vitema.utils.excelParser.model.validation.ValidationResult;
 import com.noisevisionsoftware.vitema.utils.excelParser.model.validation.ValidationSeverity;
 import com.noisevisionsoftware.vitema.utils.excelParser.service.DietExcelTemplateService;
@@ -123,7 +119,7 @@ class DietUploadControllerTest {
         assertNotNull(response.getBody());
         assertFalse(response.getBody().isValid());
         assertEquals(1, response.getBody().getValidationResults().size());
-        assertEquals("Przesłany plik jest pusty", response.getBody().getValidationResults().get(0).message());
+        assertEquals("Przesłany plik jest pusty", response.getBody().getValidationResults().getFirst().message());
         verify(excelStructureValidator, never()).validateExcelStructure(any());
     }
 
@@ -159,7 +155,7 @@ class DietUploadControllerTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNotNull(response.getBody());
         assertFalse(response.getBody().isValid());
-        assertTrue(response.getBody().getValidationResults().get(0).message().contains("Validation error"));
+        assertTrue(response.getBody().getValidationResults().getFirst().message().contains("Validation error"));
         verify(excelStructureValidator).validateExcelStructure(mockFile);
     }
 
@@ -213,7 +209,7 @@ class DietUploadControllerTest {
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertNotNull(response.getBody());
         assertFalse(response.getBody().isValid());
-        assertTrue(response.getBody().getValidationResults().get(0).message().contains("Template validation error"));
+        assertTrue(response.getBody().getValidationResults().getFirst().message().contains("Template validation error"));
         verify(dietExcelTemplateService).validateDietTemplate(request);
     }
 
@@ -227,7 +223,7 @@ class DietUploadControllerTest {
                 .thenReturn(successValidationResponse);
 
         // Act
-        ResponseEntity<ValidationResponse> response = 
+        ResponseEntity<ValidationResponse> response =
                 dietUploadController.validateDietTemplateWithUser(request, TEST_USER_ID);
 
         // Assert
@@ -245,7 +241,7 @@ class DietUploadControllerTest {
                 .thenReturn(successValidationResponse);
 
         // Act
-        ResponseEntity<ValidationResponse> response = 
+        ResponseEntity<ValidationResponse> response =
                 dietUploadController.validateDietTemplateWithUser(request, null);
 
         // Assert
@@ -261,7 +257,7 @@ class DietUploadControllerTest {
                 .thenThrow(new RuntimeException("Template validation error"));
 
         // Act
-        ResponseEntity<ValidationResponse> response = 
+        ResponseEntity<ValidationResponse> response =
                 dietUploadController.validateDietTemplateWithUser(request, TEST_USER_ID);
 
         // Assert
@@ -300,7 +296,7 @@ class DietUploadControllerTest {
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertTrue(response.getBody() instanceof DietPreviewResponse);
+        assertInstanceOf(DietPreviewResponse.class, response.getBody());
         verify(excelParserService).parseDietExcel(mockFile);
     }
 
@@ -327,14 +323,14 @@ class DietUploadControllerTest {
 
         // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertTrue(response.getBody() instanceof ErrorResponse);
+        assertInstanceOf(ErrorResponse.class, response.getBody());
         ErrorResponse errorResponse = (ErrorResponse) response.getBody();
         assertTrue(errorResponse.getMessage().contains("Plik jest wymagany"));
         verify(excelParserService, never()).parseDietExcel(any());
     }
 
     @Test
-    void previewDiet_WithInvalidMealsPerDay_ShouldReturnBadRequest() throws IOException {
+    void previewDiet_WithInvalidMealsPerDay_ShouldReturnBadRequest() {
         // Arrange
         when(mockFile.isEmpty()).thenReturn(false);
         Map<String, String> allParams = createMealTimeParams();
@@ -356,13 +352,13 @@ class DietUploadControllerTest {
 
         // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertTrue(response.getBody() instanceof ErrorResponse);
+        assertInstanceOf(ErrorResponse.class, response.getBody());
         ErrorResponse errorResponse = (ErrorResponse) response.getBody();
         assertTrue(errorResponse.getMessage().contains("Liczba posiłków"));
     }
 
     @Test
-    void previewDiet_WithInvalidDuration_ShouldReturnBadRequest() throws IOException {
+    void previewDiet_WithInvalidDuration_ShouldReturnBadRequest() {
         // Arrange
         when(mockFile.isEmpty()).thenReturn(false);
         Map<String, String> allParams = createMealTimeParams();
@@ -384,13 +380,13 @@ class DietUploadControllerTest {
 
         // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertTrue(response.getBody() instanceof ErrorResponse);
+        assertInstanceOf(ErrorResponse.class, response.getBody());
         ErrorResponse errorResponse = (ErrorResponse) response.getBody();
         assertTrue(errorResponse.getMessage().contains("Długość diety"));
     }
 
     @Test
-    void previewDiet_WithInvalidStartDate_ShouldReturnBadRequest() throws IOException {
+    void previewDiet_WithInvalidStartDate_ShouldReturnBadRequest() {
         // Arrange
         when(mockFile.isEmpty()).thenReturn(false);
         Map<String, String> allParams = createMealTimeParams();
@@ -412,13 +408,13 @@ class DietUploadControllerTest {
 
         // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertTrue(response.getBody() instanceof ErrorResponse);
+        assertInstanceOf(ErrorResponse.class, response.getBody());
         ErrorResponse errorResponse = (ErrorResponse) response.getBody();
         assertTrue(errorResponse.getMessage().contains("Nieprawidłowy format daty"));
     }
 
     @Test
-    void previewDiet_WithMismatchedMealTypesCount_ShouldReturnBadRequest() throws IOException {
+    void previewDiet_WithMismatchedMealTypesCount_ShouldReturnBadRequest() {
         // Arrange
         when(mockFile.isEmpty()).thenReturn(false);
         Map<String, String> allParams = createMealTimeParams();
@@ -440,13 +436,13 @@ class DietUploadControllerTest {
 
         // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertTrue(response.getBody() instanceof ErrorResponse);
+        assertInstanceOf(ErrorResponse.class, response.getBody());
         ErrorResponse errorResponse = (ErrorResponse) response.getBody();
         assertTrue(errorResponse.getMessage().contains("Liczba typów posiłków"));
     }
 
     @Test
-    void previewDiet_WithInvalidMealTime_ShouldReturnBadRequest() throws IOException {
+    void previewDiet_WithInvalidMealTime_ShouldReturnBadRequest() {
         // Arrange
         when(mockFile.isEmpty()).thenReturn(false);
         Map<String, String> allParams = new HashMap<>();
@@ -471,7 +467,7 @@ class DietUploadControllerTest {
 
         // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertTrue(response.getBody() instanceof ErrorResponse);
+        assertInstanceOf(ErrorResponse.class, response.getBody());
         ErrorResponse errorResponse = (ErrorResponse) response.getBody();
         assertTrue(errorResponse.getMessage().contains("Nieprawidłowy format godziny"));
     }
@@ -521,7 +517,7 @@ class DietUploadControllerTest {
         when(calorieValidator.validateCalories(any(), any(), anyInt()))
                 .thenReturn(calorieValidationResult);
 
-        CalorieValidator.CalorieAnalysisResult analysisResult = 
+        CalorieValidator.CalorieAnalysisResult analysisResult =
                 new CalorieValidator.CalorieAnalysisResult(2000, Arrays.asList(1900, 2000, 2100), true);
         when(calorieValidator.analyzeCalories(any(), anyInt()))
                 .thenReturn(analysisResult);
@@ -550,7 +546,7 @@ class DietUploadControllerTest {
     }
 
     @Test
-    void previewDiet_WithCalorieValidationEnabledButNoTargetCalories_ShouldReturnBadRequest() throws IOException {
+    void previewDiet_WithCalorieValidationEnabledButNoTargetCalories_ShouldReturnBadRequest() {
         // Arrange
         when(mockFile.isEmpty()).thenReturn(false);
         Map<String, String> allParams = createMealTimeParams();
@@ -572,7 +568,7 @@ class DietUploadControllerTest {
 
         // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertTrue(response.getBody() instanceof ErrorResponse);
+        assertInstanceOf(ErrorResponse.class, response.getBody());
         ErrorResponse errorResponse = (ErrorResponse) response.getBody();
         assertTrue(errorResponse.getMessage().contains("Walidacja kalorii wymaga poprawnej wartości"));
     }
@@ -603,13 +599,13 @@ class DietUploadControllerTest {
 
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertTrue(response.getBody() instanceof ErrorResponse);
+        assertInstanceOf(ErrorResponse.class, response.getBody());
         ErrorResponse errorResponse = (ErrorResponse) response.getBody();
         assertTrue(errorResponse.getMessage().contains("Parsing error"));
     }
 
     @Test
-    void previewDiet_WithNullMealTypes_ShouldReturnBadRequest() throws IOException {
+    void previewDiet_WithNullMealTypes_ShouldReturnBadRequest() {
         // Arrange
         when(mockFile.isEmpty()).thenReturn(false);
         Map<String, String> allParams = createMealTimeParams();
@@ -630,13 +626,13 @@ class DietUploadControllerTest {
 
         // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertTrue(response.getBody() instanceof ErrorResponse);
+        assertInstanceOf(ErrorResponse.class, response.getBody());
         ErrorResponse errorResponse = (ErrorResponse) response.getBody();
         assertTrue(errorResponse.getMessage().contains("Typy posiłków są wymagane"));
     }
 
     @Test
-    void previewDiet_WithEmptyMealTypes_ShouldReturnBadRequest() throws IOException {
+    void previewDiet_WithEmptyMealTypes_ShouldReturnBadRequest() {
         // Arrange
         when(mockFile.isEmpty()).thenReturn(false);
         Map<String, String> allParams = createMealTimeParams();
@@ -657,7 +653,7 @@ class DietUploadControllerTest {
 
         // Assert
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertTrue(response.getBody() instanceof ErrorResponse);
+        assertInstanceOf(ErrorResponse.class, response.getBody());
     }
 
     // Exception handler tests
@@ -665,13 +661,13 @@ class DietUploadControllerTest {
     @Test
     void handleDietValidationException_ShouldReturnBadRequest() {
         // Arrange
-        List<ValidationResult> validationResults = Arrays.asList(
+        List<ValidationResult> validationResults = List.of(
                 new ValidationResult(false, "Invalid diet structure", ValidationSeverity.ERROR)
         );
         DietValidationException exception = new DietValidationException("Diet validation failed", validationResults);
 
         // Act
-        ResponseEntity<ValidationResponse> response = 
+        ResponseEntity<ValidationResponse> response =
                 dietUploadController.handleDietValidationException(exception);
 
         // Assert
@@ -693,7 +689,7 @@ class DietUploadControllerTest {
         DietValidationException exception = new DietValidationException("Multiple validation errors", validationResults);
 
         // Act
-        ResponseEntity<ValidationResponse> response = 
+        ResponseEntity<ValidationResponse> response =
                 dietUploadController.handleDietValidationException(exception);
 
         // Assert

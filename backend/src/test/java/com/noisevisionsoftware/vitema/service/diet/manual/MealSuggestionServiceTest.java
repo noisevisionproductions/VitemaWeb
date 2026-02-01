@@ -110,11 +110,10 @@ class MealSuggestionServiceTest {
         @DisplayName("Should return empty list when query is null")
         void shouldReturnEmptyList_When_QueryIsNull() {
             // Given - query is null
-            String nullQuery = null;
             int limit = 10;
 
             // When
-            List<MealSuggestionResponse> result = mealSuggestionService.searchMealSuggestions(nullQuery, limit, userId);
+            List<MealSuggestionResponse> result = mealSuggestionService.searchMealSuggestions(null, limit, userId);
 
             // Then
             assertThat(result).isEmpty();
@@ -223,8 +222,8 @@ class MealSuggestionServiceTest {
 
             // Then
             assertThat(result).hasSize(2);
-            assertThat(result.get(0).isExact()).isTrue();
-            assertThat(result.get(0).getName()).isEqualToIgnoringCase("chicken salad");
+            assertThat(result.getFirst().isExact()).isTrue();
+            assertThat(result.getFirst().getName()).isEqualToIgnoringCase("chicken salad");
         }
 
         @Test
@@ -325,7 +324,7 @@ class MealSuggestionServiceTest {
 
             // Then
             assertThat(result).hasSize(1);
-            assertThat(result.get(0).getPhotos()).isEmpty();
+            assertThat(result.getFirst().getPhotos()).isEmpty();
         }
 
         @Test
@@ -357,7 +356,7 @@ class MealSuggestionServiceTest {
 
             // Then
             assertThat(result).hasSize(1);
-            assertThat(result.get(0).getPhotos()).isEmpty();
+            assertThat(result.getFirst().getPhotos()).isEmpty();
         }
 
         @Test
@@ -389,7 +388,7 @@ class MealSuggestionServiceTest {
 
             // Then
             assertThat(result).hasSize(1);
-            MealSuggestionResponse suggestion = result.get(0);
+            MealSuggestionResponse suggestion = result.getFirst();
             assertThat(suggestion.getId()).isEqualTo("recipe-" + recipe.getId());
             assertThat(suggestion.getName()).isEqualTo(recipe.getName());
             assertThat(suggestion.getInstructions()).isEqualTo(recipe.getInstructions());
@@ -418,7 +417,7 @@ class MealSuggestionServiceTest {
 
             // Then
             assertThat(result).hasSize(1);
-            MealSuggestionResponse suggestion = result.get(0);
+            MealSuggestionResponse suggestion = result.getFirst();
             assertThat(suggestion.getId()).isEqualTo(mealTemplate.getId());
             assertThat(suggestion.getName()).isEqualTo(mealTemplate.getName());
             assertThat(suggestion.getInstructions()).isEqualTo(mealTemplate.getInstructions());
@@ -470,7 +469,7 @@ class MealSuggestionServiceTest {
 
             // Then
             assertThat(result).hasSize(1);
-            assertThat(result.get(0).getSource()).isEqualTo("RECIPE");
+            assertThat(result.getFirst().getSource()).isEqualTo("RECIPE");
         }
     }
 
@@ -483,13 +482,6 @@ class MealSuggestionServiceTest {
         void shouldReturnTrue_When_ExactMatchExists() {
             // Given
             String mealName = "Chicken Salad";
-            MealSuggestionResponse exactMatch = MealSuggestionResponse.builder()
-                    .id("recipe-1")
-                    .name("Chicken Salad")
-                    .similarity(1.0)
-                    .isExact(true)
-                    .source("RECIPE")
-                    .build();
 
             when(recipeService.searchRecipes(anyString()))
                     .thenReturn(Collections.singletonList(recipe));
@@ -617,7 +609,7 @@ class MealSuggestionServiceTest {
 
             // Then
             assertThat(result).hasSize(1);
-            assertThat(result.get(0).getSimilarity()).isGreaterThan(0.8);
+            assertThat(result.getFirst().getSimilarity()).isGreaterThan(0.8);
         }
 
         @Test
@@ -684,7 +676,7 @@ class MealSuggestionServiceTest {
 
             // Then
             assertThat(result).hasSize(1);
-            assertThat(result.get(0).getSimilarity()).isGreaterThan(0.8);
+            assertThat(result.getFirst().getSimilarity()).isGreaterThan(0.8);
         }
 
         @Test
@@ -698,7 +690,7 @@ class MealSuggestionServiceTest {
                     .thenReturn(Collections.emptyList());
 
             // When
-            List<MealSuggestionResponse> result = mealSuggestionService.findHighlySimilarMeals(mealName, userId);
+            mealSuggestionService.findHighlySimilarMeals(mealName, userId);
 
             // Then
             verify(recipeService).searchRecipes("Chicken");

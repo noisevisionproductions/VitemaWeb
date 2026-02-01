@@ -46,7 +46,6 @@ class EmailTemplateServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Inicjalizacja przykładowego szablonu
         LocalDateTime now = LocalDateTime.now();
         testTemplate = EmailTemplate.builder()
                 .id(1L)
@@ -60,7 +59,6 @@ class EmailTemplateServiceTest {
                 .updatedAt(now)
                 .build();
 
-        // Inicjalizacja przykładowego żądania
         testTemplateRequest = new SavedTemplateRequest();
         testTemplateRequest.setId("1");
         testTemplateRequest.setName("Zaktualizowany szablon");
@@ -151,7 +149,7 @@ class EmailTemplateServiceTest {
         testTemplateRequest.setId(null);
         when(emailTemplateRepository.save(any(EmailTemplate.class))).thenAnswer(invocation -> {
             EmailTemplate savedTemplate = invocation.getArgument(0);
-            // Symulacja generowania ID przez bazę danych
+
             return EmailTemplate.builder()
                     .id(99L)
                     .name(savedTemplate.getName())

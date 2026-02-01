@@ -35,7 +35,6 @@ class AdminNewsletterServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Przygotowanie testowego subskrybenta
         testSubscriber = NewsletterSubscriber.builder()
                 .id(1L)
                 .email("test@example.com")
@@ -47,7 +46,6 @@ class AdminNewsletterServiceTest {
                 .metadataEntries(new HashSet<>())
                 .build();
 
-        // Przygotowanie listy aktywnych subskrybentów
         activeSubscribers = Arrays.asList(
                 testSubscriber,
                 NewsletterSubscriber.builder()
