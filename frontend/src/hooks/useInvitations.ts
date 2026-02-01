@@ -61,6 +61,22 @@ export const useInvitations = () => {
         }
     });
 
+    const removeClientMutation = useMutation({
+        mutationFn: (clientId: string) =>
+            InvitationService.removeClient(clientId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: INVITATIONS_QUERY_KEY}).catch(console.error);
+            toast.success('Klient został usunięty. Współpraca zakończona.');
+        },
+        onError: (error: any) => {
+            const errorMessage =
+                error.response?.data?.detail ||
+                error.response?.data?.message ||
+                'Nie udało się usunąć klienta';
+            toast.error(errorMessage);
+        }
+    });
+
     return {
         invitations,
         pendingCount: stats.pending,
@@ -77,5 +93,9 @@ export const useInvitations = () => {
         deleteInvitation: deleteInvitationMutation.mutate,
         isDeleting: deleteInvitationMutation.isPending,
         deleteError: deleteInvitationMutation.error,
+
+        removeClient: removeClientMutation.mutate,
+        isRemovingClient: removeClientMutation.isPending,
+        removeClientError: removeClientMutation.error,
     };
 };

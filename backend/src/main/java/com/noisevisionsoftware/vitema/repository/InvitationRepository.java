@@ -51,7 +51,7 @@ public class InvitationRepository {
                 return Optional.empty();
             }
 
-            return Optional.ofNullable(firestoreInvitationMapper.toInvitation(snapshot.getDocuments().get(0)));
+            return Optional.ofNullable(firestoreInvitationMapper.toInvitation(snapshot.getDocuments().getFirst()));
         } catch (Exception e) {
             log.error("Failed to find invitation by code: {}", code, e);
             throw new RuntimeException("Failed to find invitation by code", e);
@@ -166,6 +166,51 @@ public class InvitationRepository {
         } catch (Exception e) {
             log.error("Failed to fetch expired pending invitations", e);
             throw new RuntimeException("Failed to fetch expired pending invitations", e);
+        }
+    }
+
+    /**
+     * Znajduje zaakceptowane zaproszenie dla konkretnego klienta i trenera.
+     * Wykorzystywane przy procesie rozłączania współpracy.
+     *
+     * UWAGA: Ta metoda wymaga Firestore Composite Index:
+     * - Collection: invitations
+     * - Fields: clientEmail (Ascending), trainerId (Ascending), status (Ascending)
+     * 
+     * @param clientEmail email podopiecznego
+     * @param trainerId   ID trenera
+     * @return Optional z zaproszeniem
+     */
+    public Optional<Invitation> findAcceptedByEmailAndTrainer(String clientEmail, String trainerId) {
+        try {
+            QuerySnapshot snapshot = firestore.collection(COLLECTION_NAME)
+                    .whereEqualTo("clientEmail", clientEmail)
+                    .whereEqualTo("trainerId", trainerId)
+                    .whereEqualTo("status", "ACCEPTED")
+                    .limit(1)
+                    .get()
+                    .get();
+
+            if (snapshot.isEmpty()) {
+                log.warn("⚠️ Nie znaleziono zaakceptowanego zaproszenia dla: {} i trenera: {}", clientEmail, trainerId);
+                log.warn("⚠️ Jeśli widzisz błąd 'FAILED_PRECONDITION', musisz utworzyć Firestore Composite Index:");
+                log.warn("⚠️ Collection: invitations, Fields: clientEmail (Asc), trainerId (Asc), status (Asc)");
+                return Optional.empty();
+            }
+
+            return Optional.ofNullable(firestoreInvitationMapper.toInvitation(snapshot.getDocuments().get(0)));
+        } catch (com.google.cloud.firestore.FirestoreException e) {
+            if (e.getMessage() != null && e.getMessage().contains("FAILED_PRECONDITION")) {
+                log.error("❌ FIRESTORE INDEX MISSING! Utwórz Composite Index dla 'invitations':");
+                log.error("❌ Fields: clientEmail (Asc), trainerId (Asc), status (Asc)");
+                log.error("❌ Link do utworzenia indexu prawdopodobnie w komunikacie błędu powyżej ↑");
+            }
+            log.error("Błąd podczas szukania zaakceptowanego zaproszenia dla email: {}, trainer: {}", 
+                    clientEmail, trainerId, e);
+            throw new RuntimeException("Failed to find accepted invitation - check Firestore indexes", e);
+        } catch (Exception e) {
+            log.error("Błąd podczas szukania zaakceptowanego zaproszenia dla email: {}", clientEmail, e);
+            throw new RuntimeException("Failed to find accepted invitation", e);
         }
     }
 }

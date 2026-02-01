@@ -30,10 +30,19 @@ export class InvitationService {
     }
 
     /**
-     * Usuwa zaproszenie
+     * Usuwa zaproszenie (tylko PENDING)
      */
     static async deleteInvitation(invitationId: string): Promise<MessageResponse> {
         const response = await api.delete(`${InvitationService.BASE_URL}/${invitationId}`);
+        return response.data;
+    }
+
+    /**
+     * Trener usuwa/zwalnia klienta (kończy współpracę)
+     * Używane dla ACCEPTED invitations
+     */
+    static async removeClient(clientId: string): Promise<MessageResponse> {
+        const response = await api.delete(`${InvitationService.BASE_URL}/clients/${clientId}`);
         return response.data;
     }
 }

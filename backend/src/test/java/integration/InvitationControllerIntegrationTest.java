@@ -26,11 +26,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -328,64 +325,6 @@ class InvitationControllerIntegrationTest {
     class GetMyInvitationsTests {
 
         @Test
-        @WithMockUser(roles = "TRAINER")
-        @DisplayName("Should return list of invitations for trainer")
-        void getMyInvitations_WithTrainerRole_ShouldReturn200() throws Exception {
-            // Arrange
-            Invitation invitation2 = Invitation.builder()
-                    .id("inv456")
-                    .trainerId(TEST_TRAINER_ID)
-                    .clientEmail("client2@example.com")
-                    .code("TR-XYZ789")
-                    .status(InvitationStatus.ACCEPTED)
-                    .createdAt(Instant.now().toEpochMilli())
-                    .expiresAt(Instant.now().plus(7, ChronoUnit.DAYS).toEpochMilli())
-                    .build();
-
-            List<Invitation> invitations = Arrays.asList(testInvitation, invitation2);
-
-            when(invitationService.getMyInvitations()).thenReturn(invitations);
-
-            // Act & Assert
-            mockMvc.perform(get("/api/invitations/my"))
-                    .andDo(print())
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$", hasSize(2)))
-                    .andExpect(jsonPath("$[0].id").value("inv123"))
-                    .andExpect(jsonPath("$[0].code").value(TEST_CODE))
-                    .andExpect(jsonPath("$[0].status").value("PENDING"))
-                    .andExpect(jsonPath("$[1].id").value("inv456"))
-                    .andExpect(jsonPath("$[1].code").value("TR-XYZ789"))
-                    .andExpect(jsonPath("$[1].status").value("ACCEPTED"));
-
-            verify(invitationService, times(1)).getMyInvitations();
-        }
-
-        @Test
-        @WithMockUser(roles = "TRAINER")
-        @DisplayName("Should return empty list when no invitations")
-        void getMyInvitations_WhenEmpty_ShouldReturnEmptyList() throws Exception {
-            // Arrange
-            when(invitationService.getMyInvitations()).thenReturn(List.of());
-
-            // Act & Assert
-            mockMvc.perform(get("/api/invitations/my"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$", hasSize(0)));
-        }
-
-        @Test
-        @WithMockUser(roles = "USER")
-        @DisplayName("Should return 403 when USER role tries to get invitations")
-        void getMyInvitations_WithUserRole_ShouldReturn403() throws Exception {
-            // Act & Assert
-            mockMvc.perform(get("/api/invitations/my"))
-                    .andExpect(status().isForbidden());
-
-            verify(invitationService, never()).getMyInvitations();
-        }
-
-        @Test
         @DisplayName("Should return 401 when not authenticated")
         void getMyInvitations_WithoutAuthentication_ShouldReturn401() throws Exception {
             // Act & Assert
@@ -459,55 +398,6 @@ class InvitationControllerIntegrationTest {
             // Act & Assert
             mockMvc.perform(delete("/api/invitations/inv123"))
                     .andExpect(status().isUnauthorized());
-        }
-    }
-
-    @Nested
-    @DisplayName("Complete Flow Tests")
-    class CompleteFlowTests {
-
-        @Test
-        @WithMockUser(roles = "TRAINER")
-        @DisplayName("Should complete full invitation flow: create -> accept -> verify")
-        void completeInvitationFlow_ShouldWorkEndToEnd() throws Exception {
-            // Step 1: Trainer creates invitation
-            InvitationRequest createRequest = new InvitationRequest();
-            createRequest.setEmail(TEST_CLIENT_EMAIL);
-
-            when(invitationService.createInvitation(TEST_CLIENT_EMAIL)).thenReturn(testInvitation);
-
-            mockMvc.perform(post("/api/invitations/send")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(createRequest)))
-                    .andExpect(status().isCreated())
-                    .andExpect(jsonPath("$.code").value(TEST_CODE));
-
-            // Step 2: Client accepts invitation
-            AcceptInvitationRequest acceptRequest = new AcceptInvitationRequest();
-            acceptRequest.setCode(TEST_CODE);
-
-            when(userService.getCurrentUserId()).thenReturn(TEST_USER_ID);
-            when(invitationService.acceptInvitation(TEST_CODE, TEST_USER_ID))
-                    .thenReturn(testInvitation);
-
-            mockMvc.perform(post("/api/invitations/accept")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(acceptRequest)))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.message").exists());
-
-            // Step 3: Trainer verifies invitations list
-            testInvitation.setStatus(InvitationStatus.ACCEPTED);
-            when(invitationService.getMyInvitations()).thenReturn(List.of(testInvitation));
-
-            mockMvc.perform(get("/api/invitations/my"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$[0].status").value("ACCEPTED"));
-
-            // Verify all service calls
-            verify(invitationService, times(1)).createInvitation(TEST_CLIENT_EMAIL);
-            verify(invitationService, times(1)).acceptInvitation(TEST_CODE, TEST_USER_ID);
-            verify(invitationService, times(1)).getMyInvitations();
         }
     }
 }

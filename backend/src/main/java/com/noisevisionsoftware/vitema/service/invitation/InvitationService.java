@@ -136,8 +136,9 @@ public class InvitationService {
         user.setTrainerId(invitation.getTrainerId());
         userService.updateUser(userId, user);
 
-        // Update invitation status
+        // Update invitation status and save clientId
         invitation.setStatus(InvitationStatus.ACCEPTED);
+        invitation.setClientId(userId);  // Zapisujemy ID klienta przy akceptacji
         invitationRepository.update(invitation.getId(), invitation);
 
         log.info("Invitation accepted: code={}, userId={}, trainerId={}", code, userId, invitation.getTrainerId());
@@ -146,23 +147,89 @@ public class InvitationService {
     }
 
     /**
-     * Removes the trainer association from the user.
+     * Removes the trainer association from the user (client disconnects from trainer).
+     * Sets the invitation status to ENDED to distinguish from timeout expiration.
      *
      * @param userId the ID of the user who wants to disconnect
      */
     public void disconnectTrainer(String userId) {
         User user = userService.getUserById(userId);
+        String oldTrainerId = user.getTrainerId();
 
-        if (user.getTrainerId() == null) {
+        if (oldTrainerId == null) {
+            log.info("User {} nie ma przypisanego trenera, brak akcji", userId);
             return;
         }
 
-        String oldTrainerId = user.getTrainerId();
-
+        // Remove trainer association
         user.setTrainerId(null);
         userService.updateUser(userId, user);
+        log.info("✅ User {} rozłączony z trenera {}", userId, oldTrainerId);
 
-        log.info("User {} disconnected from trainer {}", userId, oldTrainerId);
+        // Find and update the invitation status to ENDED
+        invitationRepository.findAcceptedByEmailAndTrainer(user.getEmail(), oldTrainerId)
+                .ifPresentOrElse(
+                        invitation -> {
+                            invitation.setStatus(InvitationStatus.ENDED);
+                            invitationRepository.update(invitation.getId(), invitation);
+                            log.info("✅ Status zaproszenia {} zmieniony na ENDED (celowe rozłączenie przez użytkownika {})",
+                                    invitation.getId(), userId);
+                        },
+                        () -> log.warn("⚠️ Nie znaleziono ACCEPTED invitation dla użytkownika {} i trenera {} - " +
+                                "status zaproszenia nie został zaktualizowany", user.getEmail(), oldTrainerId)
+                );
+    }
+
+    /**
+     * Allows trainer to remove/fire a client.
+     * Sets the client's trainerId to null and marks the invitation as ENDED.
+     *
+     * @param clientId the ID of the client to remove
+     * @throws NotFoundException if client not found
+     * @throws UnauthorizedInvitationException if the executing user is not the trainer of this client
+     */
+    public void removeClient(String clientId) {
+        String currentTrainerId = userService.getCurrentUserId();
+        if (currentTrainerId == null) {
+            throw new UnauthorizedInvitationException("Nie można zidentyfikować użytkownika");
+        }
+
+        // Get the client
+        User client = userService.getUserById(clientId);
+        
+        // Verify that the current user is the trainer of this client
+        if (client.getTrainerId() == null) {
+            throw new NotFoundException("Klient nie ma przypisanego trenera");
+        }
+
+        if (!client.getTrainerId().equals(currentTrainerId)) {
+            // Additional check: allow admin/owner to remove any client
+            if (!userService.isCurrentUserAdminOrOwner()) {
+                throw new UnauthorizedInvitationException(
+                        "Nie masz uprawnień do usunięcia tego klienta - nie jesteś jego trenerem"
+                );
+            }
+        }
+
+        String oldTrainerId = client.getTrainerId();
+
+        // Remove trainer association
+        client.setTrainerId(null);
+        userService.updateUser(clientId, client);
+        log.info("✅ Trener {} usunął klienta {} (trainer association removed)", currentTrainerId, clientId);
+
+        // Find and update the invitation status to ENDED
+        invitationRepository.findAcceptedByEmailAndTrainer(client.getEmail(), oldTrainerId)
+                .ifPresentOrElse(
+                        invitation -> {
+                            invitation.setStatus(InvitationStatus.ENDED);
+                            invitationRepository.update(invitation.getId(), invitation);
+                            log.info("✅ Status zaproszenia {} zmieniony na ENDED (trener {} usunął klienta {})",
+                                    invitation.getId(), currentTrainerId, clientId);
+                        },
+                        () -> log.warn("⚠️ Nie znaleziono ACCEPTED invitation dla klienta {} i trenera {} - " +
+                                "status zaproszenia nie został zaktualizowany", client.getEmail(), oldTrainerId)
+                );
     }
 
     /**

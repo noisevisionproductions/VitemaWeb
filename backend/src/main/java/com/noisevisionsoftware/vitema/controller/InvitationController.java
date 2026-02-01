@@ -66,14 +66,6 @@ public class InvitationController {
         return ResponseEntity.ok(new MessageResponse("Zaproszenie zostało zaakceptowane pomyślnie"));
     }
 
-    @DeleteMapping("/current-trainer")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<MessageResponse> disconnectFromTrainer() {
-        String currentUserId = userService.getCurrentUserId();
-        invitationService.disconnectTrainer(currentUserId);
-        return ResponseEntity.ok(new MessageResponse("Pomyślnie zakończono współpracę z trenerem."));
-    }
-
     /**
      * Gets all invitations created by the current trainer.
      * Available for TRAINER and ADMIN roles.
@@ -87,12 +79,46 @@ public class InvitationController {
     public ResponseEntity<java.util.List<InvitationResponse>> getMyInvitations() {
         log.info("Fetching invitations for current trainer");
 
-        java.util.List<com.noisevisionsoftware.vitema.model.invitation.Invitation> invitations = invitationService.getMyInvitations();
+        java.util.List<Invitation> invitations = invitationService.getMyInvitations();
         java.util.List<InvitationResponse> response = invitations.stream()
                 .map(invitationMapper::toResponse)
                 .collect(java.util.stream.Collectors.toList());
 
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Client disconnects from their trainer.
+     * Available for authenticated users.
+     * <p>
+     * DELETE /api/invitations/current-trainer
+     *
+     * @return success message
+     */
+    @DeleteMapping("/current-trainer")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<MessageResponse> disconnectFromTrainer() {
+        String currentUserId = userService.getCurrentUserId();
+        log.info("User {} disconnecting from trainer", currentUserId);
+        invitationService.disconnectTrainer(currentUserId);
+        return ResponseEntity.ok(new MessageResponse("Pomyślnie zakończono współpracę z trenerem."));
+    }
+
+    /**
+     * Trainer removes/fires a client.
+     * Available for TRAINER and ADMIN roles.
+     * <p>
+     * DELETE /api/invitations/clients/{clientId}
+     *
+     * @param clientId the ID of the client to remove
+     * @return success message
+     */
+    @DeleteMapping("/clients/{clientId}")
+    @PreAuthorize("hasAnyRole('TRAINER', 'ADMIN', 'OWNER')")
+    public ResponseEntity<MessageResponse> removeClient(@PathVariable String clientId) {
+        log.info("Trainer removing client: {}", clientId);
+        invitationService.removeClient(clientId);
+        return ResponseEntity.ok(new MessageResponse("Klient został usunięty. Współpraca zakończona."));
     }
 
     /**

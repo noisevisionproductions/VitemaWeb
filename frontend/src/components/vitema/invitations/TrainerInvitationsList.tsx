@@ -12,7 +12,16 @@ interface TrainerInvitationsListProps {
 }
 
 const TrainerInvitationsList: React.FC<TrainerInvitationsListProps> = ({ hideHeader = false }) => {
-    const {invitations, isLoading, error, refetch, deleteInvitation, isDeleting} = useInvitations();
+    const {
+        invitations, 
+        isLoading, 
+        error, 
+        refetch, 
+        deleteInvitation, 
+        isDeleting,
+        removeClient,
+        isRemovingClient
+    } = useInvitations();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
@@ -27,12 +36,29 @@ const TrainerInvitationsList: React.FC<TrainerInvitationsListProps> = ({ hideHea
     };
 
     const handleDeleteInvitation = (invitation: Invitation) => {
-        const confirmed = window.confirm(
-            `Czy na pewno chcesz usunąć zaproszenie dla ${invitation.clientEmail}?\n\nKod: ${invitation.code}`
-        );
+        // Dla PENDING - usuń zaproszenie
+        if (invitation.status === InvitationStatus.PENDING) {
+            const confirmed = window.confirm(
+                `Czy na pewno chcesz usunąć zaproszenie dla ${invitation.clientEmail}?\n\nKod: ${invitation.code}`
+            );
 
-        if (confirmed) {
-            deleteInvitation(invitation.id);
+            if (confirmed) {
+                deleteInvitation(invitation.id);
+            }
+        }
+        // Dla ACCEPTED - zakończ współpracę (usuń klienta)
+        else if (invitation.status === InvitationStatus.ACCEPTED) {
+            const confirmed = window.confirm(
+                `Czy na pewno chcesz zakończyć współpracę z ${invitation.clientEmail}?\n\n` +
+                `To usunie klienta i zmieni status zaproszenia na "Zakończona".`
+            );
+
+            if (confirmed && invitation.clientId) {
+                removeClient(invitation.clientId);
+            } else if (confirmed && !invitation.clientId) {
+                // Fallback dla starych zaproszeń bez clientId
+                alert('Nie można zakończyć współpracy - brak ID klienta. Skontaktuj się z administratorem.');
+            }
         }
     };
 
@@ -44,12 +70,21 @@ const TrainerInvitationsList: React.FC<TrainerInvitationsListProps> = ({ hideHea
             return (
                 <span
                     className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                    Zaakceptowane
+                    Aktywna współpraca
                 </span>
             );
         }
 
-        if (isExpired) {
+        if (invitation.status === InvitationStatus.ENDED) {
+            return (
+                <span
+                    className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                    Zakończona
+                </span>
+            );
+        }
+
+        if (invitation.status === InvitationStatus.EXPIRED || isExpired) {
             return (
                 <span
                     className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
@@ -238,12 +273,24 @@ const TrainerInvitationsList: React.FC<TrainerInvitationsListProps> = ({ hideHea
                                         {formatDate(invitation.createdAt)}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="text-sm text-gray-900">
-                                            {getDaysUntilExpiration(invitation.expiresAt)}
-                                        </div>
-                                        <div className="text-xs text-gray-500">
-                                            {formatDate(invitation.expiresAt)}
-                                        </div>
+                                        {invitation.status === InvitationStatus.ACCEPTED ? (
+                                            <div className="text-sm text-green-600 font-medium">
+                                                Aktywna współpraca
+                                            </div>
+                                        ) : invitation.status === InvitationStatus.ENDED ? (
+                                            <div className="text-sm text-blue-600">
+                                                Zakończona
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <div className="text-sm text-gray-900">
+                                                    {getDaysUntilExpiration(invitation.expiresAt)}
+                                                </div>
+                                                <div className="text-xs text-gray-500">
+                                                    {formatDate(invitation.expiresAt)}
+                                                </div>
+                                            </>
+                                        )}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         {invitation.status === InvitationStatus.PENDING && (
@@ -252,6 +299,16 @@ const TrainerInvitationsList: React.FC<TrainerInvitationsListProps> = ({ hideHea
                                                 disabled={isDeleting}
                                                 className="text-red-400 hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors p-1 rounded-full hover:bg-red-50"
                                                 title="Usuń zaproszenie"
+                                            >
+                                                <TrashIcon className="h-5 w-5"/>
+                                            </button>
+                                        )}
+                                        {invitation.status === InvitationStatus.ACCEPTED && (
+                                            <button
+                                                onClick={() => handleDeleteInvitation(invitation)}
+                                                disabled={isRemovingClient}
+                                                className="text-orange-500 hover:text-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors p-1 rounded-full hover:bg-orange-50"
+                                                title="Zakończ współpracę z klientem"
                                             >
                                                 <TrashIcon className="h-5 w-5"/>
                                             </button>
