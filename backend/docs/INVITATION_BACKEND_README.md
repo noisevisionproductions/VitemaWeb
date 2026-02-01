@@ -144,54 +144,7 @@ Repository (Firestore)
 - `403` - Nie możesz usunąć cudzego zaproszenia
 
 ---
-
-## 🔧 Kluczowe Funkcje
-
-### ⚛️ Atomowość (Rollback)
-
-Jeśli wysyłka emaila się nie powiedzie, zaproszenie jest automatycznie usuwane z bazy:
-
-```java
-try {
-    invitationEmailService.sendInvitationEmail(...);
-} catch (Exception e) {
-    invitationRepository.delete(savedInvitation.getId());
-    throw new RuntimeException("Nie udało się wysłać emaila...");
-}
-```
-
-**Efekt:** Baza pozostaje czysta, frontend dostaje błąd 500.
-
----
-
-### 🚫 Blokada Duplikatów
-
-Nie można wysłać drugiego zaproszenia PENDING na ten sam email:
-
-```java
-invitationRepository.findPendingByClientEmail(email).ifPresent(existing -> {
-    throw new InvitationAlreadyExistsException(
-        "Zaproszenie już istnieje (kod: " + existing.getCode() + ")"
-    );
-});
-```
-
 **HTTP:** `409 Conflict`
-
----
-
-### 🗑️ Usuwanie Zaproszeń
-
-Tylko właściciel lub admin może usunąć zaproszenie:
-
-```java
-boolean isOwner = invitation.getTrainerId().equals(currentUserId);
-boolean isAdmin = userService.isCurrentUserAdminOrOwner();
-
-if (!isOwner && !isAdmin) {
-    throw new UnauthorizedInvitationException(...);
-}
-```
 
 ---
 
@@ -206,12 +159,6 @@ public void expireOldInvitations() {
     // Zmień: status → EXPIRED
     // Log: "Expired X invitations (failures: Y)"
 }
-```
-
-**Query Firestore:**
-```java
-whereEqualTo("status", "PENDING")
-.whereLessThan("expiresAt", currentTime)
 ```
 
 **Cechy:**
@@ -361,20 +308,6 @@ Codziennie o 2:00 AM:
 
 ---
 
-## 🔧 Konfiguracja
-
-### Zmiana Harmonogramu Cron
-
-```java
-// Domyślnie: codziennie o 2:00 AM
-@Scheduled(cron = "0 0 2 * * ?")
-
-// Alternatywy:
-@Scheduled(cron = "0 0 * * * ?")        // Co godzinę
-@Scheduled(cron = "0 0 */6 * * ?")      // Co 6 godzin
-@Scheduled(cron = "0 30 3 * * ?")       // 3:30 AM
-```
-
 ### Wyłączenie Schedulera
 
 ```properties
@@ -403,19 +336,6 @@ private static final int EXPIRATION_DAYS = 7;  // Zmień na dowolną liczbę
 
 ### Email nie działa
 **Check:** Implementacja `InvitationEmailService` (obecnie placeholder)
-
----
-
-## 📊 Statystyki
-
-| Metric | Value |
-|--------|-------|
-| **Pliki utworzone** | 13 |
-| **Pliki zmienione** | 5 |
-| **Linie kodu** | ~1,135 |
-| **Testy** | 24 |
-| **Endpointy** | 4 |
-| **Exceptions** | 5 custom |
 
 ---
 
