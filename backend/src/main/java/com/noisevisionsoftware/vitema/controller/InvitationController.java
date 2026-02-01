@@ -66,6 +66,14 @@ public class InvitationController {
         return ResponseEntity.ok(new MessageResponse("Zaproszenie zostało zaakceptowane pomyślnie"));
     }
 
+    @DeleteMapping("/current-trainer")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<MessageResponse> disconnectFromTrainer() {
+        String currentUserId = userService.getCurrentUserId();
+        invitationService.disconnectTrainer(currentUserId);
+        return ResponseEntity.ok(new MessageResponse("Pomyślnie zakończono współpracę z trenerem."));
+    }
+
     /**
      * Gets all invitations created by the current trainer.
      * Available for TRAINER and ADMIN roles.

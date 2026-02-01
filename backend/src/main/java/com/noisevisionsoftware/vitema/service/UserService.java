@@ -60,6 +60,14 @@ public class UserService {
         return null;
     }
 
+    public User getCurrentUser() {
+        String currentUserId = getCurrentUserId();
+        if (currentUserId == null) {
+            throw new RuntimeException("Użytkownik nie jest zalogowany");
+        }
+        return getUserById(currentUserId);
+    }
+
     public boolean isCurrentUserAdminOrOwner() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof FirebaseUser) {

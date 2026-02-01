@@ -5,8 +5,10 @@ import com.noisevisionsoftware.vitema.dto.response.ErrorResponse;
 import com.noisevisionsoftware.vitema.exception.MeasurementNotFoundException;
 import com.noisevisionsoftware.vitema.mapper.measurements.BodyMeasurementsMapper;
 import com.noisevisionsoftware.vitema.model.measurements.BodyMeasurements;
+import com.noisevisionsoftware.vitema.model.user.User;
 import com.noisevisionsoftware.vitema.security.model.FirebaseUser;
 import com.noisevisionsoftware.vitema.service.BodyMeasurementsService;
+import com.noisevisionsoftware.vitema.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,27 +30,33 @@ import java.util.stream.Collectors;
 public class BodyMeasurementsController {
     private final BodyMeasurementsService measurementsService;
     private final BodyMeasurementsMapper measurementsMapper;
+    private final UserService userService;
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getUserMeasurements(
             @PathVariable String userId,
             @AuthenticationPrincipal FirebaseUser currentUser) {
         try {
-            if (!currentUser.getUid().equals(userId) &&
-                    !currentUser.getRole().equals("ADMIN") &&
-                    !currentUser.getRole().equals("OWNER")) {
+            User targetUser = userService.getUserById(userId);
+
+            boolean isOwner = currentUser.getUid().equals(userId);
+            boolean isAdmin = "ADMIN".equals(currentUser.getRole()) || "OWNER".equals(currentUser.getRole());
+
+            boolean isAssignedTrainer = "TRAINER".equals(currentUser.getRole())
+                    && currentUser.getUid().equals(targetUser.getTrainerId());
+
+            if (!isOwner && !isAdmin && !isAssignedTrainer) {
                 throw new AccessDeniedException("Nie masz uprawnień do wyświetlania pomiarów tego użytkownika");
             }
 
             List<BodyMeasurements> measurements = measurementsService.getMeasurementsByUserId(userId);
-
             return ResponseEntity.ok(
                     measurements.stream()
                             .map(measurementsMapper::toResponse)
                             .collect(Collectors.toList())
             );
         } catch (AccessDeniedException e) {
-            log.error("Błąd dostępu: {}", e.getMessage(), e);
+            log.error("Odmowa dostępu: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new ErrorResponse(HttpStatus.FORBIDDEN.value(), e.getMessage()));
         } catch (Exception e) {
