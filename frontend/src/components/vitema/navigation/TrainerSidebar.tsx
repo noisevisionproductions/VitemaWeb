@@ -90,7 +90,7 @@ const navigationItems = [
     {id: 'changelog', label: 'Historia zmian', icon: ClipboardList},
 ] as const;
 
-const DietitianSidebar: React.FC<SidebarProps> = ({activeTab, onTabChange, children}) => {
+const TrainerSidebar: React.FC<SidebarProps> = ({activeTab, onTabChange, children}) => {
     const [isCollapsed, setIsCollapsed] = useState(true);
     const {logout, isAdmin} = useAuth();
     const {hasUnread} = useChangeLog();
@@ -208,4 +208,4 @@ const DietitianSidebar: React.FC<SidebarProps> = ({activeTab, onTabChange, child
     );
 };
 
-export default DietitianSidebar;
+export default TrainerSidebar;

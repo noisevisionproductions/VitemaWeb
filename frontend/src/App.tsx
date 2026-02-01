@@ -23,6 +23,7 @@ import {ApplicationProvider} from "./contexts/ApplicationContext";
 import {lazy, Suspense, useEffect} from "react";
 import LoadingSpinner from "./components/shared/common/LoadingSpinner";
 import ReactGA from "react-ga4";
+import InvitationsPage from "./pages/panel/InvitationsPage";
 
 const DietitianPanel = lazy(() => import('./pages/panel/DietitianPanel'));
 const AdminPanel = lazy(() => import('./pages/panel/AdminPanel'));
@@ -106,6 +107,8 @@ function App() {
                                     <Route path="/login" element={<AuthPage/>}/>
                                     <Route path="/unauthorized" element={<Unauthorized/>}/>
                                     <Route path="/error" element={<ErrorPage/>}/>
+
+                                    <Route path="/invitations" element={<InvitationsPage/>}/>
 
                                     {/* Main Dashboard */}
                                     <Route

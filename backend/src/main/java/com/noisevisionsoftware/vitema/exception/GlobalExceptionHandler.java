@@ -41,6 +41,51 @@ public class GlobalExceptionHandler {
                 .body(problemDetail);
     }
 
+    @ExceptionHandler(InvitationNotFoundException.class)
+    public ResponseEntity<ProblemDetail> handleInvitationNotFoundException(InvitationNotFoundException e) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        problemDetail.setDetail(e.getMessage());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(InvitationExpiredException.class)
+    public ResponseEntity<ProblemDetail> handleInvitationExpiredException(InvitationExpiredException e) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.GONE);
+        problemDetail.setDetail(e.getMessage());
+
+        return ResponseEntity.status(HttpStatus.GONE)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(InvitationAlreadyUsedException.class)
+    public ResponseEntity<ProblemDetail> handleInvitationAlreadyUsedException(InvitationAlreadyUsedException e) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problemDetail.setDetail(e.getMessage());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(InvitationAlreadyExistsException.class)
+    public ResponseEntity<ProblemDetail> handleInvitationAlreadyExistsException(InvitationAlreadyExistsException e) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        problemDetail.setDetail(e.getMessage());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(problemDetail);
+    }
+
+    @ExceptionHandler(UnauthorizedInvitationException.class)
+    public ResponseEntity<ProblemDetail> handleUnauthorizedInvitationException(UnauthorizedInvitationException e) {
+        ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
+        problemDetail.setDetail(e.getMessage());
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(problemDetail);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ValidationResponse> handleException(Exception e) {
         log.error("Nieobsłużony wyjątek", e);

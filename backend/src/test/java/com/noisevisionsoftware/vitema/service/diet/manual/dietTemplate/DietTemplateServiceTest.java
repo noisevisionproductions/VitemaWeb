@@ -106,9 +106,7 @@ class DietTemplateServiceTest {
                     .build();
             newTemplate.setId(null);
 
-            when(dietTemplateRepository.save(any(DietTemplate.class))).thenAnswer(invocation -> {
-                return invocation.<DietTemplate>getArgument(0);
-            });
+            when(dietTemplateRepository.save(any(DietTemplate.class))).thenAnswer(invocation -> invocation.<DietTemplate>getArgument(0));
 
             // When
             DietTemplate result = dietTemplateService.saveTemplate(newTemplate);
@@ -616,7 +614,7 @@ class DietTemplateServiceTest {
             // Given
             Timestamp olderDate = Timestamp.ofTimeMicroseconds(1000000);
             Timestamp newerDate = Timestamp.ofTimeMicroseconds(2000000);
-            
+
             DietTemplate mostUsed = DietTemplate.builder()
                     .id("most-used")
                     .category(DietTemplateCategory.WEIGHT_LOSS)

@@ -18,10 +18,10 @@ spring:
     show-sql: true
 
   mail:
-    host: localhost
+    host: smtp-relay.brevo.com
     port: 587
-    username: user
-    password: password
+    username: ${BRAVO_LOGIN}
+    password: ${BRAVO_KEY}
     properties:
       mail:
         smtp:

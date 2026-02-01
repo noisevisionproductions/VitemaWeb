@@ -9,7 +9,7 @@ import Changelog from "../../components/vitema/navigation/dietitian/creation/exc
 import RecipesPage from "../../components/vitema/navigation/dietitian/creation/excel/RecipesPage";
 import usePageTitle from "../../hooks/usePageTitle";
 import DietitianDashboard from "../../components/vitema/navigation/dietitian/creation/excel/DietitianDashboard";
-import DietitianSidebar from "../../components/vitema/navigation/DietitianSidebar";
+import TrainerSidebar from "../../components/vitema/navigation/TrainerSidebar";
 import DietCreationContainer from "../../components/vitema/navigation/dietitian/creation/DietCreationContainer";
 import {useDietitianNavigation} from "../../hooks/useDietitianNavigation";
 import {MainNav} from "../../types/navigation";
@@ -48,7 +48,7 @@ const DietitianPanel: React.FC = () => {
     }, [navigateToTab]);
 
     return (
-        <DietitianSidebar activeTab={currentTab} onTabChange={navigateToTab}>
+        <TrainerSidebar activeTab={currentTab} onTabChange={navigateToTab}>
             <Routes>
                 <Route path="" element={<DietitianDashboard/>}/>
 
@@ -72,7 +72,7 @@ const DietitianPanel: React.FC = () => {
                 {/* Fallback */}
                 <Route path="*" element={<DietitianDashboard/>}/>
             </Routes>
-        </DietitianSidebar>
+        </TrainerSidebar>
     );
 };
 

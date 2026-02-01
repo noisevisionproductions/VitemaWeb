@@ -30,7 +30,7 @@ class ExcelReaderServiceTest {
         excelReaderService = new ExcelReaderService();
     }
 
-    private MockMultipartFile createExcelFile() throws IOException {
+    private MockMultipartFile createExcelFile() {
         // Create a sample Excel file in memory
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
@@ -125,9 +125,7 @@ class ExcelReaderServiceTest {
         when(mockFile.getInputStream()).thenThrow(new IOException("Test exception"));
 
         // Act & Assert
-        assertThrows(IOException.class, () -> {
-            excelReaderService.readExcelFile(mockFile);
-        }, "Should throw IOException when file cannot be read");
+        assertThrows(IOException.class, () -> excelReaderService.readExcelFile(mockFile), "Should throw IOException when file cannot be read");
     }
 
     @Test

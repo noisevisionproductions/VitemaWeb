@@ -62,6 +62,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/diets/upload/**").hasAnyRole("ADMIN", "TRAINER")
                         .requestMatchers("/api/diets/categorization/**").hasAnyRole("ADMIN", "TRAINER")
                         .requestMatchers("/api/diets/manager/**").hasAnyRole("ADMIN", "TRAINER")
+                        .requestMatchers("/api/invitations/**").hasAnyRole("ADMIN", "TRAINER")
                         .requestMatchers("/api/newsletter/**").permitAll()
                         .requestMatchers("/api/contact/**").permitAll()
                         .anyRequest().authenticated()

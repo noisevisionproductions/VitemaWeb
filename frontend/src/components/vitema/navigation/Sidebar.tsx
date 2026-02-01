@@ -1,6 +1,6 @@
 import {MainNav} from "../../../types/navigation";
 import React from "react";
-import DietitianSidebar from "./DietitianSidebar";
+import TrainerSidebar from "./TrainerSidebar";
 
 interface AdminLayoutProps {
     children: React.ReactNode;
@@ -15,7 +15,7 @@ const Sidebar: React.FC<AdminLayoutProps> = ({
                                                       }) => {
     return (
         <div className="flex h-screen bg-gray-100">
-            <DietitianSidebar
+            <TrainerSidebar
                 activeTab={activeTab}
                 onTabChange={onTabChange}
             />
