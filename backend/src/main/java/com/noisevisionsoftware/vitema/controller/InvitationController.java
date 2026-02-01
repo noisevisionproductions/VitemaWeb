@@ -57,7 +57,6 @@ public class InvitationController {
      * @return success message
      */
     @PostMapping("/accept")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MessageResponse> acceptInvitation(@Valid @RequestBody AcceptInvitationRequest request) {
         String userId = userService.getCurrentUserId();
         log.info("User {} accepting invitation with code: {}", userId, request.getCode());
