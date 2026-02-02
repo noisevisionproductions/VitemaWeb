@@ -1,11 +1,11 @@
 package com.noisevisionsoftware.vitema.controller.diet.manual;
 
+import com.noisevisionsoftware.vitema.dto.product.IngredientDTO;
 import com.noisevisionsoftware.vitema.dto.request.diet.manual.ManualDietRequest;
 import com.noisevisionsoftware.vitema.dto.request.diet.manual.PreviewMealSaveRequest;
 import com.noisevisionsoftware.vitema.dto.request.diet.manual.SaveMealTemplateRequest;
 import com.noisevisionsoftware.vitema.dto.response.diet.manual.*;
 import com.noisevisionsoftware.vitema.service.diet.manual.ManualDietService;
-import com.noisevisionsoftware.vitema.utils.excelParser.model.ParsedProduct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -39,12 +39,12 @@ public class ManualDietController {
     }
 
     @GetMapping("/ingredients/search")
-    public ResponseEntity<List<ParsedProduct>> searchIngredients(
+    public ResponseEntity<List<IngredientDTO>> searchIngredients(
             @RequestParam String query,
             @RequestParam(defaultValue = "10") int limit
     ) {
         try {
-            List<ParsedProduct> ingredients = manualDietService.searchIngredients(query, limit);
+            List<IngredientDTO> ingredients = manualDietService.searchIngredients(query, limit);
             return ResponseEntity.ok(ingredients);
         } catch (Exception e) {
             log.error("Błąd podczas wyszukiwania składników", e);
@@ -53,9 +53,9 @@ public class ManualDietController {
     }
 
     @PostMapping("/ingredients")
-    public ResponseEntity<ParsedProduct> createIngredient(@RequestBody ParsedProduct ingredient) {
+    public ResponseEntity<IngredientDTO> createIngredient(@RequestBody IngredientDTO ingredient) {
         try {
-            ParsedProduct savedIngredient = manualDietService.createIngredient(ingredient);
+            IngredientDTO savedIngredient = manualDietService.createIngredient(ingredient);
             return ResponseEntity.ok(savedIngredient);
         } catch (Exception e) {
             log.error("Błąd podczas tworzenia składnika", e);
@@ -136,7 +136,7 @@ public class ManualDietController {
                 return ResponseEntity.badRequest().build();
             }
 
-            String imageUrl = manualDietService.uploadBase64MealImage(base64Image, mealId);
+            String imageUrl = manualDietService.uploadBase64MealImage(base64Image);
             return ResponseEntity.ok(new MealImageResponse(imageUrl));
         } catch (Exception e) {
             log.error("Błąd podczas przesyłania zdjęcia base64", e);

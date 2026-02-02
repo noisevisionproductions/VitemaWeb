@@ -1,10 +1,9 @@
 import React from 'react';
 import {Copy, Utensils, Clock, Camera} from 'lucide-react';
-import {ParsedMeal} from '../../../../../../../types';
-import {ParsedProduct} from '../../../../../../../types/product';
-import {getMealTypeLabel} from '../../../../../../../utils/diet/mealTypeUtils';
-import MealEditor from '../MealEditor';
-import ColoredNutritionBadges from './ColoredNutritionBadges';
+import {ParsedMeal} from '../../../../../../types';
+import {ParsedProduct} from '../../../../../../types/product';
+import {getMealTypeLabel} from '../../../../../../utils/diet/mealTypeUtils';
+import MealEditor from '../../MealEditor';
 
 interface MealCardProps {
     meal: ParsedMeal;
@@ -28,12 +27,12 @@ const MealCard: React.FC<MealCardProps> = ({
                                                enableTemplateFeatures = true
                                            }) => {
     const hasContent = meal.name && meal.name.trim() !== '';
-    const hasNutrition = meal.nutritionalValues && (
+   /* const hasNutrition = meal.nutritionalValues && (
         meal.nutritionalValues.calories ||
         meal.nutritionalValues.protein ||
         meal.nutritionalValues.fat ||
         meal.nutritionalValues.carbs
-    );
+    );*/
     const hasPhotos = meal.photos && meal.photos.length > 0;
 
     return (
@@ -87,26 +86,26 @@ const MealCard: React.FC<MealCardProps> = ({
                 </div>
 
                 {/* Quick preview of meal name */}
-                {hasContent && (
+             {/*   {hasContent && (
                     <div className="mt-2">
                         <h5 className="font-medium text-gray-900 text-sm leading-tight">
                             {meal.name}
                         </h5>
                     </div>
-                )}
+                )}*/}
 
                 {/* Nutrition preview */}
-                {hasNutrition && (
+          {/*      {hasNutrition && (
                     <div className="mt-2">
                         <ColoredNutritionBadges
                             nutritionalValues={meal.nutritionalValues!}
                             size="sm"
                         />
                     </div>
-                )}
+                )}*/}
 
                 {/* Additional info */}
-                <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+             {/*   <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
                     {meal.ingredients && meal.ingredients.length > 0 && (
                         <span className="flex items-center gap-1">
                             <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
@@ -119,7 +118,7 @@ const MealCard: React.FC<MealCardProps> = ({
                             Ma instrukcje
                         </span>
                     )}
-                </div>
+                </div>*/}
             </div>
 
             {/* Content - Enhanced editor */}

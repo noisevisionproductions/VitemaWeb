@@ -1,6 +1,6 @@
 import React from 'react';
 import {Gender, User} from '../../../types/user';
-import {displayAge, formatTimestamp} from '../../../utils/dateFormatters';
+import {formatAge, formatTimestamp} from '../../../utils/dateFormatters';
 import {Dialog} from '@headlessui/react';
 import {X} from 'lucide-react';
 import {useMeasurements} from "../../../hooks/useMeasurements";
@@ -90,7 +90,7 @@ const UserDetailsModal: React.FC<UserDetailsModalProps> = ({user, onClose}) => {
                                                 Wiek
                                             </label>
                                             <div className="mt-1 text-sm text-gray-900">
-                                                {displayAge(user)}
+                                                {formatAge(user.birthDate)}
                                             </div>
                                         </div>
                                         <div>

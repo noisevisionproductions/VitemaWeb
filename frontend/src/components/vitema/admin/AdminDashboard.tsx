@@ -75,14 +75,14 @@ const AdminDashboard: React.FC = () => {
 
             <div className="mt-8 bg-gray-50 p-6 rounded-lg border border-gray-200">
                 <h3 className="text-lg font-medium text-gray-900 mb-3">
-                    Skróty do panelu dietetyka
+                    Skróty do panelu trenera
                 </h3>
                 <div className="flex space-x-4">
                     <Link
                         to="/dashboard"
                         className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary-dark"
                     >
-                        Panel dietetyka
+                        Panel Trenera
                     </Link>
                     <Link
                         to="/frontend/public"

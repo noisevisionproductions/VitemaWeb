@@ -1,5 +1,5 @@
 import React from "react";
-import { ParsedProduct } from "../../../../../../../types/product";
+import { ParsedProduct } from "../../../../../types/product";
 import { Edit2, Trash2, Package } from "lucide-react";
 
 interface IngredientsListProps {

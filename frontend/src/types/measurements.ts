@@ -13,7 +13,7 @@ export enum MeasurementType {
 export interface BodyMeasurements {
     id: string;
     userId: string;
-    date: Timestamp;
+    date: Timestamp | number;
     height: number;
     weight: number;
     neck: number;

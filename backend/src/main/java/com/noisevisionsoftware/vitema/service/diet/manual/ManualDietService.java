@@ -1,6 +1,7 @@
 package com.noisevisionsoftware.vitema.service.diet.manual;
 
 import com.google.cloud.Timestamp;
+import com.noisevisionsoftware.vitema.dto.product.IngredientDTO;
 import com.noisevisionsoftware.vitema.dto.request.diet.manual.ManualDietRequest;
 import com.noisevisionsoftware.vitema.dto.request.diet.manual.PreviewMealSaveRequest;
 import com.noisevisionsoftware.vitema.dto.request.diet.manual.SaveMealTemplateRequest;
@@ -13,9 +14,9 @@ import com.noisevisionsoftware.vitema.model.meal.MealTemplate;
 import com.noisevisionsoftware.vitema.model.recipe.Recipe;
 import com.noisevisionsoftware.vitema.service.RecipeService;
 import com.noisevisionsoftware.vitema.service.diet.DietManagerService;
+import com.noisevisionsoftware.vitema.service.product.ProductService;
 import com.noisevisionsoftware.vitema.utils.MealTemplateConverter;
 import com.noisevisionsoftware.vitema.utils.excelParser.model.ParsedDietData;
-import com.noisevisionsoftware.vitema.utils.excelParser.model.ParsedProduct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -45,7 +46,7 @@ public class ManualDietService {
     private final IngredientManagementService ingredientManagementService;
     private final DietValidationService dietValidationService;
     private final DietDataConverter dietDataConverter;
-
+    private final ProductService productService;
     private final MealTemplateConverter mealTemplateConverter;
 
     /**
@@ -161,7 +162,6 @@ public class ManualDietService {
             String query = request.getName().trim();
 
             // Wyszukaj podobne posiłki
-            List<MealSuggestionResponse> similarMeals = mealSuggestionService.findSimilarMeals(query, 5, userId);
             boolean foundExact = mealSuggestionService.existsExactMeal(query, userId);
             List<MealSuggestionResponse> highlySimilar = mealSuggestionService.findHighlySimilarMeals(query, userId);
 
@@ -227,15 +227,34 @@ public class ManualDietService {
     /**
      * Wyszukuje składniki
      */
-    public List<ParsedProduct> searchIngredients(String query, int limit) {
-        return ingredientManagementService.searchIngredients(query, limit);
+    public List<IngredientDTO> searchIngredients(String query, int limit) {
+        String userId = getCurrentUserId();
+        return ingredientManagementService.searchIngredientsNew(query, userId, limit);
     }
 
     /**
      * Tworzy nowy składnik
      */
-    public ParsedProduct createIngredient(ParsedProduct ingredient) {
-        return ingredientManagementService.createIngredient(ingredient);
+    public IngredientDTO createIngredient(IngredientDTO ingredientDTO) {
+        String userId = getCurrentUserId();
+
+        com.noisevisionsoftware.vitema.model.product.Product product =
+                com.noisevisionsoftware.vitema.model.product.Product.builder()
+                        .name(ingredientDTO.getName())
+                        .defaultUnit(ingredientDTO.getDefaultUnit())
+                        .categoryId(ingredientDTO.getCategoryId())
+                        .nutritionalValues(ingredientDTO.getNutritionalValues())
+                        .build();
+
+        var savedProduct = productService.createProduct(product, userId);
+
+        return IngredientDTO.builder()
+                .id(savedProduct.getId())
+                .name(savedProduct.getName())
+                .defaultUnit(savedProduct.getDefaultUnit())
+                .categoryId(savedProduct.getCategoryId())
+                .type(savedProduct.getType().name())
+                .build();
     }
 
     /**
@@ -268,7 +287,7 @@ public class ManualDietService {
     /**
      * Przesyła zdjęcie base64 posiłku
      */
-    public String uploadBase64MealImage(String base64Image, String mealId) {
+    public String uploadBase64MealImage(String base64Image) {
         try {
             return recipeService.uploadBase64Image(base64Image);
         } catch (Exception e) {

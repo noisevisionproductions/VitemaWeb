@@ -4,9 +4,11 @@ import LoadingSpinner from "../../shared/common/LoadingSpinner";
 import {useDietInfo} from "../../../hooks/diet/useDietInfo";
 import {formatTimestamp, timestampToDate} from "../../../utils/dateFormatters";
 import {StickyNote} from "lucide-react";
+import {EmptyUsersState} from "./EmptyUsersState";
 
 interface UserSelectorTableProps {
     users: User[];
+    isFiltered?: boolean;
     selectedUser: User | null;
     onUserSelect: (user: User) => void;
     loading: boolean;
@@ -14,6 +16,7 @@ interface UserSelectorTableProps {
 
 const UserSelectorTable: React.FC<UserSelectorTableProps> = ({
                                                                  users,
+                                                                 isFiltered = false,
                                                                  selectedUser,
                                                                  onUserSelect,
                                                                  loading
@@ -27,6 +30,10 @@ const UserSelectorTable: React.FC<UserSelectorTableProps> = ({
                 <LoadingSpinner/>
             </div>
         );
+    }
+
+    if (!loading && !dietLoading && users.length === 0) {
+        return <EmptyUsersState isSearching={isFiltered}/>;
     }
 
     const renderDietStatus = (userId: string) => {

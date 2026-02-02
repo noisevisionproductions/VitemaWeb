@@ -32,7 +32,7 @@ const DietitianPanel: React.FC = () => {
         recipes: 'Przepisy'
     };
 
-    usePageTitle(titleMap[currentTab], 'Panel Dietetyka');
+    usePageTitle(titleMap[currentTab], 'Panel Trenera');
 
     useEffect(() => {
         const handleTabChangeEvent = (event: CustomEvent) => {
@@ -52,13 +52,11 @@ const DietitianPanel: React.FC = () => {
             <Routes>
                 <Route path="" element={<DietitianDashboard/>}/>
 
-                {/* Zagnieżdżone rout dla tworzenia diety */}
                 <Route
-                    path="diet-creation/*"
+                    path="diet-creation"
                     element={<DietCreationContainer onTabChange={navigateToTab}/>}
                 />
 
-                {/* Stara ścieżka upload-dla kompatybilności */}
                 <Route path="upload" element={<ExcelUpload onTabChange={navigateToTab}/>}/>
 
                 <Route path="diets" element={<DietManagement/>}/>

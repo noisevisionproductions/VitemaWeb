@@ -1,6 +1,7 @@
 package com.noisevisionsoftware.vitema.service.diet.manual;
 
 import com.google.cloud.Timestamp;
+import com.noisevisionsoftware.vitema.dto.product.IngredientDTO;
 import com.noisevisionsoftware.vitema.dto.request.diet.manual.ManualDietRequest;
 import com.noisevisionsoftware.vitema.dto.request.diet.manual.PreviewMealSaveRequest;
 import com.noisevisionsoftware.vitema.dto.request.diet.manual.SaveMealTemplateRequest;
@@ -12,6 +13,7 @@ import com.noisevisionsoftware.vitema.model.meal.MealTemplate;
 import com.noisevisionsoftware.vitema.model.recipe.Recipe;
 import com.noisevisionsoftware.vitema.service.RecipeService;
 import com.noisevisionsoftware.vitema.service.diet.DietManagerService;
+import com.noisevisionsoftware.vitema.service.product.ProductService;
 import com.noisevisionsoftware.vitema.utils.MealTemplateConverter;
 import com.noisevisionsoftware.vitema.utils.excelParser.model.ParsedDietData;
 import com.noisevisionsoftware.vitema.utils.excelParser.model.ParsedProduct;
@@ -68,6 +70,9 @@ class ManualDietServiceTest {
     private DietDataConverter dietDataConverter;
 
     @Mock
+    private ProductService productService;
+
+    @Mock
     private MealTemplateConverter mealTemplateConverter;
 
     @Mock
@@ -109,16 +114,16 @@ class ManualDietServiceTest {
                 .unit("g")
                 .build();
 
-        com.noisevisionsoftware.vitema.utils.excelParser.model.ParsedMeal meal = 
+        com.noisevisionsoftware.vitema.utils.excelParser.model.ParsedMeal meal =
                 com.noisevisionsoftware.vitema.utils.excelParser.model.ParsedMeal.builder()
-                .name("Breakfast")
-                .ingredients(List.of(product))
-                .build();
+                        .name("Breakfast")
+                        .ingredients(List.of(product))
+                        .build();
 
-        com.noisevisionsoftware.vitema.utils.excelParser.model.ParsedDay day = 
+        com.noisevisionsoftware.vitema.utils.excelParser.model.ParsedDay day =
                 com.noisevisionsoftware.vitema.utils.excelParser.model.ParsedDay.builder()
-                .meals(List.of(meal))
-                .build();
+                        .meals(List.of(meal))
+                        .build();
 
         validManualDietRequest = ManualDietRequest.builder()
                 .userId(userId)
@@ -534,24 +539,28 @@ class ManualDietServiceTest {
     class SearchIngredientsTests {
 
         @Test
-        @DisplayName("Should delegate to ingredientManagementService")
+        @DisplayName("Should delegate to ingredientManagementService with userId")
         void givenQuery_When_SearchIngredients_Then_DelegateToService() {
             // Given
             String query = "mleko";
             int limit = 5;
-            List<ParsedProduct> expectedResults = List.of(
-                    ParsedProduct.builder().name("Mleko").build()
+            List<IngredientDTO> expectedResults = List.of(
+                    IngredientDTO.builder()
+                            .id("ingredient-1")
+                            .name("Mleko")
+                            .defaultUnit("ml")
+                            .build()
             );
 
-            when(ingredientManagementService.searchIngredients(query, limit))
+            when(ingredientManagementService.searchIngredientsNew(query, userId, limit))
                     .thenReturn(expectedResults);
 
             // When
-            List<ParsedProduct> result = manualDietService.searchIngredients(query, limit);
+            List<IngredientDTO> result = manualDietService.searchIngredients(query, limit);
 
             // Then
             assertThat(result).isEqualTo(expectedResults);
-            verify(ingredientManagementService).searchIngredients(query, limit);
+            verify(ingredientManagementService).searchIngredientsNew(query, userId, limit);
         }
     }
 
@@ -560,26 +569,47 @@ class ManualDietServiceTest {
     class CreateIngredientTests {
 
         @Test
-        @DisplayName("Should delegate to ingredientManagementService")
-        void givenIngredient_When_CreateIngredient_Then_DelegateToService() {
+        @DisplayName("Should create product and return IngredientDTO")
+        void givenIngredient_When_CreateIngredient_Then_CreateProductAndReturnDTO() {
             // Given
-            ParsedProduct ingredient = ParsedProduct.builder()
+            com.noisevisionsoftware.vitema.model.recipe.NutritionalValues nutritionalValues =
+                    com.noisevisionsoftware.vitema.model.recipe.NutritionalValues.builder()
+                            .calories(100.0)
+                            .protein(20.0)
+                            .fat(5.0)
+                            .carbs(10.0)
+                            .build();
+
+            IngredientDTO ingredientDTO = IngredientDTO.builder()
                     .name("New Ingredient")
-                    .build();
-            ParsedProduct expectedResult = ParsedProduct.builder()
-                    .name("New Ingredient")
-                    .id("id-123")
+                    .defaultUnit("g")
+                    .categoryId("category-1")
+                    .nutritionalValues(nutritionalValues)
                     .build();
 
-            when(ingredientManagementService.createIngredient(ingredient))
-                    .thenReturn(expectedResult);
+            com.noisevisionsoftware.vitema.model.product.Product savedProduct =
+                    com.noisevisionsoftware.vitema.model.product.Product.builder()
+                            .id("product-123")
+                            .name("New Ingredient")
+                            .defaultUnit("g")
+                            .categoryId("category-1")
+                            .type(com.noisevisionsoftware.vitema.model.product.ProductType.CUSTOM)
+                            .build();
+
+            when(productService.createProduct(any(com.noisevisionsoftware.vitema.model.product.Product.class), eq(userId)))
+                    .thenReturn(savedProduct);
 
             // When
-            ParsedProduct result = manualDietService.createIngredient(ingredient);
+            IngredientDTO result = manualDietService.createIngredient(ingredientDTO);
 
             // Then
-            assertThat(result).isEqualTo(expectedResult);
-            verify(ingredientManagementService).createIngredient(ingredient);
+            assertThat(result).isNotNull();
+            assertThat(result.getId()).isEqualTo("product-123");
+            assertThat(result.getName()).isEqualTo("New Ingredient");
+            assertThat(result.getDefaultUnit()).isEqualTo("g");
+            assertThat(result.getCategoryId()).isEqualTo("category-1");
+            assertThat(result.getType()).isEqualTo("CUSTOM");
+            verify(productService).createProduct(any(com.noisevisionsoftware.vitema.model.product.Product.class), eq(userId));
         }
     }
 
@@ -693,7 +723,7 @@ class ManualDietServiceTest {
             when(recipeService.uploadBase64Image(base64Image)).thenReturn(expectedUrl);
 
             // When
-            String result = manualDietService.uploadBase64MealImage(base64Image, mealId);
+            String result = manualDietService.uploadBase64MealImage(base64Image);
 
             // Then
             assertThat(result).isEqualTo(expectedUrl);
@@ -710,7 +740,7 @@ class ManualDietServiceTest {
 
             // When & Then
             assertThatExceptionOfType(RuntimeException.class)
-                    .isThrownBy(() -> manualDietService.uploadBase64MealImage(base64Image, mealId))
+                    .isThrownBy(() -> manualDietService.uploadBase64MealImage(base64Image))
                     .withMessageContaining("Nie udało się przesłać zdjęcia");
         }
     }

@@ -78,7 +78,7 @@ const DietitianDashboard: React.FC = () => {
     return (
         <div className="space-y-6 pb-8">
             <SectionHeader
-                title="Panel Dietetyka"
+                title="Panel Trenera"
                 description="Zarządzaj dietami, przepisami i klientami."
                 welcomeUser={currentUser}
             />

@@ -155,7 +155,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({activeTab, onTabChange, chil
                     {/* Przycisk do panelu dietetyka */}
                     <AdminNavButton
                         icon={Utensils}
-                        label="Panel dietetyka"
+                        label="Panel Trenera"
                         isActive={false}
                         onClick={handleGoToDietitianPanel}
                         isCollapsed={isCollapsed}

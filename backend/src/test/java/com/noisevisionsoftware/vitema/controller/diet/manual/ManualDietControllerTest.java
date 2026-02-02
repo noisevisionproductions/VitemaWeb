@@ -1,11 +1,11 @@
 package com.noisevisionsoftware.vitema.controller.diet.manual;
 
+import com.noisevisionsoftware.vitema.dto.product.IngredientDTO;
 import com.noisevisionsoftware.vitema.dto.request.diet.manual.ManualDietRequest;
 import com.noisevisionsoftware.vitema.dto.request.diet.manual.PreviewMealSaveRequest;
 import com.noisevisionsoftware.vitema.dto.request.diet.manual.SaveMealTemplateRequest;
 import com.noisevisionsoftware.vitema.dto.response.diet.manual.*;
 import com.noisevisionsoftware.vitema.service.diet.manual.ManualDietService;
-import com.noisevisionsoftware.vitema.utils.excelParser.model.ParsedProduct;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +34,7 @@ class ManualDietControllerTest {
     private ManualDietController manualDietController;
 
     private ManualDietRequest mockDietRequest;
-    private ParsedProduct mockParsedProduct;
+    private IngredientDTO mockIngredientDTO;
     private MealTemplateResponse mockMealTemplateResponse;
     private SaveMealTemplateRequest mockSaveMealTemplateRequest;
     private PreviewMealSaveRequest mockPreviewMealSaveRequest;
@@ -50,7 +50,11 @@ class ManualDietControllerTest {
     @BeforeEach
     void setUp() {
         mockDietRequest = new ManualDietRequest();
-        mockParsedProduct = new ParsedProduct();
+        mockIngredientDTO = IngredientDTO.builder()
+                .id("ingredient-123")
+                .name("Chicken Breast")
+                .defaultUnit("g")
+                .build();
         mockMealTemplateResponse = new MealTemplateResponse();
         mockSaveMealTemplateRequest = new SaveMealTemplateRequest();
         mockPreviewMealSaveRequest = new PreviewMealSaveRequest();
@@ -99,11 +103,16 @@ class ManualDietControllerTest {
     @Test
     void searchIngredients_WithValidQuery_ShouldReturnOkWithIngredients() {
         // Arrange
-        List<ParsedProduct> ingredients = Arrays.asList(mockParsedProduct, new ParsedProduct());
+        IngredientDTO ingredient2 = IngredientDTO.builder()
+                .id("ingredient-456")
+                .name("Salmon")
+                .defaultUnit("g")
+                .build();
+        List<IngredientDTO> ingredients = Arrays.asList(mockIngredientDTO, ingredient2);
         when(manualDietService.searchIngredients(QUERY, 10)).thenReturn(ingredients);
 
         // Act
-        ResponseEntity<List<ParsedProduct>> response =
+        ResponseEntity<List<IngredientDTO>> response =
                 manualDietController.searchIngredients(QUERY, 10);
 
         // Assert
@@ -117,11 +126,11 @@ class ManualDietControllerTest {
     void searchIngredients_WithCustomLimit_ShouldReturnOkWithLimitedResults() {
         // Arrange
         int customLimit = 5;
-        List<ParsedProduct> ingredients = Collections.singletonList(mockParsedProduct);
+        List<IngredientDTO> ingredients = Collections.singletonList(mockIngredientDTO);
         when(manualDietService.searchIngredients(QUERY, customLimit)).thenReturn(ingredients);
 
         // Act
-        ResponseEntity<List<ParsedProduct>> response =
+        ResponseEntity<List<IngredientDTO>> response =
                 manualDietController.searchIngredients(QUERY, customLimit);
 
         // Assert
@@ -137,7 +146,7 @@ class ManualDietControllerTest {
         when(manualDietService.searchIngredients(QUERY, 10)).thenReturn(Collections.emptyList());
 
         // Act
-        ResponseEntity<List<ParsedProduct>> response =
+        ResponseEntity<List<IngredientDTO>> response =
                 manualDietController.searchIngredients(QUERY, 10);
 
         // Assert
@@ -154,7 +163,7 @@ class ManualDietControllerTest {
                 .thenThrow(new RuntimeException("Search error"));
 
         // Act
-        ResponseEntity<List<ParsedProduct>> response =
+        ResponseEntity<List<IngredientDTO>> response =
                 manualDietController.searchIngredients(QUERY, 10);
 
         // Assert
@@ -167,30 +176,30 @@ class ManualDietControllerTest {
     @Test
     void createIngredient_WithValidIngredient_ShouldReturnOkWithCreatedIngredient() {
         // Arrange
-        when(manualDietService.createIngredient(mockParsedProduct)).thenReturn(mockParsedProduct);
+        when(manualDietService.createIngredient(mockIngredientDTO)).thenReturn(mockIngredientDTO);
 
         // Act
-        ResponseEntity<ParsedProduct> response = manualDietController.createIngredient(mockParsedProduct);
+        ResponseEntity<IngredientDTO> response = manualDietController.createIngredient(mockIngredientDTO);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals(mockParsedProduct, response.getBody());
-        verify(manualDietService).createIngredient(mockParsedProduct);
+        assertEquals(mockIngredientDTO, response.getBody());
+        verify(manualDietService).createIngredient(mockIngredientDTO);
     }
 
     @Test
     void createIngredient_WhenServiceThrowsException_ShouldReturnInternalServerError() {
         // Arrange
-        when(manualDietService.createIngredient(mockParsedProduct))
+        when(manualDietService.createIngredient(mockIngredientDTO))
                 .thenThrow(new RuntimeException("Creation failed"));
 
         // Act
-        ResponseEntity<ParsedProduct> response = manualDietController.createIngredient(mockParsedProduct);
+        ResponseEntity<IngredientDTO> response = manualDietController.createIngredient(mockIngredientDTO);
 
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        verify(manualDietService).createIngredient(mockParsedProduct);
+        verify(manualDietService).createIngredient(mockIngredientDTO);
     }
 
     // POST /api/diets/manual/validate - validateDiet tests
@@ -402,7 +411,7 @@ class ManualDietControllerTest {
         String base64Image = "data:image/png;base64,iVBORw0KGgo...";
         request.put("imageData", base64Image);
         request.put("mealId", MEAL_ID);
-        when(manualDietService.uploadBase64MealImage(base64Image, MEAL_ID)).thenReturn(IMAGE_URL);
+        when(manualDietService.uploadBase64MealImage(base64Image)).thenReturn(IMAGE_URL);
 
         // Act
         ResponseEntity<MealImageResponse> response = manualDietController.uploadBase64MealImage(request);
@@ -411,7 +420,7 @@ class ManualDietControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(IMAGE_URL, response.getBody().getImageUrl());
-        verify(manualDietService).uploadBase64MealImage(base64Image, MEAL_ID);
+        verify(manualDietService).uploadBase64MealImage(base64Image);
     }
 
     @Test
@@ -420,7 +429,7 @@ class ManualDietControllerTest {
         Map<String, String> request = new HashMap<>();
         String base64Image = "data:image/png;base64,iVBORw0KGgo...";
         request.put("imageData", base64Image);
-        when(manualDietService.uploadBase64MealImage(base64Image, null)).thenReturn(IMAGE_URL);
+        when(manualDietService.uploadBase64MealImage(base64Image)).thenReturn(IMAGE_URL);
 
         // Act
         ResponseEntity<MealImageResponse> response = manualDietController.uploadBase64MealImage(request);
@@ -429,7 +438,7 @@ class ManualDietControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(IMAGE_URL, response.getBody().getImageUrl());
-        verify(manualDietService).uploadBase64MealImage(base64Image, null);
+        verify(manualDietService).uploadBase64MealImage(base64Image);
     }
 
     @Test
@@ -452,7 +461,7 @@ class ManualDietControllerTest {
         String base64Image = "data:image/png;base64,iVBORw0KGgo...";
         request.put("imageData", base64Image);
         request.put("mealId", MEAL_ID);
-        when(manualDietService.uploadBase64MealImage(base64Image, MEAL_ID))
+        when(manualDietService.uploadBase64MealImage(base64Image))
                 .thenThrow(new RuntimeException("Upload failed"));
 
         // Act
@@ -460,7 +469,7 @@ class ManualDietControllerTest {
 
         // Assert
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        verify(manualDietService).uploadBase64MealImage(base64Image, MEAL_ID);
+        verify(manualDietService).uploadBase64MealImage(base64Image);
     }
 
     // GET /api/diets/manual/meals/search - searchMealSuggestions tests

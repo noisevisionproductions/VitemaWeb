@@ -1,23 +1,23 @@
 import React from "react";
-import {DietExcelTemplate, ManualDietData} from "../../../../../../../types";
-import {User} from "../../../../../../../types/user";
-import UserSelectionSection from "../../../../../diet/upload/sections/user/UserSelectionSection";
+import {DietExcelTemplate, ManualDietData} from "../../../../../types";
+import {User} from "../../../../../types/user";
+import UserSelectionSection from "../../upload/sections/user/UserSelectionSection";
 import {Timestamp} from "firebase/firestore";
-import DietTemplateConfig from "../../../../../diet/upload/sections/DietTemplateConfig";
+import DietTemplateConfig from "../../upload/sections/DietTemplateConfig";
 
-interface DietConfigurationStepProps {
+interface ConfigurationStepProps {
     dietData: ManualDietData;
     onUpdate: (updates: Partial<ManualDietData>) => void;
     selectedUser: User | null;
     onUserSelect: (user: User | null) => void;
 }
 
-const DietConfigurationStep: React.FC<DietConfigurationStepProps> = ({
-                                                                         dietData,
-                                                                         onUpdate,
-                                                                         selectedUser,
-                                                                         onUserSelect
-                                                                     }) => {
+const ConfigurationStep: React.FC<ConfigurationStepProps> = ({
+                                                                 dietData,
+                                                                 onUpdate,
+                                                                 selectedUser,
+                                                                 onUserSelect
+                                                             }) => {
     const template: DietExcelTemplate = {
         mealsPerDay: dietData.mealsPerDay,
         startDate: Timestamp.fromDate(new Date(dietData.startDate)),
@@ -58,4 +58,4 @@ const DietConfigurationStep: React.FC<DietConfigurationStepProps> = ({
     );
 };
 
-export default DietConfigurationStep;
+export default ConfigurationStep;

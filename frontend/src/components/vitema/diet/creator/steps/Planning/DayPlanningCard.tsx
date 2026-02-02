@@ -1,8 +1,8 @@
 import React from 'react';
 import { Calendar, ChevronDown, ChevronUp } from 'lucide-react';
-import { formatTimestamp } from '../../../../../../../utils/dateFormatters';
-import { DayData, ParsedMeal } from '../../../../../../../types';
-import { ParsedProduct } from '../../../../../../../types/product';
+import { formatTimestamp } from '../../../../../../utils/dateFormatters';
+import { DayData, ParsedMeal } from '../../../../../../types';
+import { ParsedProduct } from '../../../../../../types/product';
 import MealCard from './MealCard';
 
 interface DayPlanningCardProps {

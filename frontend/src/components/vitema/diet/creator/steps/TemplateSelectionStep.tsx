@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
 import {Search, Sparkles, Plus, Clock, Calendar, Trash2} from 'lucide-react';
-import {DietTemplate} from "../../../../../../../types/DietTemplate";
-import {useDietTemplates} from "../../../../../../../hooks/diet/templates/useDietTemplates";
-import LoadingSpinner from '../../../../../../shared/common/LoadingSpinner';
-import {User} from '../../../../../../../types/user';
-import {toast} from "../../../../../../../utils/toast";
+import {DietTemplate} from "../../../../../types/DietTemplate";
+import {useDietTemplates} from "../../../../../hooks/diet/templates/useDietTemplates";
+import LoadingSpinner from '../../../../shared/common/LoadingSpinner';
+import {User} from '../../../../../types/user';
+import {toast} from "../../../../../utils/toast";
 
 interface TemplateSelectionStepProps {
     onTemplateSelect: (template: DietTemplate | null) => void;

@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {TemplateUpdateSummary} from "../../../../../../../types/mealSuggestions";
+import {TemplateUpdateSummary} from "../../../../../types/mealSuggestions";
 import {AlertTriangle, Check, RefreshCw, X} from "lucide-react";
 
 interface TemplateChangeManagerProps {

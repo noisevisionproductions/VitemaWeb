@@ -1,11 +1,11 @@
 import React, {useCallback, useEffect, useRef, useState} from "react";
-import {MealSuggestion} from "../../../../../../../types/mealSuggestions";
-import {useDebounce} from "../../../../../../../hooks/useDebounce";
-import {MealSuggestionService} from "../../../../../../../services/diet/manual/MealSuggestionService";
-import {toast} from "../../../../../../../utils/toast";
+import {MealSuggestion} from "../../../../../types/mealSuggestions";
+import {useDebounce} from "../../../../../hooks/useDebounce";
+import {MealSuggestionService} from "../../../../../services/diet/manual/MealSuggestionService";
+import {toast} from "../../../../../utils/toast";
 import {Check, ChefHat, Clock, Info, Search, Users, X} from "lucide-react";
-import LoadingSpinner from "../../../../../../shared/common/LoadingSpinner";
-import ColoredNutritionBadges from "../steps/ColoredNutritionBadges";
+import LoadingSpinner from "../../../../shared/common/LoadingSpinner";
+import ColoredNutritionBadges from "./ColoredNutritionBadges";
 
 interface MealNameSearchFieldProps {
     value: string;

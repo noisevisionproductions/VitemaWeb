@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sparkles, Edit, X } from 'lucide-react';
-import { DietTemplate} from "../../../../../../../types/DietTemplate";
+import { DietTemplate} from "../../../../../types/DietTemplate";
 
 interface TemplateInfoBannerProps {
     template: DietTemplate;

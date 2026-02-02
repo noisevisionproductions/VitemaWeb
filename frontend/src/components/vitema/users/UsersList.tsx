@@ -1,6 +1,6 @@
 import React from 'react';
-import {User, Gender, UserRole} from '../../../types/user';
-import {displayAge} from '../../../utils/dateFormatters';
+import {Gender, User, UserRole} from '../../../types/user';
+import {formatAge} from '../../../utils/dateFormatters';
 import UserNote from "./UserNote";
 import {UserService} from "../../../services/UserService";
 import {toast} from "../../../utils/toast";
@@ -77,7 +77,7 @@ const UsersList: React.FC<UsersListProps> = ({users, onUserSelect, onUpdate}) =>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-900">
-                                {displayAge(user)}
+                                {formatAge(user.birthDate)}
                             </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">

@@ -1,38 +1,37 @@
 import React, {useCallback, useMemo, useRef, useState} from "react";
-import {MainNav} from "../../../../../../types/navigation";
-import {DayData, ManualDietData, MealType, ParsedDietData, ParsedMeal} from "../../../../../../types";
-import {ParsedProduct} from "../../../../../../types/product";
-import {toast} from "../../../../../../utils/toast";
-import SectionHeader from "../../../../../shared/common/SectionHeader";
-import {FloatingActionButton, FloatingActionButtonGroup} from "../../../../../shared/common/FloatingActionButton";
-import {ArrowLeft, ArrowRight, Save} from "lucide-react";
+import {MainNav} from "../../../../types/navigation";
+import {DayData, ManualDietData, MealType, ParsedDietData, ParsedMeal} from "../../../../types";
+import {ParsedProduct} from "../../../../types/product";
+import {toast} from "../../../../utils/toast";
+import SectionHeader from "../../../shared/common/SectionHeader";
+import {FloatingActionButton, FloatingActionButtonGroup} from "../../../shared/common/FloatingActionButton";
+import {ArrowLeft, ArrowRight, Save, AlertTriangle, X} from "lucide-react";
 import {Timestamp} from "firebase/firestore";
-import {DEFAULT_DIET_CONFIG} from "../../../../../../types/dietDefaults";
-import MealPlanningStep from "./steps/MealPlanningStep";
-import DietConfigurationStep from "./steps/DietConfigurationStep";
-import {ManualDietRequest, ManualDietService} from "../../../../../../services/diet/manual/ManualDietService";
-import {User} from "../../../../../../types/user";
-import DietPreview from "../../../../diet/upload/preview/DietPreview";
-import {useCategorization} from "../../../../../../hooks/shopping/useCategorization";
-import {DietCategorizationService} from "../../../../../../services/diet/DietCategorizationService";
-import CategorySection from "../../../../diet/upload/preview/CategorySection";
-import ManualDietGuide from "./components/ManualDietGuide";
-import {CreateDietTemplateRequest, DietTemplate} from "../../../../../../types/DietTemplate";
-import CreateTemplateDialog from "../../../../diet/templates/CreateTemplateDialog";
-import {useTemplateLoader} from "../../../../../../hooks/diet/templates/useTemplateLoader";
-import TemplateSelectionStep from "./templates/TemplateSelectionStep";
+import {DEFAULT_DIET_CONFIG} from "../../../../types/dietDefaults";
+import MealPlanningStep from "./steps/Planning/MealPlanningStep";
+import ConfigurationStep from "./steps/ConfigurationStep";
+import {ManualDietRequest, DietCreatorService} from "../../../../services/diet/creator/DietCreatorService";
+import {User} from "../../../../types/user";
+import DietPreview from "../upload/preview/DietPreview";
+import {useCategorization} from "../../../../hooks/shopping/useCategorization";
+import {DietCategorizationService} from "../../../../services/diet/DietCategorizationService";
+import CategorySection from "./steps/Categorization/CategorySection";
+import DietCreatorGuide from "./components/DietCreatorGuide";
+import {CreateDietTemplateRequest, DietTemplate} from "../../../../types/DietTemplate";
+import CreateTemplateDialog from "../templates/CreateTemplateDialog";
+import {useTemplateLoader} from "../../../../hooks/diet/templates/useTemplateLoader";
+import TemplateSelectionStep from "./steps/TemplateSelectionStep";
 
-interface ManualDietCreatorProps {
+interface DietCreatorProps {
     onTabChange: (tab: MainNav) => void;
     onBackToSelection: () => void;
 }
 
 type Step = 'templateSelection' | 'configuration' | 'planning' | 'categorization' | 'preview';
 
-const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
-                                                                 onTabChange,
-                                                                 onBackToSelection
-                                                             }) => {
+const DietCreator: React.FC<DietCreatorProps> = ({
+                                                     onTabChange
+                                                 }) => {
     const [currentStep, setCurrentStep] = useState<Step>('configuration');
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [dietData, setDietData] = useState<ManualDietData>({
@@ -42,7 +41,11 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
     });
     const [parsedPreviewData, setParsedPreviewData] = useState<ParsedDietData | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
+
+    // Stany do obsługi szablonów i potwierdzeń
     const [showSaveAsTemplate, setShowSaveAsTemplate] = useState(false);
+    const [showBackConfirmation, setShowBackConfirmation] = useState(false);
+
     const [templateData, setTemplateData] = useState<CreateDietTemplateRequest | null>(null);
     const [selectedTemplate, setSelectedTemplate] = useState<DietTemplate | null>(null);
     const {loadTemplateIntoDiet, loading: templateLoading} = useTemplateLoader();
@@ -53,9 +56,14 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
         setDietData(prev => ({...prev, ...updates}));
     }, []);
 
+    const hasPlannedMeals = useMemo(() => {
+        return dietData.days.some(day =>
+            day.meals.some(meal => meal.name && meal.name.trim() !== '')
+        );
+    }, [dietData.days]);
+
     const currentShoppingListItems = useMemo(() => {
         const items: string[] = [];
-
         dietData.days.forEach(day => {
             day.meals.forEach(meal => {
                 if (meal.ingredients) {
@@ -66,14 +74,11 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
                 }
             });
         });
-
         const itemsString = JSON.stringify(items);
         const currentString = JSON.stringify(shoppingListRef.current);
-
         if (itemsString !== currentString) {
             shoppingListRef.current = items;
         }
-
         return items;
     }, [dietData.days]);
 
@@ -153,7 +158,6 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
 
     const convertToPreviewData = useCallback((): ParsedDietData => {
         const simplifiedCategorizedProducts: Record<string, string[]> = {};
-
         Object.entries(categorizedProducts).forEach(([categoryId, products]) => {
             simplifiedCategorizedProducts[categoryId] = products.map(product =>
                 product.original || `${product.name} ${product.quantity} ${product.unit}`
@@ -220,7 +224,6 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
                 setCurrentStep('preview');
                 return;
             }
-
             setCurrentStep('categorization');
         }
     }, [currentStep, dietData, selectedUser, initializeDays, currentShoppingListItems]);
@@ -229,21 +232,35 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
         if (currentStep === 'templateSelection') {
             setCurrentStep('configuration');
         } else if (currentStep === 'planning') {
-            setCurrentStep('templateSelection');
-            setParsedPreviewData(null);
+            // Jeśli jesteśmy w planowaniu i są wprowadzone dane, pytamy o potwierdzenie
+            if (hasPlannedMeals) {
+                setShowBackConfirmation(true);
+            } else {
+                setCurrentStep('templateSelection');
+                setParsedPreviewData(null);
+            }
         }
-    }, [currentStep, selectedTemplate]);
+    }, [currentStep, selectedTemplate, hasPlannedMeals]);
+
+    const handleDiscardAndBack = () => {
+        setShowBackConfirmation(false);
+        setCurrentStep('templateSelection');
+        setParsedPreviewData(null);
+    };
+
+    const handleSaveFromConfirmation = () => {
+        setShowBackConfirmation(false);
+        handleSaveAsTemplate();
+    };
 
     const handleCategorizationComplete = async () => {
         if (uncategorizedProducts.length > 0) {
             toast.error('Musisz skategoryzować wszystkie produkty');
             return;
         }
-
         try {
             setIsProcessing(true);
             await DietCategorizationService.updateCategories(categorizedProducts);
-
             const previewData = convertToPreviewData();
             setParsedPreviewData(previewData);
             setCurrentStep('preview');
@@ -278,14 +295,12 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
                 mealTypes: dietData.mealTypes.map(type => type.toString())
             }
         };
-
         setTemplateData(templateData);
         setShowSaveAsTemplate(true);
     }, [dietData]);
 
     const handleTemplateSelect = useCallback(async (template: DietTemplate | null) => {
         setSelectedTemplate(template);
-
         if (template && selectedUser) {
             try {
                 setIsProcessing(true);
@@ -309,17 +324,14 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
 
     const handleContinueWithoutTemplate = useCallback(() => {
         setSelectedTemplate(null);
-
         if (dietData.days.length === 0) {
             initializeDays();
         }
-
         setCurrentStep('planning');
     }, [dietData.days.length, initializeDays]);
 
     const handleSave = useCallback(async () => {
         if (isProcessing) return;
-
         setIsProcessing(true);
         try {
             const request: ManualDietRequest = {
@@ -334,8 +346,7 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
                 mealTimes: dietData.mealTimes,
                 mealTypes: dietData.mealTypes.map(type => type.toString())
             };
-
-            await ManualDietService.saveManualDiet(request);
+            await DietCreatorService.saveManualDiet(request);
             toast.success('Dieta została pomyślnie zapisana');
             onTabChange('diets');
         } catch (error) {
@@ -409,25 +420,13 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
     return (
         <div className="space-y-6 pb-16 relative">
 
-            {currentStep === 'configuration' && (
-                <div className="flex items-center space-x-4 mb-6">
-                    <button
-                        onClick={onBackToSelection}
-                        className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                    >
-                        <ArrowLeft className="h-4 w-4 mr-2"/>
-                        Powrót do wyboru metody
-                    </button>
-                </div>
-            )}
-
             <SectionHeader
                 title={getStepTitle()}
                 description={getStepDescription()}
             />
 
             {/* Guide */}
-            <ManualDietGuide className="mb-6"/>
+            <DietCreatorGuide className="mb-6"/>
 
             {/* Progress bar */}
             <div className="w-full bg-gray-200 rounded-full h-2">
@@ -454,7 +453,7 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
                 )}
 
                 {currentStep === 'configuration' && (
-                    <DietConfigurationStep
+                    <ConfigurationStep
                         dietData={dietData}
                         onUpdate={updateDietData}
                         selectedUser={selectedUser}
@@ -467,6 +466,7 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
                         <MealPlanningStep
                             dietData={dietData}
                             selectedTemplate={selectedTemplate}
+                            selectedUser={selectedUser}
                             onRemoveTemplate={() => {
                                 setSelectedTemplate(null);
                             }}
@@ -530,6 +530,7 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
                 </div>
             )}
 
+            {/* Dialog zapisu szablonu */}
             {showSaveAsTemplate && templateData && (
                 <CreateTemplateDialog
                     isOpen={showSaveAsTemplate}
@@ -545,8 +546,83 @@ const ManualDietCreator: React.FC<ManualDietCreatorProps> = ({
                     initialData={templateData}
                 />
             )}
+
+            {/* Dialog potwierdzenia powrotu (utrata danych) */}
+            {showBackConfirmation && (
+                <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
+                     aria-modal="true">
+                    <div
+                        className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                        <div
+                            className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+                            aria-hidden="true"
+                            onClick={() => setShowBackConfirmation(false)}
+                        ></div>
+
+                        <span className="hidden sm:inline-block sm:align-middle sm:h-screen"
+                              aria-hidden="true">&#8203;</span>
+
+                        <div
+                            className="relative inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                            <div className="absolute top-0 right-0 pt-4 pr-4">
+                                <button
+                                    type="button"
+                                    className="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none"
+                                    onClick={() => setShowBackConfirmation(false)}
+                                >
+                                    <span className="sr-only">Zamknij</span>
+                                    <X className="h-6 w-6" aria-hidden="true"/>
+                                </button>
+                            </div>
+
+                            <div className="sm:flex sm:items-start">
+                                <div
+                                    className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-amber-100 sm:mx-0 sm:h-10 sm:w-10">
+                                    <AlertTriangle className="h-6 w-6 text-amber-600" aria-hidden="true"/>
+                                </div>
+                                <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                                    <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                        Masz niezapisane zmiany
+                                    </h3>
+                                    <div className="mt-2">
+                                        <p className="text-sm text-gray-500">
+                                            Powrót do poprzedniego ekranu może spowodować utratę wprowadzonych posiłków.
+                                            Czy chcesz najpierw zapisać obecny stan jako szablon, aby móc do niego
+                                            wrócić?
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse gap-2">
+                                <button
+                                    type="button"
+                                    className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-emerald-600 text-base font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 sm:w-auto sm:text-sm"
+                                    onClick={handleSaveFromConfirmation}
+                                >
+                                    Zapisz jako szablon
+                                </button>
+                                <button
+                                    type="button"
+                                    className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:w-auto sm:text-sm"
+                                    onClick={handleDiscardAndBack}
+                                >
+                                    Wróć bez zapisywania
+                                </button>
+                                <button
+                                    type="button"
+                                    className="mt-3 w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-500 hover:text-gray-700 focus:outline-none sm:mt-0 sm:w-auto sm:text-sm"
+                                    onClick={() => setShowBackConfirmation(false)}
+                                >
+                                    Anuluj
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
-export default ManualDietCreator;
+export default DietCreator;

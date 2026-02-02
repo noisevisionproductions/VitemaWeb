@@ -53,6 +53,7 @@ const UserSelector: React.FC<UserSelectorProps> = ({selectedUser, onUserSelect})
                 <div className="max-h-[600px] overflow-y-auto">
                     <UserSelectorTable
                         users={filteredUsers}
+                        isFiltered={searchQuery.length > 0}
                         selectedUser={selectedUser}
                         onUserSelect={onUserSelect}
                         loading={loading}

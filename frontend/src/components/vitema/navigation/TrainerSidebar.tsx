@@ -128,7 +128,7 @@ const TrainerSidebar: React.FC<SidebarProps> = ({activeTab, onTabChange, childre
                     {!isCollapsed && (
                         <div className="flex items-center space-x-2">
                             <UtensilsCrossed className="h-6 w-6"/>
-                            <h1 className="text-xl font-bold">Panel Dietetyka</h1>
+                            <h1 className="text-xl font-bold">Panel Trenera</h1>
                         </div>
                     )}
 

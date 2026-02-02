@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import {X} from 'lucide-react';
 import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from '../../../shared/ui/Dialog';
 import {CreateDietTemplateRequest} from "../../../../types/DietTemplate";
 import {toast} from '../../../../utils/toast';
@@ -44,10 +43,8 @@ const CreateTemplateDialog: React.FC<CreateTemplateDialogProps> = ({
         setLoading(true);
         try {
             if (formData.dietData) {
-                // Tworzenie z istniejącej diety
                 await DietTemplateService.createTemplateFromDiet(formData);
             } else {
-                // Tworzenie nowego szablonu
                 await DietTemplateService.createTemplate(formData);
             }
 
@@ -65,17 +62,17 @@ const CreateTemplateDialog: React.FC<CreateTemplateDialogProps> = ({
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="bg-white max-w-lg">
                 <DialogDescription>
-                    Opis
+
                 </DialogDescription>
                 <DialogHeader>
                     <DialogTitle className="flex items-center justify-between">
                         <span>Utwórz szablon diety</span>
-                        <button
+                        {/*    <button
                             onClick={onClose}
                             className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
                         >
                             <X className="h-5 w-5"/>
-                        </button>
+                        </button>*/}
                     </DialogTitle>
                 </DialogHeader>
 

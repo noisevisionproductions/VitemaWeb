@@ -1,6 +1,6 @@
 import React from 'react';
 import { Flame, Heart, Wheat, Droplets } from 'lucide-react';
-import { NutritionalValues } from '../../../../../../../types';
+import { NutritionalValues } from '../../../../../types';
 
 interface ColoredNutritionBadgesProps {
     nutritionalValues: NutritionalValues;

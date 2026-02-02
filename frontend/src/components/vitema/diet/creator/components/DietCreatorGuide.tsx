@@ -12,13 +12,13 @@ import {
 } from "lucide-react";
 import React, {useState} from "react";
 
-interface ManualDietGuideProps {
+interface DietCreatorGuideProps {
     className?: string;
 }
 
-const ManualDietGuide: React.FC<ManualDietGuideProps> = ({
-                                                             className = ''
-                                                         }) => {
+const DietCreatorGuide: React.FC<DietCreatorGuideProps> = ({
+                                                               className = ''
+                                                           }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [activeSection, setActiveSection] = useState<string | null>(null);
 
@@ -277,4 +277,4 @@ const ManualDietGuide: React.FC<ManualDietGuideProps> = ({
     );
 };
 
-export default ManualDietGuide;
+export default DietCreatorGuide;

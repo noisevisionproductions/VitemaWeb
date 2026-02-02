@@ -22,11 +22,11 @@ const MeasurementsChart: React.FC<MeasurementsChartProps> = ({measurements}) => 
         <div className="h-96 w-full">
             <ResponsiveContainer>
                 <LineChart data={data}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
+                    <CartesianGrid strokeDasharray="3 3"/>
+                    <XAxis dataKey="date"/>
+                    <YAxis/>
+                    <Tooltip/>
+                    <Legend/>
                     <Line
                         type="monotone"
                         dataKey="waga"
