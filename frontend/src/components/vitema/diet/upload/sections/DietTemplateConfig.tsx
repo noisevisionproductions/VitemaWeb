@@ -56,17 +56,17 @@ const DietTemplateConfig: React.FC<DietTemplateConfigProps> = ({
     };
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-md space-y-8">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md space-y-8 transition-colors">
             <div className="flex items-center gap-3 mb-4">
-                <ClipboardList className="h-5 w-5 text-primary"/>
-                <h3 className="font-medium text-lg">
+                <ClipboardList className="h-5 w-5 text-primary dark:text-primary-light"/>
+                <h3 className="font-medium text-lg text-gray-900 dark:text-gray-100">
                     Konfiguracja szablonu diety
                 </h3>
             </div>
 
             {/* Meals per day selection */}
             <div ref={refs?.mealsPerDayRef} className="space-y-4">
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Liczba posiłków dziennie
                 </label>
                 <div className="flex gap-4">
@@ -77,8 +77,8 @@ const DietTemplateConfig: React.FC<DietTemplateConfigProps> = ({
                             className={`
                                 px-6 py-3 rounded-lg font-medium transition-all
                                 ${template.mealsPerDay === meals
-                                ? 'bg-blue-600 text-white shadow-md transform scale-105'
-                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                ? 'bg-blue-600 dark:bg-blue-500 text-white shadow-md transform scale-105'
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                             }
                             `}
                         >
@@ -90,10 +90,10 @@ const DietTemplateConfig: React.FC<DietTemplateConfigProps> = ({
 
             {/* Date and Duration Configuration */}
             <div ref={refs?.dateConfigRef} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-gradient-to-br from-green-50 to-blue-50 p-6 rounded-xl shadow-sm">
+                <div className="bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-6 rounded-xl shadow-sm">
                     <div className="flex items-center gap-2 mb-4">
-                        <Calendar className="w-5 h-5 text-green-600"/>
-                        <label htmlFor="startDate" className="text-sm font-medium text-gray-700">
+                        <Calendar className="w-5 h-5 text-green-600 dark:text-green-400"/>
+                        <label htmlFor="startDate" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                             Data rozpoczęcia diety
                         </label>
                     </div>
@@ -105,14 +105,14 @@ const DietTemplateConfig: React.FC<DietTemplateConfigProps> = ({
                             ...template,
                             startDate: stringToTimestamp(e.target.value)
                         })}
-                        className="w-full px-4 py-2 rounded-lg border-2 border-green-100 focus:border-green-400 focus:ring-2 focus:ring-green-200 outline-none transition-all date-input"
+                        className="w-full px-4 py-2 rounded-lg border-2 border-green-100 dark:border-green-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-green-400 dark:focus:border-green-500 focus:ring-2 focus:ring-green-200 dark:focus:ring-green-800 outline-none transition-all date-input"
                     />
                 </div>
 
-                <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-xl shadow-sm">
+                <div className="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 p-6 rounded-xl shadow-sm">
                     <div className="flex items-center gap-2 mb-4">
-                        <Clock className="w-5 h-5 text-yellow-600"/>
-                        <label htmlFor="duration" className="text-sm font-medium text-gray-700">
+                        <Clock className="w-5 h-5 text-yellow-600 dark:text-yellow-400"/>
+                        <label htmlFor="duration" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                             Długość diety (dni)
                         </label>
                     </div>
@@ -126,7 +126,7 @@ const DietTemplateConfig: React.FC<DietTemplateConfigProps> = ({
                             ...template,
                             duration: Number(e.target.value)
                         })}
-                        className="w-full px-4 py-2 rounded-lg border-2 border-yellow-100 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 outline-none transition-all"
+                        className="w-full px-4 py-2 rounded-lg border-2 border-yellow-100 dark:border-yellow-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-yellow-400 dark:focus:border-yellow-500 focus:ring-2 focus:ring-yellow-200 dark:focus:ring-yellow-800 outline-none transition-all"
                         name="mealsPerDay"
                     />
                 </div>
@@ -134,20 +134,20 @@ const DietTemplateConfig: React.FC<DietTemplateConfigProps> = ({
 
             {/* Meal Configuration */}
             <div ref={refs?.mealsConfigRef} className="space-y-6">
-                <h4 className="text-xl font-semibold text-gray-800">Konfiguracja posiłków</h4>
+                <h4 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Konfiguracja posiłków</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {Array.from({length: template.mealsPerDay}).map((_, index) => (
                         <div key={index}
-                             className="bg-gradient-to-br from-gray-50 to-blue-50 p-6 rounded-xl shadow-sm transform transition-all hover:scale-[1.02]">
+                             className="bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-800/50 dark:to-blue-900/20 p-6 rounded-xl shadow-sm transform transition-all hover:scale-[1.02]">
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         Posiłek {index + 1}
                                     </label>
                                     <select
                                         value={template.mealTypes[index]}
                                         onChange={(e) => handleMealTypeChange(index, e.target.value as MealType)}
-                                        className="w-full px-4 py-2 rounded-lg border-2 border-blue-100 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                                        className="w-full px-4 py-2 rounded-lg border-2 border-blue-100 dark:border-blue-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-400 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 outline-none transition-all"
                                     >
                                         {Object.values(MealType).map((type) => (
                                             <option key={type} value={type}>
@@ -157,7 +157,7 @@ const DietTemplateConfig: React.FC<DietTemplateConfigProps> = ({
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                         Godzina posiłku
                                     </label>
                                     <input
@@ -173,7 +173,7 @@ const DietTemplateConfig: React.FC<DietTemplateConfigProps> = ({
                                                 mealTimes: newMealTimes,
                                             });
                                         }}
-                                        className="w-full px-4 py-2 rounded-lg border-2 border-blue-100 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                                        className="w-full px-4 py-2 rounded-lg border-2 border-blue-100 dark:border-blue-700 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:border-blue-400 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800 outline-none transition-all"
                                     />
                                 </div>
                             </div>

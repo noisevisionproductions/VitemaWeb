@@ -379,7 +379,7 @@ const results = await OpenFoodFactsService.search(query);
 **After (Firestore):**
 ```typescript
 // Search local database
-const products = await ProductService.searchProducts({ query });
+const products = await ProductService.searchProducts({query});
 // Returns: Full product data with nutrition
 // Available: 250+ curated products
 ```

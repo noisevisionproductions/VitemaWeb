@@ -89,6 +89,37 @@
     --transition-slow: 300ms ease-in-out;
 }
 
+.dark {
+    /* Backgrounds */
+    --color-background: #1A202C;
+    --color-surface: #2D3748;
+    --color-border: #4A5568;
+    --color-surface-dark: #0F1319;
+
+    /* Text */
+    --color-text-primary: #F7FAFC;
+    --color-text-secondary: #CBD5E0;
+    --color-text-disabled: #718096;
+
+    /* Brand Colors - Adjusted for contrast */
+    --color-primary: #4FA8D4;
+    --color-primary-light: #2D87BB;
+    --color-primary-dark: #7BC0E3;
+
+    --color-secondary: #6DCBA3;
+    --color-secondary-light: #43B988;
+    --color-secondary-dark: #8FDCBC;
+
+    /* Nutrition Colors - Pastel tones for dark backgrounds */
+    --color-protein: #FF9E8F;
+    --color-carbs: #6EE7DE;
+    --color-fats: #FFE584;
+
+    /* Shadows - Stronger for dark mode */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+}
 /*
 !* Dark Mode *!
 @media (prefers-color-scheme: dark) {

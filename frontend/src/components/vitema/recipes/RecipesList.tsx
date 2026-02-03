@@ -3,16 +3,21 @@ import {Recipe} from "../../../types";
 import {RecipeService} from "../../../services/RecipeService";
 import {toast} from "../../../utils/toast";
 import LoadingSpinner from "../../shared/common/LoadingSpinner";
-import {FloatingActionButton, FloatingActionButtonGroup} from "../../shared/common/FloatingActionButton";
 import RecipeCard from "./RecipeCard";
 import debounce from 'lodash/debounce';
 import ConfirmationDialog from "../../shared/common/ConfirmationDialog";
+import RecipeListHeader from "./components/RecipeListHeader";
+import RecipeEmptyState from "./components/RecipeEmptyState";
+
+export type OwnershipFilter = 'all' | 'private' | 'public';
 
 interface RecipesListProps {
     onRecipeSelect: (recipeId: string) => void;
+    onCreateNew?: () => void;
     initialSearchQuery?: string;
     initialFilterWithImages?: boolean;
     initialFilterWithoutImages?: boolean;
+    initialOwnershipFilter?: OwnershipFilter;
     initialSortBy?: 'newest' | 'oldest' | 'name' | 'calories';
     onRecipesCountUpdate?: (count: number, isSearching: boolean) => void;
 }
@@ -24,9 +29,11 @@ export interface RecipesListRef {
 
 const RecipesList = forwardRef<RecipesListRef, RecipesListProps>(({
                                                                       onRecipeSelect,
+                                                                      onCreateNew,
                                                                       initialSearchQuery = '',
                                                                       initialFilterWithImages = false,
                                                                       initialFilterWithoutImages = false,
+                                                                      initialOwnershipFilter = 'all',
                                                                       initialSortBy = 'newest',
                                                                       onRecipesCountUpdate
                                                                   }, ref) => {
@@ -37,17 +44,18 @@ const RecipesList = forwardRef<RecipesListRef, RecipesListProps>(({
     const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
     const [filterWithImages, setFilterWithImages] = useState(initialFilterWithImages);
     const [filterWithoutImages, setFilterWithoutImages] = useState(initialFilterWithoutImages);
+    const [ownershipFilter, setOwnershipFilter] = useState<OwnershipFilter>(initialOwnershipFilter);
     const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'name' | 'calories'>(initialSortBy);
     const [isSearching, setIsSearching] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [recipeToDelete, setRecipeToDelete] = useState<Recipe | null>(null);
     const [isDeletingRecipe, setIsDeletingRecipe] = useState(false);
+    const [totalElements, setTotalElements] = useState(0);
 
     const [currentPage, setCurrentPage] = useState(0);
     const [hasMorePages, setHasMorePages] = useState(true);
-    const pageSize = 50;
+    const pageSize = 30;
 
-    // Effect to handle changes from parent component
     useEffect(() => {
         setSearchQuery(initialSearchQuery);
     }, [initialSearchQuery]);
@@ -61,16 +69,21 @@ const RecipesList = forwardRef<RecipesListRef, RecipesListProps>(({
     }, [initialFilterWithoutImages]);
 
     useEffect(() => {
+        setOwnershipFilter(initialOwnershipFilter);
+    }, [initialOwnershipFilter]);
+
+    useEffect(() => {
         setSortBy(initialSortBy);
     }, [initialSortBy]);
 
     useEffect(() => {
         if (onRecipesCountUpdate) {
-            onRecipesCountUpdate(filteredRecipes.length, isSearching);
+            // When searching, use filtered count; otherwise use totalElements from API
+            const count = searchQuery.trim() ? filteredRecipes.length : totalElements;
+            onRecipesCountUpdate(count, isSearching);
         }
-    }, [filteredRecipes.length, isSearching, onRecipesCountUpdate]);
+    }, [filteredRecipes.length, totalElements, isSearching, searchQuery, onRecipesCountUpdate]);
 
-    // Metoda do aktualizacji pojedynczego przepisu bez ponownego ładowania całej listy
     const updateRecipe = useCallback((updatedRecipe: Recipe) => {
         setRecipes(currentRecipes =>
             currentRecipes.map(recipe =>
@@ -95,7 +108,6 @@ const RecipesList = forwardRef<RecipesListRef, RecipesListProps>(({
         updateRecipe
     }));
 
-    // Funkcja do ładowania kilku stron do określonego indeksu strony
     const loadSavedPages = async (targetPage: number) => {
         if (targetPage <= 0) return;
 
@@ -108,7 +120,6 @@ const RecipesList = forwardRef<RecipesListRef, RecipesListProps>(({
         fetchInitialRecipes().catch(console.error);
     }, []);
 
-    // Debounce funkcja wyszukiwania, aby nie wywoływać API za często
     const debouncedSearch = debounce(async (query: string) => {
         if (query.trim() && (query.trim().length >= 3 || /^\d+$/.test(query.trim()))) {
             try {
@@ -129,7 +140,6 @@ const RecipesList = forwardRef<RecipesListRef, RecipesListProps>(({
         if (searchQuery.trim()) {
             const searchPromise = debouncedSearch(searchQuery);
 
-            // Obsługa Promise, jeśli jest zwracany
             if (searchPromise) {
                 searchPromise.catch(error => {
                     console.error('Nieoczekiwany błąd w debouncedSearch:', error);
@@ -148,12 +158,19 @@ const RecipesList = forwardRef<RecipesListRef, RecipesListProps>(({
         if (!searchQuery.trim()) {
             applyFilters();
         }
-    }, [recipes, filterWithImages, filterWithoutImages, sortBy]);
+    }, [recipes, filterWithImages, filterWithoutImages, ownershipFilter, sortBy]);
 
     const applyFilters = () => {
         let results = [...recipes];
 
-        // Filtrowanie
+        // Ownership Filter
+        if (ownershipFilter === 'private') {
+            results = results.filter(recipe => !recipe.isPublic);
+        } else if (ownershipFilter === 'public') {
+            results = results.filter(recipe => recipe.isPublic === true);
+        }
+
+        // Image Filters
         if (filterWithImages) {
             results = results.filter(recipe => recipe.photos && recipe.photos.length > 0);
         }
@@ -162,7 +179,7 @@ const RecipesList = forwardRef<RecipesListRef, RecipesListProps>(({
             results = results.filter(recipe => !recipe.photos || recipe.photos.length === 0);
         }
 
-        // Sortowanie
+        // Sorting
         results = [...results].sort((a, b) => {
             switch (sortBy) {
                 case 'newest':
@@ -191,6 +208,7 @@ const RecipesList = forwardRef<RecipesListRef, RecipesListProps>(({
 
             const response = await RecipeService.getRecipesPage(0, pageSize);
             setRecipes(response.content || []);
+            setTotalElements(response.totalElements || 0);
             setHasMorePages(response.page < response.totalPages - 1);
         } catch (error) {
             console.error('Błąd podczas pobierania przepisów:', error);
@@ -218,6 +236,7 @@ const RecipesList = forwardRef<RecipesListRef, RecipesListProps>(({
             });
 
             setCurrentPage(nextPage);
+            setTotalElements(response.totalElements || 0);
             setHasMorePages(response.page < response.totalPages - 1);
         } catch (error) {
             console.error('Błąd podczas ładowania kolejnych przepisów:', error);
@@ -226,6 +245,17 @@ const RecipesList = forwardRef<RecipesListRef, RecipesListProps>(({
             setLoadingMore(false);
         }
     };
+
+    // Infinite scroll handler
+    const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+        const target = e.currentTarget;
+        const scrollPercentage = (target.scrollTop + target.clientHeight) / target.scrollHeight;
+
+        // Load more when scrolled to 80% of the container
+        if (scrollPercentage > 0.8 && hasMorePages && !loadingMore && !searchQuery.trim()) {
+            loadMoreRecipes().catch(console.error);
+        }
+    }, [hasMorePages, loadingMore, searchQuery]);
 
     const handleDeleteRecipe = (recipe: Recipe, e: React.MouseEvent) => {
         e.stopPropagation();
@@ -247,11 +277,9 @@ const RecipesList = forwardRef<RecipesListRef, RecipesListProps>(({
             setIsDeletingRecipe(true);
             await RecipeService.deleteRecipe(recipeToDelete.id);
 
-            // Aktualizacja lokalnych list przepisów
             const newRecipes = recipes.filter(r => r.id !== recipeToDelete.id);
             setRecipes(newRecipes);
 
-            // Aktualizacja filtrowanej listy
             const newFilteredRecipes = filteredRecipes.filter(r => r.id !== recipeToDelete.id);
             setFilteredRecipes(newFilteredRecipes);
 
@@ -274,51 +302,43 @@ const RecipesList = forwardRef<RecipesListRef, RecipesListProps>(({
         );
     }
 
-    // Sprawdzamy, czy powinniśmy pokazać przycisk "Załaduj więcej"
-    const showLoadMoreButton = hasMorePages && !(searchQuery || filterWithImages || filterWithoutImages);
-
     return (
         <div className="h-full flex flex-col">
-            {/* Lista przepisów */}
-            <div className="flex-grow overflow-auto relative">
-                {filteredRecipes.length === 0 ? (
-                    <div className="text-center py-16 bg-white rounded-lg shadow-sm border border-slate-200">
-                        <h3 className="text-lg font-medium text-slate-700">Brak przepisów do wyświetlenia</h3>
-                        <p className="text-slate-500 max-w-md mx-auto mt-2">
-                            Nie znaleziono żadnych przepisów spełniających kryteria. Spróbuj zmienić filtry lub odśwież
-                            listę.
-                        </p>
-                    </div>
-                ) : (
-                    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pb-16">
-                        {filteredRecipes.map(recipe => (
-                            <RecipeCard
-                                key={recipe.id}
-                                recipe={recipe}
-                                onClick={onRecipeSelect}
-                                onDelete={handleDeleteRecipe}
-                            />
-                        ))}
-                    </div>
-                )}
+            {/* Header with count and create button */}
+            <RecipeListHeader
+                count={filteredRecipes.length}
+                onCreateNew={onCreateNew}
+            />
 
-                {/* Przycisk "Załaduj więcej" */}
-                {showLoadMoreButton && (
-                    <FloatingActionButtonGroup position="bottom-right">
-                        <FloatingActionButton
-                            label="Załaduj więcej"
-                            onClick={() => loadMoreRecipes()}
-                            disabled={loadingMore}
-                            isLoading={loadingMore}
-                            loadingLabel="Ładowanie..."
-                            loadingIcon={<LoadingSpinner size="sm"/>}
-                            variant="primary"
-                        />
-                    </FloatingActionButtonGroup>
+            {/* Recipes list with infinite scroll */}
+            <div className="flex-grow overflow-auto relative" onScroll={handleScroll}>
+                {filteredRecipes.length === 0 ? (
+                    <RecipeEmptyState onCreateNew={onCreateNew}/>
+                ) : (
+                    <>
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 pb-16">
+                            {filteredRecipes.map(recipe => (
+                                <RecipeCard
+                                    key={recipe.id}
+                                    recipe={recipe}
+                                    onClick={onRecipeSelect}
+                                    onDelete={handleDeleteRecipe}
+                                />
+                            ))}
+                        </div>
+
+                        {/* Loading indicator for infinite scroll */}
+                        {loadingMore && (
+                            <div className="flex justify-center items-center py-8">
+                                <LoadingSpinner size="sm"/>
+                                <span className="ml-2 text-sm text-slate-500">Ładowanie kolejnych przepisów...</span>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
 
-            {/* Dialog potwierdzający usunięcie przepisu */}
+            {/* Delete confirmation dialog */}
             <ConfirmationDialog
                 isOpen={deleteDialogOpen}
                 onClose={handleCloseDeleteDialog}

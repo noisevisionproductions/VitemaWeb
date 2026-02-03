@@ -38,6 +38,13 @@ public class RecipeController {
     private final RecipeService recipeService;
     private final RecipeMapper recipeMapper;
 
+    @PostMapping
+    public ResponseEntity<RecipeResponse> createRecipe(@Valid @RequestBody RecipeUpdateRequest request) {
+        Recipe recipe = recipeMapper.toModel(request);
+        Recipe createdRecipe = recipeService.createRecipe(recipe);
+        return ResponseEntity.status(HttpStatus.CREATED).body(recipeMapper.toResponse(createdRecipe));
+    }
+
     @GetMapping
     public ResponseEntity<RecipesPageResponse> getAllRecipes(
             @RequestParam(defaultValue = "0") int page,

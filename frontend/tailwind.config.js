@@ -3,6 +3,7 @@ import aspectRatio from '@tailwindcss/aspect-ratio';
 
 /** @type {import('tailwindcss').Config} */
 export default {
+    darkMode: 'class',
     content: [
         "./index.html",
         "./src/**/*.{js,ts,jsx,tsx}",
@@ -10,6 +11,7 @@ export default {
     theme: {
         extend: {
             colors: {
+                background: 'var(--color-background)',
                 primary: {
                     DEFAULT: 'var(--color-primary)',
                     light: 'var(--color-primary-light)',

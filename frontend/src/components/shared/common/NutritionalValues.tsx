@@ -1,12 +1,12 @@
 import React from "react";
-import { Input } from "../ui/Input";
-import { Label } from "../ui/Label";
+import {Input} from "../ui/Input";
+import {Label} from "../ui/Label";
 
 export interface NutritionalValuesData {
-    calories: number;
-    protein: number;
-    fat: number;
-    carbs: number;
+    calories?: number;
+    protein?: number;
+    fat?: number;
+    carbs?: number;
 }
 
 interface NutritionalValuesProps {
@@ -23,7 +23,7 @@ const NutritionalValues: React.FC<NutritionalValuesProps> = ({
                                                                  size = "md"
                                                              }) => {
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         const numValue = parseFloat(value) || 0;
         if (onChange) {
             onChange(name, numValue);

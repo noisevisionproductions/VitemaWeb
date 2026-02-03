@@ -39,7 +39,7 @@ export const DroppableTabsTrigger = React.forwardRef<
                 {...props}
                 className={`
                     ${className}
-                    ${isOver ? 'ring-2 ring-blue-400' : ''}
+                    ${isOver ? 'ring-2 ring-blue-400 dark:ring-blue-500' : ''}
                     transition-all duration-200
                 `}
                 style={{

@@ -36,9 +36,9 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
     return (
         <div className="flex justify-between items-start mb-6">
             <div>
-                <h1 className="text-2xl font-bold mb-1">{title}</h1>
+                <h1 className="text-2xl font-bold mb-1 text-gray-900 dark:text-gray-100">{title}</h1>
                 {(description || welcomeUser) && (
-                    <p className="text-slate-500 text-sm mt-1">
+                    <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
                         {welcomeUser && (
                             <>{welcomeMessage}{getUserName()}! </>
                         )}

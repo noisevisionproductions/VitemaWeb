@@ -1,12 +1,14 @@
 import api from "../config/axios";
-import {Recipe, NutritionalValues} from "../types";
+import {Recipe, NutritionalValues, RecipeIngredient} from "../types";
 
 interface RecipeUpdateData {
     name?: string;
     instructions?: string;
+    ingredients?: RecipeIngredient[];
     nutritionalValues?: NutritionalValues;
     photos?: string[];
     parentRecipeId?: string | null;
+    isPublic?: boolean;
 }
 
 interface RecipesPageResponse {
@@ -66,6 +68,11 @@ export class RecipeService {
             }
         });
         return response.data.content || [];
+    }
+
+    static async createRecipe(data: Partial<Recipe>): Promise<Recipe> {
+        const response = await api.post(`${this.BASE_URL}`, data);
+        return response.data;
     }
 
     static async updateRecipe(id: string, data: RecipeUpdateData): Promise<Recipe> {

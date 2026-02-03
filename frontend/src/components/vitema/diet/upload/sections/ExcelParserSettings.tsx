@@ -87,20 +87,20 @@ const ExcelParserSettings: React.FC<ExcelParserSettingsProps> = ({
     };
 
     return (
-        <div ref={sectionRef} className={`bg-white rounded-lg shadow-md ${className}`}>
+        <div ref={sectionRef} className={`bg-white dark:bg-gray-800 rounded-lg shadow-md transition-colors ${className}`}>
             {/* Nagłówek z ikoną rozwijania/zwijania */}
             <div
-                className="flex items-center justify-between p-6 cursor-pointer border-b"
+                className="flex items-center justify-between p-6 cursor-pointer border-b border-gray-200 dark:border-gray-700"
                 onClick={() => setIsExpanded(!isExpanded)}
             >
                 <div className="flex items-center gap-3">
-                    <FileSearch className="h-5 w-5 text-primary"/>
-                    <h3 className="font-medium text-lg">Ustawienia parsowania diety</h3>
+                    <FileSearch className="h-5 w-5 text-primary dark:text-primary-light"/>
+                    <h3 className="font-medium text-lg text-gray-900 dark:text-gray-100">Ustawienia parsowania diety</h3>
                 </div>
 
                 <button
                     type="button"
-                    className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                    className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 focus:outline-none transition-colors"
                 >
                     {isExpanded ? (
                         <ChevronUp className="h-5 w-5"/>
@@ -115,14 +115,14 @@ const ExcelParserSettings: React.FC<ExcelParserSettingsProps> = ({
                     {/* Dzielimy na dwie kolumny na większych ekranach */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Sekcja ustawień parsera Excel */}
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                            <h4 className="font-medium text-base text-gray-700 mb-3 flex items-center gap-2">
-                                <Settings className="h-4 w-4 text-blue-600"/>
+                        <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg">
+                            <h4 className="font-medium text-base text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                                <Settings className="h-4 w-4 text-blue-600 dark:text-blue-400"/>
                                 Konfiguracja parsera Excel
                             </h4>
 
                             <div className="flex items-center gap-2 mb-3">
-                                <label htmlFor="skipColumnsCount" className="text-sm text-gray-600">
+                                <label htmlFor="skipColumnsCount" className="text-sm text-gray-600 dark:text-gray-400">
                                     Liczba pomijanych kolumn:
                                 </label>
                                 <input
@@ -132,12 +132,12 @@ const ExcelParserSettings: React.FC<ExcelParserSettingsProps> = ({
                                     max={maxSkipColumnsCount}
                                     value={skipColumnsCount}
                                     onChange={(e) => onSkipColumnsCountChange(parseInt(e.target.value, 10) || 0)}
-                                    className="w-16 px-2 py-1 border border-gray-300 rounded text-center"
+                                    className="w-16 px-2 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded text-center transition-colors"
                                     disabled={isLoading}
                                 />
                             </div>
 
-                            <div className="text-xs text-gray-500">
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
                                 Określa, ile początkowych kolumn ma zostać pominiętych podczas przetwarzania pliku
                                 Excel.
                                 Domyślnie pomijana jest 1 kolumna (indeksowa).
@@ -146,9 +146,9 @@ const ExcelParserSettings: React.FC<ExcelParserSettingsProps> = ({
                         </div>
 
                         {/* Sekcja walidacji kalorii */}
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                            <h4 className="font-medium text-base text-gray-700 mb-3 flex items-center gap-2">
-                                <Calculator className="h-4 w-4 text-amber-600"/>
+                        <div className="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-lg">
+                            <h4 className="font-medium text-base text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                                <Calculator className="h-4 w-4 text-amber-600 dark:text-amber-400"/>
                                 Walidacja kalorii
                             </h4>
 
@@ -158,9 +158,9 @@ const ExcelParserSettings: React.FC<ExcelParserSettingsProps> = ({
                                     id="enableCalorieValidation"
                                     checked={isCalorieValidationEnabled}
                                     onChange={(e) => handleEnabledChange(e.target.checked)}
-                                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                                    className="w-4 h-4 text-blue-600 dark:text-blue-400 rounded focus:ring-blue-500 dark:focus:ring-blue-400"
                                 />
-                                <label htmlFor="enableCalorieValidation" className="text-sm">
+                                <label htmlFor="enableCalorieValidation" className="text-sm text-gray-900 dark:text-gray-100">
                                     Sprawdź zgodność kalorii z pliku Excel z założonym celem
                                 </label>
                             </div>
@@ -169,7 +169,7 @@ const ExcelParserSettings: React.FC<ExcelParserSettingsProps> = ({
                                 <>
                                     <div className="mb-3">
                                         <label htmlFor="targetCalories"
-                                               className="block text-sm font-medium text-gray-700 mb-1">
+                                               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                             Docelowa ilość kalorii dziennie:
                                         </label>
                                         <div className="flex items-center gap-2">
@@ -181,14 +181,14 @@ const ExcelParserSettings: React.FC<ExcelParserSettingsProps> = ({
                                                 min="500"
                                                 max="10000"
                                                 step="50"
-                                                className="w-24 p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                                                className="w-24 p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-md focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-colors"
                                             />
-                                            <span className="text-gray-500">kcal</span>
+                                            <span className="text-gray-500 dark:text-gray-400">kcal</span>
 
                                             <button
                                                 type="button"
                                                 onClick={() => setShowPredefinedValues(!showPredefinedValues)}
-                                                className="ml-2 text-sm text-blue-600 hover:text-blue-800 flex items-center"
+                                                className="ml-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 flex items-center transition-colors"
                                             >
                                                 {showPredefinedValues ? 'Ukryj' : 'Wybierz wartość'}
                                                 {showPredefinedValues ? (
@@ -209,10 +209,10 @@ const ExcelParserSettings: React.FC<ExcelParserSettingsProps> = ({
                                                             handleCaloriesChange(calories);
                                                             setShowPredefinedValues(false);
                                                         }}
-                                                        className={`px-3 py-1 text-sm rounded-full border 
+                                                        className={`px-3 py-1 text-sm rounded-full border transition-colors
                                                             ${targetCalories === calories
-                                                            ? 'bg-blue-100 border-blue-300 text-blue-800'
-                                                            : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'}`}
+                                                            ? 'bg-blue-100 dark:bg-blue-900/50 border-blue-300 dark:border-blue-600 text-blue-800 dark:text-blue-200'
+                                                            : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
                                                     >
                                                         {calories} kcal
                                                     </button>
@@ -233,7 +233,7 @@ const ExcelParserSettings: React.FC<ExcelParserSettingsProps> = ({
                                         </div>
                                     )}
 
-                                    <div className="text-xs text-gray-500">
+                                    <div className="text-xs text-gray-500 dark:text-gray-400">
                                         System sprawdzi, czy średnia wartość kalorii w diecie z pliku Excel jest zgodna
                                         z
                                         podaną wartością docelową. Dopuszczalny jest margines błędu ±5%.
@@ -244,7 +244,7 @@ const ExcelParserSettings: React.FC<ExcelParserSettingsProps> = ({
                     </div>
 
                     {/* Informacja o automatycznym zapisywaniu */}
-                    <div className="mt-6 flex items-center p-3 bg-blue-50 rounded-lg text-blue-700 text-xs">
+                    <div className="mt-6 flex items-center p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-blue-700 dark:text-blue-300 text-xs">
                         <Save className="h-4 w-4 mr-2 flex-shrink-0"/>
                         <p>
                             Wszystkie zmiany ustawień parsowania diety są zapisywane automatycznie.

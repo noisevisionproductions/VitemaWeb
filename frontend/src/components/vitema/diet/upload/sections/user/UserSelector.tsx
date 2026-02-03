@@ -45,11 +45,11 @@ const UserSelector: React.FC<UserSelectorProps> = ({selectedUser, onUserSelect})
                 placeholder="Szukaj użytkownika..."
             />
 
-            <div className="text-sm text-gray-500 mb-2">
+            <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">
                 {userCountInfo}
             </div>
 
-            <div className="border rounded-lg overflow-hidden">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                 <div className="max-h-[600px] overflow-y-auto">
                     <UserSelectorTable
                         users={filteredUsers}

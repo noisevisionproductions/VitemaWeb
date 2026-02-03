@@ -241,7 +241,7 @@ const ValidationSection: React.FC<ValidationSectionProps> = ({
 
     if (isLoading) {
         return (
-            <div className="flex items-center gap-2 p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-2 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg text-gray-900 dark:text-gray-100">
                 <LoadingSpinner/>
                 <span>Walidacja w toku...</span>
             </div>
@@ -249,8 +249,8 @@ const ValidationSection: React.FC<ValidationSectionProps> = ({
     }
 
     return (
-        <div className="space-y-4 bg-white p-6 rounded-lg shadow-sm">
-            <h3 className="text-lg font-medium mb-4">Wyniki walidacji</h3>
+        <div className="space-y-4 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm transition-colors">
+            <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-gray-100">Wyniki walidacji</h3>
 
             {validationResults.length > 0 ? (
                 <div className="space-y-2">
@@ -269,13 +269,13 @@ const ValidationSection: React.FC<ValidationSectionProps> = ({
                     })}
                 </div>
             ) : (
-                <div className="text-gray-500 p-4 bg-gray-50 rounded-lg">
+                <div className="text-gray-500 dark:text-gray-400 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
                     Brak wyników walidacji
                 </div>
             )}
 
             {totalMeals > 0 && (
-                <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-gray-900 dark:text-gray-100">
                     <span className="font-medium">Liczba posiłków w pliku:</span> {totalMeals}
                 </div>
             )}

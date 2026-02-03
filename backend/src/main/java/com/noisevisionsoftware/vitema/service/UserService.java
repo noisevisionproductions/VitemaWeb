@@ -41,11 +41,6 @@ public class UserService {
         }
     }
 
-    public User createOrUpdateClient(String trainerId, User clientData) {
-        clientData.setTrainerId(trainerId);
-        return userRepository.save(clientData);
-    }
-
     @Cacheable(value = "usersCache", key = "#id")
     public User getUserById(String id) {
         return userRepository.findById(id)

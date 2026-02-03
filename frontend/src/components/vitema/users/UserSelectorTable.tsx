@@ -43,7 +43,7 @@ const UserSelectorTable: React.FC<UserSelectorTableProps> = ({
 
         const info = dietInfo[userId];
         if (!info || !info.hasDiet) {
-            return <span className="text-xs text-gray-500">Brak diety</span>;
+            return <span className="text-xs text-gray-500 dark:text-gray-400">Brak diety</span>;
         }
 
         // Bezpieczna konwersja dat
@@ -56,26 +56,26 @@ const UserSelectorTable: React.FC<UserSelectorTableProps> = ({
         const formattedEndDate = endDate ? formatTimestamp(endDate, false) : "Nieprawidłowa data";
 
         // Określenie statusu diety
-        let statusStyle = "text-gray-600";
+        let statusStyle = "text-gray-600 dark:text-gray-400";
         let statusText = "Dieta przypisana";
         let daysMessage = "";
 
         if (startDate && endDate) {
             if (startDate <= now && endDate >= now) {
                 // Aktywna dieta
-                statusStyle = "text-green-600 font-medium";
+                statusStyle = "text-green-600 dark:text-green-400 font-medium";
                 statusText = "Aktywna dieta";
                 const daysLeft = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
                 daysMessage = `Pozostało ${daysLeft} dni`;
             } else if (startDate > now) {
                 // Przyszła dieta
-                statusStyle = "text-blue-600";
+                statusStyle = "text-blue-600 dark:text-blue-400";
                 statusText = "Zaplanowana dieta";
                 const daysToStart = Math.ceil((startDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
                 daysMessage = `Za ${daysToStart} dni`;
             } else {
                 // Zakończona dieta
-                statusStyle = "text-gray-400";
+                statusStyle = "text-gray-400 dark:text-gray-500";
                 statusText = "Zakończona dieta";
             }
         }
@@ -85,8 +85,8 @@ const UserSelectorTable: React.FC<UserSelectorTableProps> = ({
                 <div className={`flex items-center ${statusStyle}`}>
                     <span>{statusText}</span>
                 </div>
-                {daysMessage && <span className="text-xs text-gray-500">{daysMessage}</span>}
-                <div className="text-xs text-gray-400 cursor-help"
+                {daysMessage && <span className="text-xs text-gray-500 dark:text-gray-400">{daysMessage}</span>}
+                <div className="text-xs text-gray-400 dark:text-gray-500 cursor-help"
                      title={`${formattedStartDate} - ${formattedEndDate}`}>
                     {formattedStartDate}
                 </div>
@@ -95,29 +95,29 @@ const UserSelectorTable: React.FC<UserSelectorTableProps> = ({
     };
 
     return (
-        <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50 sticky top-0 z-10">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-800 sticky top-0 z-10">
             <tr>
-                <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-10">
+                <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-10">
 
                 </th>
-                <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Użytkownik
                 </th>
-                <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Status diety
                 </th>
-                <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Notatka
                 </th>
             </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
             {users.map((user) => (
                 <tr
                     key={user.id}
-                    className={`hover:bg-gray-50 cursor-pointer ${
-                        selectedUser?.id === user.id ? 'bg-blue-50' : ''
+                    className={`hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer ${
+                        selectedUser?.id === user.id ? 'bg-blue-50 dark:bg-blue-900/30' : ''
                     }`}
                     onClick={() => onUserSelect(user)}
                 >
@@ -127,16 +127,16 @@ const UserSelectorTable: React.FC<UserSelectorTableProps> = ({
                             name="selectedUser"
                             checked={selectedUser?.id === user.id}
                             onChange={() => onUserSelect(user)}
-                            className="h-3 w-3 text-blue-600"
+                            className="h-3 w-3 text-blue-600 dark:text-blue-400"
                             onClick={(e) => e.stopPropagation()}
                         />
                     </td>
                     <td className="px-2 py-1.5">
-                        <div className="text-xs font-medium text-gray-900 truncate max-w-[180px]" title={user.email}>
+                        <div className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate max-w-[180px]" title={user.email}>
                             {user.email || "Brak adresu e-mail"}
                         </div>
                         {user.nickname && (
-                            <div className="text-xs text-gray-500 truncate max-w-[180px]" title={user.nickname}>
+                            <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[180px]" title={user.nickname}>
                                 {user.nickname}
                             </div>
                         )}
@@ -146,7 +146,7 @@ const UserSelectorTable: React.FC<UserSelectorTableProps> = ({
                     </td>
                     <td className="px-2 py-1.5">
                         {user.note && (
-                            <div className="flex items-center gap-1 text-xs text-gray-600">
+                            <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
                                 <StickyNote className="w-3 h-3 flex-shrink-0"/>
                                 <span className="truncate max-w-[120px]" title={user.note}>
                                         {user.note}

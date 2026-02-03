@@ -152,6 +152,10 @@ public class RecipeService {
         }
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = RECIPES_BATCH_CACHE, allEntries = true),
+            @CacheEvict(value = RECIPES_PAGE_CACHE, allEntries = true)
+    })
     public Recipe createRecipe(Recipe recipe) {
         if (recipe.getCreatedAt() == null) {
             recipe.setCreatedAt(Timestamp.now());

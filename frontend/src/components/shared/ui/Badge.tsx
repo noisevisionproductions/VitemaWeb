@@ -8,21 +8,21 @@ const badgeVariants = cva(
         variants: {
             variant: {
                 default:
-                    "bg-primary text-primary-foreground hover:bg-primary/80",
+                    "bg-primary text-white hover:bg-primary/80 dark:bg-primary-light dark:text-gray-900",
                 secondary:
-                    "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+                    "bg-secondary text-white hover:bg-secondary/80 dark:bg-secondary-light dark:text-gray-900",
                 destructive:
-                    "bg-destructive text-destructive-foreground hover:bg-destructive/80",
+                    "bg-red-500 text-white hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700",
                 outline:
-                    "border border-input hover:bg-accent hover:text-accent-foreground",
+                    "border border-gray-300 bg-transparent hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-800 dark:text-gray-300",
                 success:
-                    "bg-status-success bg-opacity-20 text-status-success border border-status-success border-opacity-20",
+                    "bg-status-success bg-opacity-20 text-status-success border border-status-success border-opacity-20 dark:bg-opacity-30",
                 warning:
-                    "bg-status-warning bg-opacity-20 text-status-warning border border-status-warning border-opacity-20",
+                    "bg-status-warning bg-opacity-20 text-status-warning border border-status-warning border-opacity-20 dark:bg-opacity-30",
                 error:
-                    "bg-status-error bg-opacity-20 text-status-error border border-status-error border-opacity-20",
+                    "bg-status-error bg-opacity-20 text-status-error border border-status-error border-opacity-20 dark:bg-opacity-30",
                 info:
-                    "bg-status-info bg-opacity-20 text-status-info border border-status-info border-opacity-20",
+                    "bg-status-info bg-opacity-20 text-status-info border border-status-info border-opacity-20 dark:bg-opacity-30",
             },
             size: {
                 default: "h-6 px-2.5 py-0.5 text-xs",

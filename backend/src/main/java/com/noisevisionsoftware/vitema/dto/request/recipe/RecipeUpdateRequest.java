@@ -1,5 +1,6 @@
 package com.noisevisionsoftware.vitema.dto.request.recipe;
 
+import com.noisevisionsoftware.vitema.model.recipe.RecipeIngredient;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +18,7 @@ public class RecipeUpdateRequest {
     private String name;
     @NotBlank
     private String instructions;
+    private List<RecipeIngredient> ingredients;
     private NutritionalValuesRequest nutritionalValues;
     private List<String> photos;
     private Boolean isPublic;

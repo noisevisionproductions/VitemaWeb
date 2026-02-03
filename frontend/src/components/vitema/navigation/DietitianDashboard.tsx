@@ -1,14 +1,32 @@
 import React from 'react';
 import {Link, useNavigate} from 'react-router-dom';
 import {BookOpenIcon, ChartBarIcon} from '@heroicons/react/24/outline';
-import {useAuth} from "../../../../../../contexts/AuthContext";
+import {useAuth} from "../../../contexts/AuthContext";
 import {BookAudio, ClipboardList, ClipboardListIcon, HelpCircle, PlusCircle, Users} from "lucide-react";
-import {toast} from "../../../../../../utils/toast";
-import SectionHeader from "../../../../../shared/common/SectionHeader";
+import {toast} from "../../../utils/toast";
+import SectionHeader from "../../shared/common/SectionHeader";
 
 const DietitianDashboard: React.FC = () => {
     const {currentUser, logout} = useAuth();
     const navigate = useNavigate();
+
+    /*   const [theme, setTheme] = useState(
+           localStorage.getItem('theme') || 'light'
+       );*/
+
+    /*  useEffect(() => {
+          const root = document.documentElement;
+          if (theme === 'dark') {
+              root.classList.add('dark');
+          } else {
+              root.classList.remove('dark');
+          }
+          localStorage.setItem('theme', theme);
+      }, [theme]);*/
+
+    /*const toggleTheme = () => {
+        setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+    };*/
 
     const dietitianModules = [
         {
@@ -90,23 +108,26 @@ const DietitianDashboard: React.FC = () => {
                     return (
                         <div
                             key={module.name}
-                            className="relative bg-white p-6 border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition duration-200 cursor-pointer hover:border-primary-light group"
+                            // Updated classes for Dark Mode support (dark:bg-gray-800, dark:border-gray-700, etc.)
+                            className="relative bg-white dark:bg-gray-800 p-6 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden hover:shadow-md transition duration-200 cursor-pointer hover:border-primary-light group"
                             onClick={() => handleModuleClick(module.tabName)}
                         >
                             <div className="flex items-center mb-4">
                                 <div
                                     className="p-2 rounded-md bg-primary-light/10 group-hover:bg-primary-light/20 transition-colors">
-                                    <Icon className="h-6 w-6 text-primary" aria-hidden="true"/>
+                                    <Icon className="h-6 w-6 text-primary dark:text-primary-light" aria-hidden="true"/>
                                 </div>
-                                <h3 className="ml-3 text-lg font-medium text-gray-900 group-hover:text-primary">
+                                {/* Added dark:text-white */}
+                                <h3 className="ml-3 text-lg font-medium text-gray-900 dark:text-white group-hover:text-primary dark:group-hover:text-primary-light">
                                     {module.name}
                                 </h3>
                             </div>
-                            <p className="text-sm text-gray-500 mb-4">
+                            {/* Added dark:text-gray-400 */}
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                                 {module.description}
                             </p>
                             <span
-                                className="text-sm font-medium text-primary hover:text-primary-dark group-hover:underline">
+                                className="text-sm font-medium text-primary hover:text-primary-dark dark:text-primary-light group-hover:underline">
                                 Przejdź &rarr;
                             </span>
                         </div>
@@ -114,12 +135,15 @@ const DietitianDashboard: React.FC = () => {
                 })}
             </div>
 
-            <div className="mt-8 bg-gray-50 p-6 rounded-lg border border-gray-200">
-                <h3 className="text-lg font-medium text-gray-900 mb-3">
+            {/* Updated container background and border for Dark Mode */}
+            <div
+                className="mt-8 bg-gray-50 dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-3">
                     Szybki dostęp
                 </h3>
-                <div className="flex space-x-4">
-                    {/* Warunek dla przycisku panelu administracyjnego */}
+                <div className="flex flex-wrap gap-4">
+                    {/* Changed space-x-4 to flex-wrap gap-4 for better mobile handling */}
+
                     {useAuth().isAdmin() && (
                         <Link
                             to="/admin"
@@ -128,15 +152,32 @@ const DietitianDashboard: React.FC = () => {
                             Panel administratora
                         </Link>
                     )}
+
+                    {/* Dark Mode Toggle Button */}
+                    {/*     <button
+                        onClick={toggleTheme}
+                        className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                    >
+                        {theme === 'light' ? (
+                            <>
+                                <Moon className="mr-2 h-4 w-4"/> Tryb ciemny
+                            </>
+                        ) : (
+                            <>
+                                <Sun className="mr-2 h-4 w-4"/> Tryb jasny
+                            </>
+                        )}
+                    </button>
+*/}
                     <Link
                         to="/frontend/public"
-                        className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                        className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
                     >
                         Strona główna
                     </Link>
                     <button
                         onClick={handleLogout}
-                        className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-white bg-red-500 hover:bg-red-600"
+                        className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-red-800 shadow-sm text-sm font-medium rounded-md text-white bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 transition-colors"
                     >
                         Wyloguj się
                     </button>
