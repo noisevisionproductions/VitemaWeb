@@ -174,6 +174,31 @@ public class RecipeService {
         return recipeRepository.save(recipe);
     }
 
+    // In RecipeService.java
+
+    public void forceDeleteRecipe(String id) {
+        // 1. Find the recipe (return safely if not found)
+        Recipe recipe = recipeRepository.findById(id).orElse(null);
+        if (recipe == null) return;
+
+        // 2. SKIP verifyOwnership(recipe); <--- The important part
+
+        // 3. Handle image references (same as original method)
+        if (recipe.getPhotos() != null && !recipe.getPhotos().isEmpty()) {
+            for (String photoUrl : recipe.getPhotos()) {
+                try {
+                    recipeImageRepository.decrementReferenceCount(photoUrl);
+                } catch (Exception e) {
+                    log.error("Force delete error updating image ref: {}", photoUrl, e);
+                }
+            }
+        }
+
+        // 4. Delete and cleanup
+        recipeRepository.delete(id);
+        cleanupOrphanedImages();
+    }
+
     public Recipe findOrCreateRecipe(Recipe recipe) {
         if (recipe.getName() == null || recipe.getName().trim().isEmpty()) {
             return createRecipe(recipe);

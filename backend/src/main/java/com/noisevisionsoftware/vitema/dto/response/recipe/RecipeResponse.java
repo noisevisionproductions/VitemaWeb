@@ -23,4 +23,5 @@ public class RecipeResponse {
     private String parentRecipeId;
     private boolean isPublic;
     private boolean isMine;
+    private String authorId;
 }

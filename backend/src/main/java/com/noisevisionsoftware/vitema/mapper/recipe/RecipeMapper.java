@@ -26,6 +26,9 @@ public class RecipeMapper {
                 .photos(recipe.getPhotos() != null ? recipe.getPhotos() : new ArrayList<>())
                 .nutritionalValues(toNutritionalValuesResponse(recipe.getNutritionalValues()))
                 .parentRecipeId(recipe.getParentRecipeId())
+                .isPublic(recipe.isPublic())
+                .isPublic(recipe.isPublic())
+                .authorId(recipe.getAuthorId())
                 .build();
     }
 
@@ -45,6 +48,7 @@ public class RecipeMapper {
                 .instructions(request.getInstructions())
                 .nutritionalValues(nutritionalValues)
                 .photos(request.getPhotos() != null ? request.getPhotos() : new ArrayList<>())
+                .isPublic(Boolean.TRUE.equals(request.getIsPublic()))
                 .build();
     }
 

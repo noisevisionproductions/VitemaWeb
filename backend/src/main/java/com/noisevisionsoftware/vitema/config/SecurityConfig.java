@@ -50,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/invitations/accept").authenticated()
+                        .requestMatchers("/api/recipes/nuke-all-dev-only").permitAll()
                         .requestMatchers("/api/invitations/**").hasAnyRole("ADMIN", "TRAINER")
                         .requestMatchers("/api/diets/**").hasAnyRole("ADMIN", "TRAINER")
                         .requestMatchers("/api/recipes/**").hasAnyRole("ADMIN", "TRAINER")

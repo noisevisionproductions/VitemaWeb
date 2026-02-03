@@ -164,4 +164,22 @@ public class RecipeController {
                 .imageUrl(imageUrl)
                 .build());
     }
+
+// src/main/java/com/noisevisionsoftware/vitema/controller/RecipeController.java
+
+    // In RecipeController.java
+
+    @GetMapping("/nuke-all-dev-only")
+    public ResponseEntity<String> deleteAllRecipes() {
+        Page<Recipe> page = recipeService.getAllRecipes(PageRequest.of(0, 1000));
+
+        int count = 0;
+        for (Recipe recipe : page.getContent()) {
+            // Use the new FORCE method here
+            recipeService.forceDeleteRecipe(recipe.getId());
+            count++;
+        }
+
+        return ResponseEntity.ok("Force deleted " + count + " recipes.");
+    }
 }
