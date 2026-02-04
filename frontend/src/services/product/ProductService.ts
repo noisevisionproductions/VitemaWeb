@@ -1,5 +1,5 @@
 import api from "../../config/axios";
-import {Product} from "../../types/product";
+import { Product, ProductDb } from "../../types/product";
 
 export interface ProductSearchParams {
     query: string;
@@ -21,6 +21,23 @@ export interface CreateProductRequest {
 
 export class ProductService {
     private static readonly BASE_URL = '/products';
+
+    /**
+     * Search products from the PostgreSQL product database (recipe ingredients).
+     * @param query - Search query
+     * @returns List of products with id, name, category, unit, macros per 100g
+     */
+    static async search(query: string): Promise<ProductDb[]> {
+        if (!query?.trim()) return [];
+        const response = await api.get<ProductDb[]>(`${this.BASE_URL}/db/search`, {
+            params: { query: query.trim() },
+        });
+        const list = response.data ?? [];
+        return list.map((p) => ({
+            ...p,
+            id: typeof p.id === 'number' ? String(p.id) : p.id,
+        }));
+    }
 
     /**
      * Search products from the local Firestore database

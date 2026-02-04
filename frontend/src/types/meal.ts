@@ -23,5 +23,8 @@ export interface ParsedMeal {
     mealType: MealType;
     time: string;
     photos?: string[];
+    /** @deprecated Prefer originalRecipeId for embedded meal structure */
     recipeId?: string;
+    /** Reference to source recipe when meal was "exploded" from a recipe; meal holds its own copy of data. */
+    originalRecipeId?: string;
 }

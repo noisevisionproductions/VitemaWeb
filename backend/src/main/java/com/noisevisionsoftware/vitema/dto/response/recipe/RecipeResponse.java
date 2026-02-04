@@ -1,6 +1,8 @@
 package com.noisevisionsoftware.vitema.dto.response.recipe;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.cloud.Timestamp;
+import com.noisevisionsoftware.vitema.model.recipe.RecipeIngredient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,8 +22,14 @@ public class RecipeResponse {
     private Timestamp createdAt;
     private List<String> photos;
     private NutritionalValuesResponse nutritionalValues;
+    private List<RecipeIngredient> ingredients;
     private String parentRecipeId;
+    
+    @JsonProperty("isPublic")
     private boolean isPublic;
+    
+    @JsonProperty("isMine")
     private boolean isMine;
+    
     private String authorId;
 }

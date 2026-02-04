@@ -1,32 +1,36 @@
 import React, {useCallback, useEffect, useRef, useState} from "react";
-import {MealSuggestion} from "../../../../../types/mealSuggestions";
 import {useDebounce} from "../../../../../hooks/useDebounce";
-import {MealSuggestionService} from "../../../../../services/diet/manual/MealSuggestionService";
+import {DietCreatorService} from "../../../../../services/diet/creator/DietCreatorService";
 import {toast} from "../../../../../utils/toast";
-import {Check, ChefHat, Clock, Info, Search, Users, X} from "lucide-react";
+import {Check, Package, ChefHat, Info, Search, X} from "lucide-react";
 import LoadingSpinner from "../../../../shared/common/LoadingSpinner";
 import ColoredNutritionBadges from "./ColoredNutritionBadges";
+import type {UnifiedSearchResult} from "../../../../../types";
 
 interface MealNameSearchFieldProps {
     value: string;
     onChange: (value: string) => void;
-    onMealSelect?: (suggestion: MealSuggestion) => void;
+    /** Called when user selects a recipe or product from unified search. */
+    onUnifiedResultSelect?: (result: UnifiedSearchResult) => void;
     placeholder?: string;
     className?: string;
     showSaveOptions?: boolean;
     onSavePreference?: (shouldSave: boolean) => void;
+    /** Trainer ID for custom products in unified search. */
+    trainerId?: string;
 }
 
 const MealNameSearchField: React.FC<MealNameSearchFieldProps> = ({
                                                                      value,
                                                                      onChange,
-                                                                     onMealSelect,
-                                                                     placeholder = "Wpisz nazwę posiłku...",
+                                                                     onUnifiedResultSelect,
+                                                                     placeholder = "Wpisz nazwę posiłku lub produktu...",
                                                                      className = "",
                                                                      showSaveOptions = true,
-                                                                     onSavePreference
+                                                                     onSavePreference,
+                                                                     trainerId,
                                                                  }) => {
-    const [suggestions, setSuggestions] = useState<MealSuggestion[]>([]);
+    const [suggestions, setSuggestions] = useState<UnifiedSearchResult[]>([]);
     const [isSearching, setIsSearching] = useState(false);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState(-1);
@@ -50,7 +54,7 @@ const MealNameSearchField: React.FC<MealNameSearchFieldProps> = ({
 
         if (showSuggestions) {
             document.addEventListener("mousedown", handleClickOutside);
-            return () => document.removeEventListener('mousedown', handleClickOutside);
+            return () => document.removeEventListener("mousedown", handleClickOutside);
         }
     }, [showSuggestions]);
 
@@ -61,17 +65,17 @@ const MealNameSearchField: React.FC<MealNameSearchFieldProps> = ({
         }
 
         if (debouncedValue.trim().length >= 2) {
-            searchMeals(debouncedValue.trim()).catch(console.error);
+            searchUnified(debouncedValue.trim()).catch(console.error);
         } else {
             setSuggestions([]);
             setShowSuggestions(false);
         }
     }, [debouncedValue]);
 
-    const searchMeals = async (query: string) => {
+    const searchUnified = async (query: string) => {
         setIsSearching(true);
         try {
-            const results = await MealSuggestionService.searchMeals(query, 0);
+            const results = await DietCreatorService.searchUnified(query, trainerId);
             setSuggestions(results);
             setShowSuggestions(results.length > 0);
             setSelectedIndex(-1);
@@ -86,8 +90,8 @@ const MealNameSearchField: React.FC<MealNameSearchFieldProps> = ({
                 setShowSaveDialog(false);
             }
         } catch (error) {
-            console.error('Błąd wyszukiwania posiłków:', error);
-            toast.error('Nie udało się wyszukać posiłków');
+            console.error("Unified search error:", error);
+            toast.error("Nie udało się wyszukać");
             setSuggestions([]);
             setShowSuggestions(false);
         } finally {
@@ -103,42 +107,48 @@ const MealNameSearchField: React.FC<MealNameSearchFieldProps> = ({
         }
     };
 
-    const handleSuggestionSelect = useCallback((suggestion: MealSuggestion) => {
-        isSelectingRef.current = true;
+    const handleSuggestionSelect = useCallback(
+        (result: UnifiedSearchResult) => {
+            isSelectingRef.current = true;
 
-        setShowSuggestions(false);
-        setShowSaveDialog(false);
-        setSelectedIndex(-1);
-        setSuggestions([]);
+            setShowSuggestions(false);
+            setShowSaveDialog(false);
+            setSelectedIndex(-1);
+            setSuggestions([]);
 
-        onChange(suggestion.name);
+            if (result.type === "RECIPE") {
+                onChange(result.name);
+            }
+            if (result.type === "PRODUCT" && !value.trim()) {
+                onChange(result.name);
+            }
 
-        if (onMealSelect) {
-            onMealSelect(suggestion);
-        }
-    }, [onChange, onMealSelect]);
+            if (onUnifiedResultSelect) {
+                onUnifiedResultSelect(result);
+            }
+        },
+        [onChange, onUnifiedResultSelect, value]
+    );
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (!showSuggestions || suggestions.length === 0) return;
 
         switch (e.key) {
-            case 'ArrowDown':
+            case "ArrowDown":
                 e.preventDefault();
-                setSelectedIndex(prev =>
-                    prev < suggestions.length - 1 ? prev + 1 : prev
-                );
+                setSelectedIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : prev));
                 break;
-            case 'ArrowUp':
+            case "ArrowUp":
                 e.preventDefault();
-                setSelectedIndex(prev => prev > 0 ? prev - 1 : -1);
+                setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
                 break;
-            case 'Enter':
+            case "Enter":
                 e.preventDefault();
                 if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
                     handleSuggestionSelect(suggestions[selectedIndex]);
                 }
                 break;
-            case 'Escape':
+            case "Escape":
                 setShowSuggestions(false);
                 setSelectedIndex(-1);
                 setSuggestions([]);
@@ -160,40 +170,25 @@ const MealNameSearchField: React.FC<MealNameSearchFieldProps> = ({
         setShowSaveDialog(false);
     };
 
-    const getSourceIcon = (source: string) => {
-        switch (source) {
-            case 'RECIPE':
+    const getTypeIcon = (type: UnifiedSearchResult["type"]) => {
+        switch (type) {
+            case "RECIPE":
                 return <ChefHat className="h-3 w-3 text-blue-600"/>;
-            case 'TEMPLATE':
-                return <Users className="h-3 w-3 text-green-600"/>;
+            case "PRODUCT":
+                return <Package className="h-3 w-3 text-green-600"/>;
             default:
                 return null;
         }
     };
 
-    const formatLastUsed = (lastUsed?: string) => {
-        if (!lastUsed) return '';
-
-        try {
-            const date = new Date(lastUsed);
-            const now = new Date();
-            const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-
-            if (diffInDays === 0) return 'dzisiaj';
-            if (diffInDays === 1) return 'wczoraj';
-            if (diffInDays < 7) return `${diffInDays} dni temu`;
-            if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} tygodni temu`;
-            return `${Math.floor(diffInDays / 30)} miesięcy temu`;
-        } catch {
-            return '';
-        }
+    const getTypeLabel = (type: UnifiedSearchResult["type"]) => {
+        return type === "RECIPE" ? "Przepis" : "Produkt";
     };
 
     return (
         <div ref={containerRef} className={`relative ${className}`}>
-            {/* Input field */}
             <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4"/>
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-gray-400"/>
                 <input
                     ref={inputRef}
                     type="text"
@@ -202,35 +197,35 @@ const MealNameSearchField: React.FC<MealNameSearchFieldProps> = ({
                     onKeyDown={handleKeyDown}
                     onFocus={handleInputFocus}
                     placeholder={placeholder}
-                    className="w-full pl-10 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:ring-primary focus:border-primary"
+                    className="w-full border border-gray-300 py-2 pl-10 pr-10 text-sm focus:border-primary focus:ring-primary"
                 />
                 {isSearching && (
                     <LoadingSpinner
                         size="sm"
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 transform"
                     />
                 )}
             </div>
 
-            {/* Save preference dialog */}
             {showSaveDialog && value.trim().length >= 2 && (
-                <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="mt-2 rounded-lg border border-blue-200 bg-blue-50 p-3">
                     <div className="flex items-start gap-2">
-                        <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0"/>
-                        <div className="flex-1 min-w-0">
-                            <p className="text-sm text-blue-800 font-medium">
+                        <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-600"/>
+                        <div className="min-w-0 flex-1">
+                            <p className="text-sm font-medium text-blue-800">
                                 Nie znaleziono podobnego posiłku
                             </p>
-                            <p className="text-xs text-blue-700 mt-1">
-                                Posiłek "{value}" zostanie zapisany jako nowy szablon do wykorzystania w przyszłości.
+                            <p className="mt-1 text-xs text-blue-700">
+                                Posiłek &quot;{value}&quot; zostanie zapisany jako nowy szablon do
+                                wykorzystania w przyszłości.
                             </p>
-                            <div className="flex items-center gap-3 mt-2">
+                            <div className="mt-2 flex items-center gap-3">
                                 <button
                                     onClick={() => handleSavePreferenceChange(true)}
-                                    className={`flex items-center gap-1 px-3 py-1 text-xs rounded-md transition-colors ${
+                                    className={`flex items-center gap-1 rounded-md px-3 py-1 text-xs transition-colors ${
                                         savePreference
-                                            ? 'bg-blue-600 text-white'
-                                            : 'bg-white text-blue-600 border border-blue-200'
+                                            ? "border border-blue-200 bg-white text-blue-600"
+                                            : "bg-blue-600 text-white"
                                     }`}
                                 >
                                     <Check className="h-3 w-3"/>
@@ -238,10 +233,10 @@ const MealNameSearchField: React.FC<MealNameSearchFieldProps> = ({
                                 </button>
                                 <button
                                     onClick={() => handleSavePreferenceChange(false)}
-                                    className={`flex items-center gap-1 px-3 py-1 text-xs rounded-md transition-colors ${
+                                    className={`flex items-center gap-1 rounded-md px-3 py-1 text-xs transition-colors ${
                                         !savePreference
-                                            ? 'bg-gray-600 text-white'
-                                            : 'bg-white text-gray-600 border border-gray-200'
+                                            ? "border border-gray-200 bg-white text-gray-600"
+                                            : "bg-gray-600 text-white"
                                     }`}
                                 >
                                     <X className="h-3 w-3"/>
@@ -253,102 +248,77 @@ const MealNameSearchField: React.FC<MealNameSearchFieldProps> = ({
                 </div>
             )}
 
-            {/* ULEPSZONA LISTA ROZWIJANA */}
             {showSuggestions && suggestions.length > 0 && (
                 <div
                     ref={suggestionsRef}
-                    className="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-primary-light rounded-xl shadow-xl z-50 max-h-80 overflow-hidden"
+                    className="absolute left-0 right-0 top-full z-50 mt-1 max-h-80 overflow-hidden rounded-xl border-2 border-primary-light bg-white shadow-xl"
                     style={{
-                        background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
+                        background: "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)",
                     }}
                 >
-                    {/* Header listy */}
-                    <div className="px-4 py-2 bg-primary-light/10 border-b border-primary-light/20">
+                    <div className="border-b border-primary-light/20 bg-primary-light/10 px-4 py-2">
                         <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                            <div className="h-2 w-2 animate-pulse rounded-full bg-primary"/>
                             <span className="text-xs font-medium text-primary-dark">
-                                Znalezione posiłki ({suggestions.length})
+                                Znalezione: przepisy i produkty ({suggestions.length})
                             </span>
                         </div>
                     </div>
 
-                    {/* Lista wyników */}
                     <div className="max-h-72 overflow-y-auto">
-                        {suggestions.map((suggestion, index) => (
+                        {suggestions.map((result, index) => (
                             <div
-                                key={suggestion.id}
-                                onClick={() => handleSuggestionSelect(suggestion)}
-                                className={`p-3 cursor-pointer border-b border-gray-100 last:border-b-0 transition-all duration-150 ${
+                                key={`${result.type}-${result.id}`}
+                                onClick={() => handleSuggestionSelect(result)}
+                                className={`cursor-pointer border-b border-gray-100 p-3 last:border-b-0 transition-all duration-150 ${
                                     index === selectedIndex
-                                        ? 'bg-primary-light/20 border-l-4 border-l-primary transform scale-[1.02]'
-                                        : 'hover:bg-gray-50 hover:border-l-4 hover:border-l-primary-light'
+                                        ? "scale-[1.02] border-l-4 border-l-primary bg-primary-light/20"
+                                        : "hover:border-l-4 hover:border-l-primary-light hover:bg-gray-50"
                                 }`}
                             >
                                 <div className="flex items-start justify-between gap-3">
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            {getSourceIcon(suggestion.source)}
-                                            <h4 className="font-medium text-gray-900 text-sm truncate">
-                                                {suggestion.name}
+                                    <div className="min-w-0 flex-1">
+                                        <div className="mb-1 flex items-center gap-2">
+                                            {getTypeIcon(result.type)}
+                                            <h4 className="truncate text-sm font-medium text-gray-900">
+                                                {result.name}
                                             </h4>
-                                            {suggestion.isExact && (
-                                                <span
-                                                    className="px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded-full font-medium">
-                                                    Dokładne
-                                                </span>
-                                            )}
+                                            <span
+                                                className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+                                                {getTypeLabel(result.type)}
+                                            </span>
                                         </div>
 
-                                        {suggestion.instructions && (
-                                            <p className="text-xs text-gray-600 line-clamp-2 mb-1">
-                                                {suggestion.instructions}
-                                            </p>
-                                        )}
-
-                                        {suggestion.nutritionalValues && (
+                                        {result.nutritionalValues && (
                                             <div className="mb-2">
                                                 <ColoredNutritionBadges
-                                                    nutritionalValues={suggestion.nutritionalValues}
+                                                    nutritionalValues={result.nutritionalValues}
                                                     size="sm"
                                                     layout="horizontal"
                                                 />
                                             </div>
                                         )}
-
-                                        <div className="flex items-center gap-3 text-xs text-gray-500">
-                                            {suggestion.usageCount > 0 && (
-                                                <span className="flex items-center gap-1">
-                                                    <Users className="h-3 w-3"/>
-                                                    {suggestion.usageCount}x użyte
-                                                </span>
-                                            )}
-                                            {suggestion.lastUsed && (
-                                                <span className="flex items-center gap-1">
-                                                    <Clock className="h-3 w-3"/>
-                                                    {formatLastUsed(suggestion.lastUsed)}
-                                                </span>
-                                            )}
-                                            <span
-                                                className="px-1.5 py-0.5 bg-primary-light/20 text-primary-dark rounded-full text-xs font-medium">
-                                                {Math.round(suggestion.similarity * 100)}% podobne
-                                            </span>
-                                        </div>
+                                        {result.type === "PRODUCT" && result.unit && (
+                                            <p className="text-xs text-gray-500">
+                                                Jednostka: {result.unit}
+                                            </p>
+                                        )}
                                     </div>
 
-                                    {suggestion.photos && suggestion.photos.length > 0 && (
+                                    {result.photos && result.photos.length > 0 && (
                                         <div className="relative">
                                             <img
-                                                src={suggestion.photos[0]}
-                                                alt={suggestion.name}
-                                                className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-gray-200"
+                                                src={result.photos[0]}
+                                                alt={result.name}
+                                                className="h-12 w-12 flex-shrink-0 rounded-lg border border-gray-200 object-cover"
                                                 onError={(e) => {
-                                                    e.currentTarget.style.display = 'none';
+                                                    e.currentTarget.style.display = "none";
                                                 }}
                                             />
-                                            {suggestion.photos.length > 1 && (
+                                            {result.photos.length > 1 && (
                                                 <span
-                                                    className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-xs rounded-full flex items-center justify-center font-bold">
-                                                    {suggestion.photos.length}
+                                                    className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-xs font-bold text-white">
+                                                    {result.photos.length}
                                                 </span>
                                             )}
                                         </div>
@@ -358,10 +328,9 @@ const MealNameSearchField: React.FC<MealNameSearchFieldProps> = ({
                         ))}
                     </div>
 
-                    {/* Footer listy */}
-                    <div className="px-4 py-2 bg-gray-50 border-t border-gray-100">
-                        <p className="text-xs text-gray-500 text-center">
-                            Użyj strzałek ↑↓ do nawigacji, Enter aby wybrać
+                    <div className="border-t border-gray-100 bg-gray-50 px-4 py-2">
+                        <p className="text-center text-xs text-gray-500">
+                            Przepis: uzupełnia posiłek. Produkt: dodaje do składników. ↑↓ Enter.
                         </p>
                     </div>
                 </div>

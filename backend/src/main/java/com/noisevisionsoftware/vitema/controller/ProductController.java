@@ -1,7 +1,9 @@
 package com.noisevisionsoftware.vitema.controller;
 
 import com.noisevisionsoftware.vitema.dto.product.IngredientDTO;
+import com.noisevisionsoftware.vitema.dto.response.product.ProductResponse;
 import com.noisevisionsoftware.vitema.model.product.Product;
+import com.noisevisionsoftware.vitema.service.product.ProductDatabaseService;
 import com.noisevisionsoftware.vitema.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,18 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final ProductDatabaseService productDatabaseService;
+
+    /** Search PostgreSQL product database (for recipe ingredients). */
+    @GetMapping("/db/search")
+    public ResponseEntity<List<ProductResponse>> searchDb(
+            @RequestParam String query,
+            @RequestParam(required = false) String category) {
+        if (category != null && !category.isBlank()) {
+            return ResponseEntity.ok(productDatabaseService.searchByNameAndCategory(query, category));
+        }
+        return ResponseEntity.ok(productDatabaseService.searchByName(query));
+    }
 
     @GetMapping("/search")
     public ResponseEntity<List<IngredientDTO>> searchProducts(

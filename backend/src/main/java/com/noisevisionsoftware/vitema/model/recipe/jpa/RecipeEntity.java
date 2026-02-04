@@ -1,10 +1,7 @@
 package com.noisevisionsoftware.vitema.model.recipe.jpa;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,8 +28,8 @@ public class RecipeEntity {
     @Column(length = 5000)
     private String instructions;
 
-    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @OrderBy("displayOrder ASC")
+    @org.hibernate.annotations.BatchSize(size = 20)
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<RecipeIngredientEntity> ingredients;
 
     @Column(nullable = false)

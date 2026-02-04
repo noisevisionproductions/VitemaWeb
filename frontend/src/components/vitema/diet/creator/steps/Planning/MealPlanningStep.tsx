@@ -10,7 +10,9 @@ import {
     Ruler,
     Scale,
     Activity,
-    Calendar
+    Calendar,
+    Copy,
+    X,
 } from "lucide-react";
 import DayPlanningCard from "./DayPlanningCard";
 import {DietTemplate} from "../../../../../../types/DietTemplate";
@@ -28,6 +30,8 @@ interface MealPlanningStepsProps {
     onUpdateMeal: (dayIndex: number, mealIndex: number, meal: ParsedMeal) => void;
     onAddIngredient: (dayIndex: number, mealIndex: number, ingredient: ParsedProduct) => void;
     onRemoveIngredient: (dayIndex: number, mealIndex: number, ingredientIndex: number) => void;
+    onUpdateIngredient: (dayIndex: number, mealIndex: number, ingredientIndex: number, ingredient: ParsedProduct) => void;
+    trainerId?: string;
 }
 
 const MealPlanningStep: React.FC<MealPlanningStepsProps> = ({
@@ -37,11 +41,15 @@ const MealPlanningStep: React.FC<MealPlanningStepsProps> = ({
                                                                 onRemoveTemplate,
                                                                 onUpdateMeal,
                                                                 onAddIngredient,
-                                                                onRemoveIngredient
+                                                                onRemoveIngredient,
+                                                                onUpdateIngredient,
+                                                                trainerId
                                                             }) => {
     const [expandedDays, setExpandedDays] = useState<number[]>([0]);
+    const [copyDaySource, setCopyDaySource] = useState<number | null>(null);
+    const [copyDayTargets, setCopyDayTargets] = useState<number[]>([]);
 
-    const {measurements} = useMeasurements(selectedUser?.id || '');
+    const {measurements} = useMeasurements(selectedUser?.id || "");
 
     const sortedMeasurements = useMemo(() => {
         if (!measurements || measurements.length === 0) return [];
@@ -151,6 +159,38 @@ const MealPlanningStep: React.FC<MealPlanningStepsProps> = ({
         } else {
             setExpandedDays(dietData.days.map((_, index) => index));
         }
+    };
+
+    const openCopyDayModal = (sourceDayIndex: number) => {
+        setCopyDaySource(sourceDayIndex);
+        setCopyDayTargets([]);
+    };
+
+    const toggleCopyDayTarget = (dayIndex: number) => {
+        setCopyDayTargets((prev) =>
+            prev.includes(dayIndex) ? prev.filter((i) => i !== dayIndex) : [...prev, dayIndex]
+        );
+    };
+
+    const confirmCopyDay = () => {
+        if (copyDaySource === null || copyDayTargets.length === 0) {
+            if (copyDayTargets.length === 0) toast.error("Wybierz co najmniej jeden dzień");
+            return;
+        }
+        const sourceMeals = dietData.days[copyDaySource].meals;
+        copyDayTargets.forEach((dayIndex) => {
+            sourceMeals.forEach((meal, mealIndex) => {
+                const cloned: ParsedMeal = {
+                    ...meal,
+                    ingredients: (meal.ingredients ?? []).map((ing) => ({...ing})),
+                    photos: meal.photos ? [...meal.photos] : undefined,
+                };
+                onUpdateMeal(dayIndex, mealIndex, cloned);
+            });
+        });
+        toast.success(`Skopiowano plan dnia do ${copyDayTargets.length} dni`);
+        setCopyDaySource(null);
+        setCopyDayTargets([]);
     };
 
     const totalMeals = dietData.days.length * dietData.mealsPerDay;
@@ -323,12 +363,84 @@ const MealPlanningStep: React.FC<MealPlanningStepsProps> = ({
                         isExpanded={expandedDays.includes(dayIndex)}
                         onToggleExpand={() => toggleDayExpansion(dayIndex)}
                         onUpdateMeal={(mealIndex, meal) => onUpdateMeal(dayIndex, mealIndex, meal)}
-                        onAddIngredient={(mealIndex, ingredient) => onAddIngredient(dayIndex, mealIndex, ingredient)}
-                        onRemoveIngredient={(mealIndex, ingredientIndex) => onRemoveIngredient(dayIndex, mealIndex, ingredientIndex)}
+                        onAddIngredient={(mealIndex, ingredient) =>
+                            onAddIngredient(dayIndex, mealIndex, ingredient)
+                        }
+                        onRemoveIngredient={(mealIndex, ingredientIndex) =>
+                            onRemoveIngredient(dayIndex, mealIndex, ingredientIndex)
+                        }
+                        onUpdateIngredient={(mealIndex, ingredientIndex, ingredient) =>
+                            onUpdateIngredient(dayIndex, mealIndex, ingredientIndex, ingredient)
+                        }
                         onCopyMealToOtherDays={(mealIndex) => copyMealToOtherDays(dayIndex, mealIndex)}
+                        onCopyDayClick={() => openCopyDayModal(dayIndex)}
+                        trainerId={trainerId}
                     />
                 ))}
             </div>
+
+            {/* Copy Day modal */}
+            {copyDaySource !== null && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                    <div className="w-full max-w-sm rounded-xl bg-white p-5 shadow-xl">
+                        <div className="mb-4 flex items-center justify-between">
+                            <h3 className="text-lg font-semibold text-gray-900">
+                                Skopiuj dzień {copyDaySource + 1} do
+                            </h3>
+                            <button
+                                type="button"
+                                onClick={() => setCopyDaySource(null)}
+                                className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                                aria-label="Zamknij"
+                            >
+                                <X className="h-5 w-5"/>
+                            </button>
+                        </div>
+                        <p className="mb-3 text-sm text-gray-600">
+                            Zaznacz dni, do których chcesz skopiować plan dnia {copyDaySource + 1}.
+                        </p>
+                        <div className="max-h-48 space-y-2 overflow-y-auto">
+                            {dietData.days.map((_, dayIndex) => {
+                                if (dayIndex === copyDaySource) return null;
+                                return (
+                                    <label
+                                        key={dayIndex}
+                                        className="flex cursor-pointer items-center gap-3 rounded-lg border border-gray-100 p-2 hover:bg-gray-50"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={copyDayTargets.includes(dayIndex)}
+                                            onChange={() => toggleCopyDayTarget(dayIndex)}
+                                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                        />
+                                        <span className="text-sm font-medium text-gray-800">
+                                            Dzień {dayIndex + 1}
+                                        </span>
+                                    </label>
+                                );
+                            })}
+                        </div>
+                        <div className="mt-4 flex gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setCopyDaySource(null)}
+                                className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                            >
+                                Anuluj
+                            </button>
+                            <button
+                                type="button"
+                                onClick={confirmCopyDay}
+                                disabled={copyDayTargets.length === 0}
+                                className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary-dark disabled:opacity-50"
+                            >
+                                <Copy className="h-4 w-4"/>
+                                Skopiuj ({copyDayTargets.length})
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -47,7 +47,7 @@ export class DietRecipeService {
             if (matchingRecipe) {
                 return {
                     ...meal,
-                    recipeId: matchingRecipe.id,
+                    originalRecipeId: matchingRecipe.id,
                     photos: matchingRecipe.photos || meal.photos || [],
                     nutritionalValues: meal.nutritionalValues || matchingRecipe.nutritionalValues,
                     instructions: meal.instructions || matchingRecipe.instructions

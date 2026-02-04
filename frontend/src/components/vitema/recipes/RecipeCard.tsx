@@ -26,13 +26,15 @@ const RecipeCard: React.FC<RecipeCardProps> = ({recipe, onClick, onDelete}) => {
         >
             {/* Public/Private Badge */}
             <div className="absolute top-2 left-2 z-20">
-                {recipe.isPublic ? (
-                    <div className="flex items-center gap-1 bg-sky-500/90 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-medium shadow-lg">
+                {recipe.isPublic === true ? (
+                    <div
+                        className="flex items-center gap-1 bg-sky-500/90 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-medium shadow-lg">
                         <Globe size={12}/>
                         <span>Publiczny</span>
                     </div>
                 ) : (
-                    <div className="flex items-center gap-1 bg-slate-600/90 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-medium shadow-lg">
+                    <div
+                        className="flex items-center gap-1 bg-slate-600/90 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-medium shadow-lg">
                         <Lock size={12}/>
                         <span>Prywatny</span>
                     </div>
@@ -40,13 +42,15 @@ const RecipeCard: React.FC<RecipeCardProps> = ({recipe, onClick, onDelete}) => {
             </div>
 
             {/* Delete Button */}
-            <button
-                onClick={handleDeleteClick}
-                className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-1.5 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 z-20"
-                title="Usuń przepis"
-            >
-                <Trash2 className="text-red-500" size={14}/>
-            </button>
+            {onDelete && (
+                <button
+                    onClick={handleDeleteClick}
+                    className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-1.5 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 z-20"
+                    title="Usuń przepis"
+                >
+                    <Trash2 className="text-red-500" size={14}/>
+                </button>
+            )}
 
             {/* Image or Placeholder */}
             <div className="relative h-36 overflow-hidden">
@@ -57,7 +61,8 @@ const RecipeCard: React.FC<RecipeCardProps> = ({recipe, onClick, onDelete}) => {
                         className="h-full w-full object-cover group-hover:scale-110 transition-all duration-500"
                     />
                 ) : (
-                    <div className="h-full w-full bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center">
+                    <div
+                        className="h-full w-full bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center">
                         <ChefHat className="text-emerald-300" size={48} strokeWidth={1.5}/>
                     </div>
                 )}
@@ -75,16 +80,20 @@ const RecipeCard: React.FC<RecipeCardProps> = ({recipe, onClick, onDelete}) => {
                 {/* Nutritional Values - Compact Pills */}
                 {recipe.nutritionalValues && (
                     <div className="flex flex-wrap gap-1.5 mb-2">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                        <span
+                            className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
                             {recipe.nutritionalValues.calories || 0} kcal
                         </span>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                        <span
+                            className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
                             P: {recipe.nutritionalValues.protein || 0}g
                         </span>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-200">
+                        <span
+                            className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-200">
                             F: {recipe.nutritionalValues.fat || 0}g
                         </span>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
+                        <span
+                            className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
                             C: {recipe.nutritionalValues.carbs || 0}g
                         </span>
                     </div>

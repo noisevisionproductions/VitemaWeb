@@ -3,3 +3,4 @@ export { default as MealEditorIngredients } from './MealEditorIngredients';
 export { default as MealEditorInstructions } from './MealEditorInstructions';
 export { default as MealEditorPhotos } from './MealEditorPhotos';
 export { default as MealEditorNutrition } from './MealEditorNutrition';
+export { default as RecipeBrowserModal } from './RecipeBrowserModal';

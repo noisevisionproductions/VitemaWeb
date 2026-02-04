@@ -56,16 +56,16 @@ public class ManualDietService {
         try {
             log.info("Rozpoczynanie zapisywania ręcznej diety dla użytkownika: {}", request.getUserId());
 
-            // Walidacja danych
+            String trainerId = getCurrentUserId();
+
             validateRequest(request);
 
-            // Konwersja do ParsedDietData
             ParsedDietData parsedData = dietDataConverter.convertToParsedDietData(request);
 
-            // Zapisywanie przy użyciu istniejącego systemu
             String dietId = dietManagerService.saveDietWithShoppingList(
                     parsedData,
                     request.getUserId(),
+                    trainerId,
                     new DietFileInfo("Dieta ręczna", null)
             );
 

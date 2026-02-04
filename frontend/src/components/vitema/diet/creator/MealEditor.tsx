@@ -1,16 +1,14 @@
-import React, {useCallback, useEffect, useMemo, useState} from "react";
+import React, {useCallback, useState} from "react";
 import {NutritionalValues, ParsedMeal} from "../../../../types";
 import {ParsedProduct} from "../../../../types/product";
-import {MealSuggestion} from "../../../../types/mealSuggestions";
-import {MealSuggestionService} from "../../../../services/diet/manual/MealSuggestionService";
 import {toast} from "../../../../utils/toast";
+import type {UnifiedSearchResult} from "../../../../types";
 import {
     convertParsedProductsToMealIngredients,
-    convertMealIngredientsToParsedProducts
+    convertRecipeIngredientsToParsedProducts,
 } from "../../../../utils/mealConverters";
-import {TemplateChangeTracker} from "../../../../services/diet/manual/TemplateChangeTracker";
 import {RecipeService} from "../../../../services/RecipeService";
-import TemplateChangeManager from "./components/TemplateChangeManager";
+import {MealSuggestionService} from "../../../../services/diet/manual/MealSuggestionService";
 import {
     MealEditorHeader,
     MealEditorIngredients,
@@ -26,8 +24,9 @@ interface MealEditorProps {
     onUpdateMeal: (dayIndex: number, mealIndex: number, meal: ParsedMeal) => void;
     onAddIngredient: (dayIndex: number, mealIndex: number, ingredient: ParsedProduct) => void;
     onRemoveIngredient: (dayIndex: number, mealIndex: number, ingredientIndex: number) => void;
+    onUpdateIngredient: (dayIndex: number, mealIndex: number, ingredientIndex: number, ingredient: ParsedProduct) => void; // Poprawiona sygnatura
     enableTemplateFeatures?: boolean;
-    trainerId?: string; // Optional trainerId for custom products
+    trainerId?: string;
 }
 
 const MealEditor: React.FC<MealEditorProps> = ({
@@ -37,38 +36,13 @@ const MealEditor: React.FC<MealEditorProps> = ({
                                                    onUpdateMeal,
                                                    onAddIngredient,
                                                    onRemoveIngredient,
+                                                   onUpdateIngredient,
                                                    enableTemplateFeatures = true,
                                                    trainerId
                                                }) => {
+    const [hasSaved, setHasSaved] = useState(false);
+    const [isManualSaving, setIsManualSaving] = useState(false);
     const [isApplyingTemplate, setIsApplyingTemplate] = useState(false);
-    const [saveAsTemplate, setSaveAsTemplate] = useState(true);
-    const [isSavingTemplate, setIsSavingTemplate] = useState(false);
-
-    // Template updates
-    const [changeTracker] = useState(() => new TemplateChangeTracker());
-    const [appliedTemplate, setAppliedTemplate] = useState<MealSuggestion | null>(null);
-    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-    const [showChangeManager, setShowChangeManager] = useState(false);
-
-    const currentSummary = useMemo(() => {
-        if (appliedTemplate && changeTracker) {
-            changeTracker.detectChanges({
-                name: meal.name,
-                instructions: meal.instructions,
-                ingredients: meal.ingredients,
-                nutritionalValues: meal.nutritionalValues,
-                photos: meal.photos
-            });
-
-            return changeTracker.getUpdateSummary();
-        }
-        return null;
-    }, [meal.name, meal.instructions, meal.ingredients, meal.nutritionalValues, meal.photos, appliedTemplate, changeTracker]);
-
-    useEffect(() => {
-        setShowChangeManager(currentSummary?.hasSignificantChanges || false);
-        setHasUnsavedChanges((currentSummary?.changes?.length || 0) > 0);
-    }, [currentSummary]);
 
     const handleMealUpdate = useCallback((updates: Partial<ParsedMeal>) => {
         onUpdateMeal(dayIndex, mealIndex, {...meal, ...updates});
@@ -79,170 +53,75 @@ const MealEditor: React.FC<MealEditorProps> = ({
             ...ingredient,
             id: ingredient.id || `ingredient-${Date.now()}-${Math.random()}`
         };
-
         onAddIngredient(dayIndex, mealIndex, ingredientWithId);
     }, [dayIndex, mealIndex, onAddIngredient]);
 
+    const handleUpdateIngredientLocal = useCallback((index: number, updatedIngredient: ParsedProduct) => {
+        onUpdateIngredient(dayIndex, mealIndex, index, updatedIngredient);
+    }, [dayIndex, mealIndex, onUpdateIngredient]);
+
     const handleMealNameChange = useCallback((name: string) => {
         handleMealUpdate({name});
+        setHasSaved(false);
+    }, [handleMealUpdate]);
 
-        if (enableTemplateFeatures && saveAsTemplate && name.trim().length > 3) {
-            // Debounce auto-save (możesz dodać useDebounce hook)
-            const timer = setTimeout(() => {
-                handleAutoSaveTemplate(name).catch(console.error);
-            }, 2000);
-            return () => clearTimeout(timer);
-        }
-    }, [handleMealUpdate, enableTemplateFeatures, saveAsTemplate]);
+    /** Obsługa wyboru z wyszukiwarki (przepis lub produkt) */
+    const handleUnifiedResultSelect = useCallback(
+        async (result: UnifiedSearchResult) => {
+            if (result.type === "RECIPE") {
+                setIsApplyingTemplate(true);
+                try {
+                    const recipe = await RecipeService.getRecipeById(result.id);
+                    const ingredients = convertRecipeIngredientsToParsedProducts(recipe.ingredients ?? []);
 
-    const handleAutoSaveTemplate = useCallback(async (mealName: string) => {
-        if (!enableTemplateFeatures || !saveAsTemplate || isSavingTemplate) return;
-
-        if (!mealName.trim() || mealName.trim().length < 3) return;
-
-        try {
-            const mealForValidation = {
-                name: mealName,
-                instructions: meal.instructions,
-                ingredients: meal.ingredients ? convertParsedProductsToMealIngredients(meal.ingredients) : []
-            };
-
-            const validation = MealSuggestionService.validateMealForTemplate(mealForValidation);
-            if (!validation.isValid) return;
-
-            setIsSavingTemplate(true);
-            await MealSuggestionService.saveMealTemplate({
-                name: mealName,
-                instructions: meal.instructions,
-                nutritionalValues: meal.nutritionalValues,
-                photos: meal.photos,
-                ingredients: meal.ingredients ? convertParsedProductsToMealIngredients(meal.ingredients) : [],
-                isPublic: false,
-                shouldSave: true
-            });
-        } catch (error) {
-            console.error('Błąd podczas auto-zapisywania szablonu:', error);
-        } finally {
-            setIsSavingTemplate(false);
-        }
-    }, [meal, enableTemplateFeatures, saveAsTemplate, isSavingTemplate]);
-
-    const handleSaveChangesToTemplate = useCallback(async () => {
-        const summary = changeTracker.getUpdateSummary();
-        if (!summary) return;
-
-        console.log('🔍 Zapisywanie szablonu:', {
-            templateId: summary.templateId,
-            source: summary.source,
-            photos: meal.photos,
-            photosLength: meal.photos?.length || 0
-        });
-
-        try {
-            if (summary.source === 'TEMPLATE') {
-                await MealSuggestionService.updateMealTemplate(summary.templateId, {
-                    name: meal.name,
-                    instructions: meal.instructions || '',
-                    nutritionalValues: meal.nutritionalValues,
-                    photos: meal.photos || [],
-                    ingredients: meal.ingredients ? convertParsedProductsToMealIngredients(meal.ingredients) : [],
-                    isPublic: false,
-                    shouldSave: true
-                });
-            } else {
-                await RecipeService.updateRecipe(summary.templateId.replace('recipe-', ''), {
-                    name: meal.name,
-                    instructions: meal.instructions || '',
-                    nutritionalValues: meal.nutritionalValues,
-                    photos: meal.photos || []
-                });
+                    handleMealUpdate({
+                        name: recipe.name,
+                        instructions: recipe.instructions ?? "",
+                        ingredients,
+                        photos: recipe.photos ?? [],
+                        nutritionalValues: recipe.nutritionalValues,
+                        originalRecipeId: recipe.id,
+                    });
+                    toast.success("Wczytano przepis");
+                } catch (error) {
+                    console.error("Błąd podczas ładowania przepisu:", error);
+                    toast.error("Nie udało się załadować przepisu");
+                } finally {
+                    setIsApplyingTemplate(false);
+                }
+                return;
             }
 
-            changeTracker.reset();
-            setShowChangeManager(false);
-            setHasUnsavedChanges(false);
-            toast.success('Szablon został zaktualizowany');
-        } catch (error) {
-            console.error('Błąd podczas aktualizacji szablonu:', error);
-            toast.error('Nie udało się zaktualizować szablonu');
-        }
-    }, [meal, changeTracker]);
-
-    const handleMealSelect = useCallback(async (suggestion: MealSuggestion) => {
-        if (!enableTemplateFeatures) {
-            handleMealUpdate({name: suggestion.name});
-            return;
-        }
-
-        setIsApplyingTemplate(true);
-        try {
-            const appliedMeal = await MealSuggestionService.applyMealTemplate(suggestion.id, meal);
-
-            changeTracker.startTracking(suggestion);
-            setAppliedTemplate(suggestion);
-            setHasUnsavedChanges(false);
-
-            const newMeal: Partial<ParsedMeal> = {
-                name: appliedMeal.name,
-                instructions: appliedMeal.instructions || '',
-                nutritionalValues: appliedMeal.nutritionalValues,
-                photos: appliedMeal.photos || [],
-                ingredients: appliedMeal.ingredients ?
-                    convertMealIngredientsToParsedProducts(appliedMeal.ingredients) : []
-            };
-
-            handleMealUpdate(newMeal);
-        } catch (error) {
-            console.error('Błąd podczas aplikowania szablonu:', error);
-            toast.error('Nie udało się zastosować szablonu');
-
-            handleMealUpdate({
-                name: suggestion.name,
-                instructions: '',
-                photos: [],
-                ingredients: []
-            });
-        } finally {
-            setIsApplyingTemplate(false);
-        }
-    }, [meal, handleMealUpdate, enableTemplateFeatures, changeTracker]);
-
+            if (result.type === "PRODUCT") {
+                const ingredient: ParsedProduct = {
+                    id: result.id,
+                    name: result.name,
+                    quantity: 1,
+                    unit: result.unit ?? "szt",
+                    original: result.name,
+                    hasCustomUnit: false,
+                };
+                handleAddIngredient(ingredient);
+            }
+        },
+        [handleMealUpdate, handleAddIngredient]
+    );
 
     const handleManualSaveTemplate = useCallback(async () => {
         if (!enableTemplateFeatures) return;
 
+        const mealName = meal.name?.trim();
+        if (!mealName || mealName.length < 3) {
+            toast.error("Podaj nazwę posiłku przed zapisaniem (min. 3 znaki)");
+            return;
+        }
+
         try {
-            setIsSavingTemplate(true);
-
-            const mealForValidation = {
-                name: meal.name,
-                instructions: meal.instructions,
-                ingredients: meal.ingredients ? convertParsedProductsToMealIngredients(meal.ingredients) : []
-            };
-
-            const validation = MealSuggestionService.validateMealForTemplate(mealForValidation);
-            if (!validation.isValid) {
-                toast.error(`Nie można zapisać szablonu: ${validation.errors.join(', ')}`);
-                return;
-            }
-
+            setIsManualSaving(true);
             const convertedIngredients = meal.ingredients ? convertParsedProductsToMealIngredients(meal.ingredients) : [];
 
-            const preview = await MealSuggestionService.previewMealSave({
-                name: meal.name,
-                instructions: meal.instructions,
-                nutritionalValues: meal.nutritionalValues,
-                photos: meal.photos,
-                ingredients: convertedIngredients
-            });
-
-            if (preview.foundSimilar && preview.recommendedAction === 'USE_EXISTING') {
-                toast.info('Podobny szablon już istnieje. Zostanie wykorzystany istniejący.');
-                return;
-            }
-
             await MealSuggestionService.saveMealTemplate({
-                name: meal.name,
+                name: mealName,
                 instructions: meal.instructions,
                 nutritionalValues: meal.nutritionalValues,
                 photos: meal.photos,
@@ -251,19 +130,19 @@ const MealEditor: React.FC<MealEditorProps> = ({
                 shouldSave: true
             });
 
-            toast.success('Szablon posiłku został zapisany');
+            toast.success(`Zapisano "${mealName}" w Twoich posiłkach`);
+            setHasSaved(true);
         } catch (error) {
             console.error('Błąd podczas zapisywania szablonu:', error);
             toast.error('Nie udało się zapisać szablonu');
         } finally {
-            setIsSavingTemplate(false);
+            setIsManualSaving(false);
         }
     }, [meal, enableTemplateFeatures]);
 
     const updateNutritionalValue = useCallback((field: keyof NutritionalValues, value: string) => {
         const numValue = parseFloat(value) || undefined;
         const currentValues = meal.nutritionalValues || {};
-
         handleMealUpdate({
             nutritionalValues: {
                 ...currentValues,
@@ -274,63 +153,40 @@ const MealEditor: React.FC<MealEditorProps> = ({
 
     return (
         <div className="space-y-4">
-            {/* Template Change Manager */}
-            {showChangeManager && changeTracker.getUpdateSummary() && (
-                <TemplateChangeManager
-                    updateSummary={changeTracker.getUpdateSummary()!}
-                    onSaveChanges={handleSaveChangesToTemplate}
-                    onDiscardChanges={() => {
-                        if (appliedTemplate) {
-                            handleMealSelect(appliedTemplate).catch(console.error);
-                        }
-                    }}
-                    onKeepLocal={() => {
-                        setShowChangeManager(false);
-                        changeTracker.reset();
-                    }}
-                    isVisible={showChangeManager}
-                />
-            )}
-
-            {/* Header: Meal Name, Time, Type */}
             <MealEditorHeader
                 meal={meal}
                 enableTemplateFeatures={enableTemplateFeatures}
-                saveAsTemplate={saveAsTemplate}
-                isSavingTemplate={isSavingTemplate}
-                hasUnsavedChanges={hasUnsavedChanges}
+                isSavingTemplate={isManualSaving}
+                hasSaved={hasSaved}
                 isApplyingTemplate={isApplyingTemplate}
                 onMealNameChange={handleMealNameChange}
-                onMealSelect={handleMealSelect}
+                onUnifiedResultSelect={handleUnifiedResultSelect}
                 onManualSaveTemplate={handleManualSaveTemplate}
-                onSavePreference={setSaveAsTemplate}
                 onTimeChange={(time) => handleMealUpdate({time})}
                 onMealTypeChange={(mealType) => handleMealUpdate({mealType})}
+                trainerId={trainerId}
             />
 
-            {/* Ingredients: Search & List */}
             <MealEditorIngredients
                 ingredients={meal.ingredients || []}
                 onAddIngredient={handleAddIngredient}
                 onRemoveIngredient={(index) => onRemoveIngredient(dayIndex, mealIndex, index)}
+                onUpdateIngredient={handleUpdateIngredientLocal}
                 trainerId={trainerId}
             />
 
-            {/* Instructions: Larger Textarea */}
             <MealEditorInstructions
                 instructions={meal.instructions}
                 onChange={(instructions) => handleMealUpdate({instructions})}
             />
 
-            {/* Photos: Gallery & Upload */}
             <MealEditorPhotos
                 photos={meal.photos || []}
                 mealName={meal.name}
-                recipeId={meal.recipeId}
+                recipeId={meal.originalRecipeId}
                 onPhotosUpdate={(photos) => handleMealUpdate({photos})}
             />
 
-            {/* Nutritional Values: Editable Inputs */}
             <MealEditorNutrition
                 nutritionalValues={meal.nutritionalValues}
                 onUpdate={updateNutritionalValue}

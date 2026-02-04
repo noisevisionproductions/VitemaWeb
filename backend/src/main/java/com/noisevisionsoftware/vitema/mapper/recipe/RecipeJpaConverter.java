@@ -7,7 +7,10 @@ import com.noisevisionsoftware.vitema.model.recipe.RecipeIngredient;
 import com.noisevisionsoftware.vitema.model.recipe.jpa.NutritionalValuesEntity;
 import com.noisevisionsoftware.vitema.model.recipe.jpa.RecipeEntity;
 import com.noisevisionsoftware.vitema.model.recipe.jpa.RecipeIngredientEntity;
+import com.noisevisionsoftware.vitema.model.product.jpa.ProductEntity;
+import com.noisevisionsoftware.vitema.repository.jpa.ProductJpaRepository;
 import org.springframework.stereotype.Component;
+
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,6 +23,12 @@ import java.util.stream.Collectors;
 
 @Component
 public class RecipeJpaConverter {
+
+    private final ProductJpaRepository productJpaRepository;
+
+    public RecipeJpaConverter(ProductJpaRepository productJpaRepository) {
+        this.productJpaRepository = productJpaRepository;
+    }
 
     public RecipeEntity toJpaEntity(Recipe recipe) {
         if (recipe == null) return null;
@@ -65,9 +74,20 @@ public class RecipeJpaConverter {
             List<RecipeIngredientEntity> ingredientEntities = new ArrayList<>();
             for (int i = 0; i < recipe.getIngredients().size(); i++) {
                 RecipeIngredient ingredient = recipe.getIngredients().get(i);
+                ProductEntity product = null;
+                if (ingredient.getProductId() != null) {
+                    product = productJpaRepository.findById(ingredient.getProductId()).orElse(null);
+                }
+                String snapshotName = ingredient.getName();
+                if (product != null && (snapshotName == null || snapshotName.isEmpty())) {
+                    snapshotName = product.getName();
+                }
+                String name = (snapshotName != null && !snapshotName.isEmpty()) ? snapshotName : ingredient.getName();
+                if (name == null) name = "";
                 ingredientEntities.add(RecipeIngredientEntity.builder()
                         .recipe(recipeEntity)
-                        .name(ingredient.getName())
+                        .product(product)
+                        .name(name)
                         .quantity(BigDecimal.valueOf(ingredient.getQuantity()))
                         .unit(ingredient.getUnit())
                         .originalText(ingredient.getOriginal())
@@ -121,15 +141,24 @@ public class RecipeJpaConverter {
 
         return ingredientEntities.stream()
                 .sorted(Comparator.comparingInt(RecipeIngredientEntity::getDisplayOrder))
-                .map(e -> RecipeIngredient.builder()
-                        .id(e.getId().toString())
-                        .name(e.getName())
-                        .quantity(e.getQuantity().doubleValue())
-                        .unit(e.getUnit())
-                        .original(e.getOriginalText())
-                        .categoryId(e.getCategoryId())
-                        .hasCustomUnit(e.isHasCustomUnit())
-                        .build())
+                .map(e -> {
+                    ProductEntity product = e.getProduct();
+                    Long productId = product != null ? product.getId() : null;
+                    String name = e.getName();
+                    if (name == null && product != null) {
+                        name = product.getName();
+                    }
+                    return RecipeIngredient.builder()
+                            .id(e.getId().toString())
+                            .name(name)
+                            .quantity(e.getQuantity().doubleValue())
+                            .unit(e.getUnit())
+                            .original(e.getOriginalText())
+                            .categoryId(e.getCategoryId())
+                            .hasCustomUnit(e.isHasCustomUnit())
+                            .productId(productId)
+                            .build();
+                })
                 .collect(Collectors.toList());
     }
 }

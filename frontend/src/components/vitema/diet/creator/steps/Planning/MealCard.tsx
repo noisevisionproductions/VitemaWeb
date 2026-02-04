@@ -12,8 +12,10 @@ interface MealCardProps {
     onUpdateMeal: (mealIndex: number, meal: ParsedMeal) => void;
     onAddIngredient: (mealIndex: number, ingredient: ParsedProduct) => void;
     onRemoveIngredient: (mealIndex: number, ingredientIndex: number) => void;
+    onUpdateIngredient: (mealIndex: number, ingredientIndex: number, ingredient: ParsedProduct) => void;
     onCopy?: () => void;
     enableTemplateFeatures?: boolean;
+    trainerId?: string;
 }
 
 const MealCard: React.FC<MealCardProps> = ({
@@ -23,16 +25,12 @@ const MealCard: React.FC<MealCardProps> = ({
                                                onUpdateMeal,
                                                onAddIngredient,
                                                onRemoveIngredient,
+                                               onUpdateIngredient,
                                                onCopy,
-                                               enableTemplateFeatures = true
+                                               enableTemplateFeatures = true,
+                                               trainerId
                                            }) => {
     const hasContent = meal.name && meal.name.trim() !== '';
-   /* const hasNutrition = meal.nutritionalValues && (
-        meal.nutritionalValues.calories ||
-        meal.nutritionalValues.protein ||
-        meal.nutritionalValues.fat ||
-        meal.nutritionalValues.carbs
-    );*/
     const hasPhotos = meal.photos && meal.photos.length > 0;
 
     return (
@@ -84,41 +82,6 @@ const MealCard: React.FC<MealCardProps> = ({
                         )}
                     </div>
                 </div>
-
-                {/* Quick preview of meal name */}
-             {/*   {hasContent && (
-                    <div className="mt-2">
-                        <h5 className="font-medium text-gray-900 text-sm leading-tight">
-                            {meal.name}
-                        </h5>
-                    </div>
-                )}*/}
-
-                {/* Nutrition preview */}
-          {/*      {hasNutrition && (
-                    <div className="mt-2">
-                        <ColoredNutritionBadges
-                            nutritionalValues={meal.nutritionalValues!}
-                            size="sm"
-                        />
-                    </div>
-                )}*/}
-
-                {/* Additional info */}
-             {/*   <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
-                    {meal.ingredients && meal.ingredients.length > 0 && (
-                        <span className="flex items-center gap-1">
-                            <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                            {meal.ingredients.length} składników
-                        </span>
-                    )}
-                    {meal.instructions && meal.instructions.trim() && (
-                        <span className="flex items-center gap-1">
-                            <span className="w-1 h-1 bg-blue-400 rounded-full"></span>
-                            Ma instrukcje
-                        </span>
-                    )}
-                </div>*/}
             </div>
 
             {/* Content - Enhanced editor */}
@@ -130,7 +93,9 @@ const MealCard: React.FC<MealCardProps> = ({
                     onUpdateMeal={(_dayIdx, mealIdx, meal) => onUpdateMeal(mealIdx, meal)}
                     onAddIngredient={(_dayIdx, mealIdx, ingredient) => onAddIngredient(mealIdx, ingredient)}
                     onRemoveIngredient={(_dayIdx, mealIdx, ingredientIdx) => onRemoveIngredient(mealIdx, ingredientIdx)}
+                    onUpdateIngredient={(_dayIdx, mealIdx, ingredientIdx, ingredient) => onUpdateIngredient(mealIdx, ingredientIdx, ingredient)}
                     enableTemplateFeatures={enableTemplateFeatures}
+                    trainerId={trainerId}
                 />
             </div>
         </div>

@@ -18,7 +18,6 @@ export const useTemplateLoader = () => {
         try {
             await DietTemplateService.incrementUsage(template.id);
 
-            // Konwertuj szablon na ManualDietData
             const days = template.days.map((templateDay, dayIndex) => {
                 const currentDate = new Date(startDate);
                 currentDate.setDate(currentDate.getDate() + dayIndex);

@@ -1,6 +1,8 @@
 import api from "../../../config/axios";
 import {ParsedProduct, Product} from "../../../types/product";
 import {ProductService} from "../../product/ProductService";
+import type {UnifiedSearchResult} from "../../../types";
+import type {DietHistorySummary, DietDraft} from "../../../types";
 
 export interface ManualDietRequest {
     userId: string;
@@ -23,8 +25,50 @@ export interface ValidationResult {
     warnings: string[];
 }
 
+/** Base path for diet manager API (upload, save, structure, search). */
+const MANAGER_BASE = '/diets/manager';
+
 export class DietCreatorService {
     private static readonly BASE_URL = '/diets/manual';
+
+    /**
+     * Unified search: returns both recipes and products in one response.
+     */
+    static async searchUnified(
+        query: string,
+        trainerId?: string
+    ): Promise<UnifiedSearchResult[]> {
+        const effectiveQuery = query && query.trim().length > 0 ? query.trim() : ' ';
+
+        const response = await api.get<UnifiedSearchResult[]>(`${MANAGER_BASE}/search`, {
+            params: {
+                query: effectiveQuery,
+                trainerId: trainerId || undefined
+            },
+        });
+        return response.data ?? [];
+    }
+
+    /**
+     * Fetch diet history for the given trainer (list of past diets).
+     * GET /api/diets/manager/history?trainerId=...
+     */
+    static async getTrainerDietHistory(trainerId: string): Promise<DietHistorySummary[]> {
+        const response = await api.get<DietHistorySummary[]>(`${MANAGER_BASE}/history`, {
+            params: {trainerId},
+        });
+        return response.data ?? [];
+    }
+
+    /**
+     * Load a diet as draft by id (to copy structure into a new diet).
+     * GET /api/diets/manager/draft/{dietId}
+     * Returns full diet structure; saving will create a NEW diet (dietId is not used on save).
+     */
+    static async loadDietDraft(dietId: string): Promise<DietDraft> {
+        const response = await api.get<DietDraft>(`${MANAGER_BASE}/draft/${dietId}`);
+        return response.data;
+    }
 
     /**
      * Save manually created diet

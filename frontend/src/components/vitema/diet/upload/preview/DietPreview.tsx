@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {toast} from "../../../../../utils/toast";
 import {ParsedDietData} from "../../../../../types";
 import {DietCategorizationService} from "../../../../../services/diet/DietCategorizationService";
-import CategorySection from "./CategorySection";
+import CategorySection from "../../creator/steps/Categorization/CategorySection";
 import PreviewSection from "./PreviewSection";
 import {useCategorization} from "../../../../../hooks/shopping/useCategorization";
 import {ParsedProduct} from "../../../../../types/product";

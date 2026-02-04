@@ -13,6 +13,7 @@ import java.util.List;
 public class Diet {
     private String id;
     private String userId;
+    private String authorId;
     private Timestamp createdAt;
     private Timestamp updatedAt;
     private List<Day> days;

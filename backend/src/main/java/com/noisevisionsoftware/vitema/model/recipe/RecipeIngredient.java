@@ -17,4 +17,6 @@ public class RecipeIngredient {
     private String original;
     private String categoryId;
     private boolean hasCustomUnit;
+    /** When set, macro calculation uses product; name is snapshot of product name. */
+    private Long productId;
 }

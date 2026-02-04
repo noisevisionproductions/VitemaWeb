@@ -21,6 +21,8 @@ import {CreateDietTemplateRequest, DietTemplate} from "../../../../types/DietTem
 import CreateTemplateDialog from "../templates/CreateTemplateDialog";
 import {useTemplateLoader} from "../../../../hooks/diet/templates/useTemplateLoader";
 import TemplateSelectionStep from "./steps/TemplateSelectionStep";
+import {useAuth} from "../../../../contexts/AuthContext";
+import type {DietDayDto, DietMealDto, DietIngredientDto} from "../../../../types";
 
 interface DietCreatorProps {
     onTabChange: (tab: MainNav) => void;
@@ -29,9 +31,38 @@ interface DietCreatorProps {
 
 type Step = 'templateSelection' | 'configuration' | 'planning' | 'categorization' | 'preview';
 
+/** Map backend draft ingredient to ParsedProduct for planner. */
+function draftIngredientToParsedProduct(i: DietIngredientDto): ParsedProduct {
+    return {
+        name: i.name,
+        quantity: i.quantity,
+        unit: i.unit,
+        original: i.name,
+        categoryId: i.categoryId ?? undefined,
+        id: i.productId ?? undefined,
+    };
+}
+
+/** Map backend draft meal to ParsedMeal for planner. */
+function draftMealToParsedMeal(m: DietMealDto): ParsedMeal {
+    return {
+        name: m.name,
+        instructions: m.instructions ?? '',
+        ingredients: (m.ingredients ?? []).map(draftIngredientToParsedProduct),
+        nutritionalValues: m.nutritionalValues ?? undefined,
+        mealType: m.mealType as MealType,
+        time: m.time ?? '12:00',
+        photos: [],
+        originalRecipeId: m.originalRecipeId ?? undefined,
+    };
+}
+
 const DietCreator: React.FC<DietCreatorProps> = ({
                                                      onTabChange
                                                  }) => {
+    const {currentUser} = useAuth();
+    const trainerId = currentUser?.uid ?? null;
+
     const [currentStep, setCurrentStep] = useState<Step>('configuration');
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [dietData, setDietData] = useState<ManualDietData>({
@@ -42,9 +73,9 @@ const DietCreator: React.FC<DietCreatorProps> = ({
     const [parsedPreviewData, setParsedPreviewData] = useState<ParsedDietData | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
 
-    // Stany do obsługi szablonów i potwierdzeń
     const [showSaveAsTemplate, setShowSaveAsTemplate] = useState(false);
     const [showBackConfirmation, setShowBackConfirmation] = useState(false);
+    const [initialStateSnapshot, setInitialStateSnapshot] = useState<string>('');
 
     const [templateData, setTemplateData] = useState<CreateDietTemplateRequest | null>(null);
     const [selectedTemplate, setSelectedTemplate] = useState<DietTemplate | null>(null);
@@ -53,14 +84,23 @@ const DietCreator: React.FC<DietCreatorProps> = ({
     const shoppingListRef = useRef<string[]>([]);
 
     const updateDietData = useCallback((updates: Partial<ManualDietData>) => {
-        setDietData(prev => ({...prev, ...updates}));
-    }, []);
+        setDietData(prev => {
+            if (updates.startDate && prev.days.length > 0 && updates.startDate !== prev.startDate) {
+                const newStart = new Date(updates.startDate);
+                const newDays = prev.days.map((day, index) => {
+                    const newDate = new Date(newStart);
+                    newDate.setDate(newStart.getDate() + index);
+                    return {
+                        ...day,
+                        date: Timestamp.fromDate(newDate)
+                    };
+                });
+                return {...prev, ...updates, days: newDays};
+            }
 
-    const hasPlannedMeals = useMemo(() => {
-        return dietData.days.some(day =>
-            day.meals.some(meal => meal.name && meal.name.trim() !== '')
-        );
-    }, [dietData.days]);
+            return {...prev, ...updates};
+        });
+    }, []);
 
     const currentShoppingListItems = useMemo(() => {
         const items: string[] = [];
@@ -103,6 +143,22 @@ const DietCreator: React.FC<DietCreatorProps> = ({
         });
     }, []);
 
+    const updateIngredientInMeal = useCallback((dayIndex: number, mealIndex: number, ingredientIndex: number, updatedIngredient: ParsedProduct) => {
+        setDietData(prev => {
+            const newDays = [...prev.days];
+            const meal = newDays[dayIndex].meals[mealIndex];
+
+            const newIngredients = [...(meal.ingredients || [])];
+            newIngredients[ingredientIndex] = updatedIngredient;
+
+            newDays[dayIndex].meals[mealIndex] = {
+                ...meal,
+                ingredients: newIngredients
+            };
+            return {...prev, days: newDays};
+        });
+    }, []);
+
     const addIngredientToMeal = useCallback((dayIndex: number, mealIndex: number, ingredients: ParsedProduct) => {
         setDietData(prev => {
             const newDays = [...prev.days];
@@ -126,35 +182,6 @@ const DietCreator: React.FC<DietCreatorProps> = ({
             return {...prev, days: newDays};
         });
     }, []);
-
-    const initializeDays = useCallback(() => {
-        const days: DayData[] = [];
-        const startDate = new Date(dietData.startDate);
-
-        for (let i = 0; i < dietData.duration; i++) {
-            const currentDate = new Date(startDate);
-            currentDate.setDate(startDate.getDate() + i);
-
-            const meals: ParsedMeal[] = [];
-            for (let j = 0; j < dietData.mealsPerDay; j++) {
-                meals.push({
-                    name: '',
-                    instructions: '',
-                    ingredients: [],
-                    mealType: dietData.mealTypes[j] || MealType.BREAKFAST,
-                    time: dietData.mealTimes[`meal_${j}`] || '12:00',
-                    photos: []
-                });
-            }
-
-            days.push({
-                date: Timestamp.fromDate(currentDate),
-                meals
-            });
-        }
-
-        updateDietData({days});
-    }, [dietData.startDate, dietData.duration, dietData.mealsPerDay, dietData.mealTimes, dietData.mealTypes, updateDietData]);
 
     const convertToPreviewData = useCallback((): ParsedDietData => {
         const simplifiedCategorizedProducts: Record<string, string[]> = {};
@@ -191,10 +218,11 @@ const DietCreator: React.FC<DietCreatorProps> = ({
         }
 
         if (currentStep === 'templateSelection') {
-            if (!selectedTemplate) {
-                initializeDays();
+            if (selectedTemplate) {
+                await handleTemplateSelect(selectedTemplate);
+            } else {
+                handleContinueWithoutTemplate();
             }
-            setCurrentStep('planning');
             return;
         }
 
@@ -226,21 +254,23 @@ const DietCreator: React.FC<DietCreatorProps> = ({
             }
             setCurrentStep('categorization');
         }
-    }, [currentStep, dietData, selectedUser, initializeDays, currentShoppingListItems]);
+    }, [currentStep, dietData, selectedUser, selectedTemplate, currentShoppingListItems]);
 
     const handlePrevious = useCallback(() => {
         if (currentStep === 'templateSelection') {
             setCurrentStep('configuration');
         } else if (currentStep === 'planning') {
-            // Jeśli jesteśmy w planowaniu i są wprowadzone dane, pytamy o potwierdzenie
-            if (hasPlannedMeals) {
+            const currentSnapshot = JSON.stringify(dietData);
+            const hasRealChanges = currentSnapshot !== initialStateSnapshot;
+
+            if (hasRealChanges) {
                 setShowBackConfirmation(true);
             } else {
                 setCurrentStep('templateSelection');
                 setParsedPreviewData(null);
             }
         }
-    }, [currentStep, selectedTemplate, hasPlannedMeals]);
+    }, [currentStep, dietData, initialStateSnapshot]);
 
     const handleDiscardAndBack = () => {
         setShowBackConfirmation(false);
@@ -309,7 +339,11 @@ const DietCreator: React.FC<DietCreatorProps> = ({
                     selectedUser.id,
                     dietData.startDate
                 );
+
                 setDietData(loadedDietData);
+
+                setInitialStateSnapshot(JSON.stringify(loadedDietData));
+
                 setCurrentStep('planning');
             } catch (error) {
                 console.error('Error loading template:', error);
@@ -318,17 +352,92 @@ const DietCreator: React.FC<DietCreatorProps> = ({
                 setIsProcessing(false);
             }
         } else {
-            setCurrentStep('planning');
         }
     }, [selectedUser, dietData.startDate, loadTemplateIntoDiet]);
 
     const handleContinueWithoutTemplate = useCallback(() => {
         setSelectedTemplate(null);
-        if (dietData.days.length === 0) {
-            initializeDays();
+
+        const startDate = new Date(dietData.startDate);
+        const days: DayData[] = [];
+
+        for (let i = 0; i < dietData.duration; i++) {
+            const currentDate = new Date(startDate);
+            currentDate.setDate(startDate.getDate() + i);
+            const meals: ParsedMeal[] = [];
+            for (let j = 0; j < dietData.mealsPerDay; j++) {
+                meals.push({
+                    name: '',
+                    instructions: '',
+                    ingredients: [],
+                    mealType: dietData.mealTypes[j] || MealType.BREAKFAST,
+                    time: dietData.mealTimes[`meal_${j}`] || '12:00',
+                    photos: []
+                });
+            }
+            days.push({date: Timestamp.fromDate(currentDate), meals});
         }
+
+        const newDietData = {...dietData, days};
+
+        setDietData(newDietData);
+        setInitialStateSnapshot(JSON.stringify(newDietData));
         setCurrentStep('planning');
-    }, [dietData.days.length, initializeDays]);
+    }, [dietData]);
+
+    const handleHistoryItemSelect = useCallback(async (dietId: string) => {
+        if (!selectedUser) {
+            toast.error('Wybierz klienta przed załadowaniem diety z historii');
+            return;
+        }
+
+        try {
+            setIsProcessing(true);
+            const draft = await DietCreatorService.loadDietDraft(dietId);
+            if (!draft.days?.length) {
+                toast.error('Ta dieta nie zawiera dni.');
+                return;
+            }
+            const firstDay = draft.days[0];
+            const mealsPerDay = firstDay.meals?.length ?? dietData.mealsPerDay;
+            const duration = draft.days.length;
+            const mealTimes: Record<string, string> = {};
+            const mealTypes: MealType[] = [];
+            firstDay.meals?.forEach((meal, idx) => {
+                mealTimes[`meal_${idx}`] = meal.time ?? '12:00';
+                mealTypes.push((meal.mealType as MealType) ?? MealType.LUNCH);
+            });
+            const startDate = dietData.startDate || new Date().toISOString().slice(0, 10);
+            const start = new Date(startDate);
+            const days: DayData[] = draft.days.map((day: DietDayDto, i: number) => {
+                const dayDate = new Date(start);
+                dayDate.setDate(start.getDate() + i);
+                return {
+                    date: Timestamp.fromDate(dayDate),
+                    meals: (day.meals ?? []).map(draftMealToParsedMeal),
+                };
+            });
+            const loadedData = {
+                userId: selectedUser.id,
+                mealsPerDay,
+                startDate,
+                duration,
+                mealTimes: Object.keys(mealTimes).length ? mealTimes : dietData.mealTimes,
+                mealTypes: mealTypes.length ? mealTypes : dietData.mealTypes,
+                days,
+            };
+
+            setDietData(loadedData);
+            setInitialStateSnapshot(JSON.stringify(loadedData));
+            setSelectedTemplate(null);
+            setCurrentStep('planning');
+        } catch (error) {
+            console.error('Error loading diet from history', error);
+            toast.error('Nie udało się załadować diety z historii');
+        } finally {
+            setIsProcessing(false);
+        }
+    }, [selectedUser, dietData]);
 
     const handleSave = useCallback(async () => {
         if (isProcessing) return;
@@ -418,8 +527,7 @@ const DietCreator: React.FC<DietCreatorProps> = ({
     }
 
     return (
-        <div className="space-y-6 pb-16 relative">
-
+        <div className="space-y-6 pb-32 relative">
             <SectionHeader
                 title={getStepTitle()}
                 description={getStepDescription()}
@@ -445,9 +553,11 @@ const DietCreator: React.FC<DietCreatorProps> = ({
             <div className="min-h-[500px]">
                 {currentStep === 'templateSelection' && (
                     <TemplateSelectionStep
-                        onTemplateSelect={handleTemplateSelect}
+                        onTemplateSelect={setSelectedTemplate}
                         onContinueWithoutTemplate={handleContinueWithoutTemplate}
+                        onHistoryItemSelect={handleHistoryItemSelect}
                         selectedUser={selectedUser}
+                        trainerId={trainerId}
                         isLoading={templateLoading || isProcessing}
                     />
                 )}
@@ -473,6 +583,8 @@ const DietCreator: React.FC<DietCreatorProps> = ({
                             onUpdateMeal={updateMeal}
                             onAddIngredient={addIngredientToMeal}
                             onRemoveIngredient={removeIngredientFromMeal}
+                            onUpdateIngredient={updateIngredientInMeal}
+                            trainerId={trainerId || undefined}
                         />
                     </div>
                 )}
@@ -497,7 +609,7 @@ const DietCreator: React.FC<DietCreatorProps> = ({
             {currentStep !== 'categorization' && currentStep !== 'preview' && (
                 <div className="fixed bottom-6 right-6 flex gap-3 z-10">
                     <FloatingActionButtonGroup position="bottom-right">
-                        {currentStep !== 'configuration' && currentStep !== 'templateSelection' && (
+                        {currentStep !== 'configuration' && (
                             <FloatingActionButton
                                 label="Poprzedni krok"
                                 onClick={handlePrevious}
@@ -516,16 +628,18 @@ const DietCreator: React.FC<DietCreatorProps> = ({
                             />
                         )}
 
-                        {currentStep !== 'templateSelection' && (
-                            <FloatingActionButton
-                                label="Następny krok"
-                                onClick={handleNext}
-                                variant="primary"
-                                icon={<ArrowRight className="h-5 w-5"/>}
-                                isLoading={isProcessing && currentStep === 'planning'}
-                                loadingLabel="Przygotowywanie..."
-                            />
-                        )}
+                        <FloatingActionButton
+                            label={
+                                currentStep === 'templateSelection' && selectedTemplate
+                                    ? `Użyj szablon "${selectedTemplate.name}"`
+                                    : "Następny krok"
+                            }
+                            onClick={handleNext}
+                            variant="primary"
+                            icon={<ArrowRight className="h-5 w-5"/>}
+                            isLoading={isProcessing}
+                            loadingLabel="Przygotowywanie..."
+                        />
                     </FloatingActionButtonGroup>
                 </div>
             )}
@@ -547,7 +661,6 @@ const DietCreator: React.FC<DietCreatorProps> = ({
                 />
             )}
 
-            {/* Dialog potwierdzenia powrotu (utrata danych) */}
             {showBackConfirmation && (
                 <div className="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog"
                      aria-modal="true">

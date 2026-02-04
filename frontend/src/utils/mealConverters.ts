@@ -1,5 +1,6 @@
 import { ParsedProduct } from "../types/product";
 import { MealIngredient } from "../types/mealSuggestions";
+import type { RecipeIngredient} from "../types";
 
 /**
  * Konwertuje ParsedProduct na MealIngredient
@@ -12,7 +13,7 @@ export const convertParsedProductToMealIngredient = (product: ParsedProduct): Me
         unit: product.unit,
         original: product.original,
         categoryId: product.categoryId,
-        hasCustomUnit: product.hasCustomUnit ?? false // Konwersja undefined na false
+        hasCustomUnit: product.hasCustomUnit ?? false
     };
 };
 
@@ -39,8 +40,23 @@ export const convertMealIngredientToParsedProduct = (ingredient: MealIngredient)
 };
 
 /**
- * Konwertuje tablicę MealIngredient na tablicę ParsedProduct
+ * Converts RecipeIngredient to ParsedProduct (e.g. when "exploding" a recipe into a meal).
  */
-export const convertMealIngredientsToParsedProducts = (ingredients: MealIngredient[]): ParsedProduct[] => {
-    return ingredients.map(convertMealIngredientToParsedProduct);
+export const convertRecipeIngredientToParsedProduct = (ingredient: RecipeIngredient): ParsedProduct => {
+    return {
+        id: (ingredient.productId as string) || ingredient.id,
+        name: ingredient.name,
+        quantity: ingredient.quantity,
+        unit: ingredient.unit,
+        original: ingredient.original ?? ingredient.name,
+        categoryId: ingredient.categoryId,
+        hasCustomUnit: ingredient.hasCustomUnit ?? false,
+    };
+};
+
+/**
+ * Converts Recipe.ingredients to ParsedProduct[].
+ */
+export const convertRecipeIngredientsToParsedProducts = (ingredients: RecipeIngredient[] = []): ParsedProduct[] => {
+    return ingredients.map(convertRecipeIngredientToParsedProduct);
 };

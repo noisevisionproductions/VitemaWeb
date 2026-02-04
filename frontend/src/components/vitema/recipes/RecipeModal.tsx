@@ -7,7 +7,7 @@ import {Dialog, DialogContent, DialogFooter, DialogHeader} from "../../shared/ui
 import {ScrollArea} from "../../shared/ui/ScrollArea";
 import RecipeImageGallery from "./RecipeImageGallery";
 import ImageUploadDialog from "../../shared/common/image/ImageUploadDialog";
-import {ParsedProduct} from "../../../types/product";
+import type { ProductDb } from "../../../types/product";
 import RecipeBasicInfo from "./components/RecipeBasicInfo";
 import RecipeIngredientsList from "./components/RecipeIngredientsList";
 import RecipeNutritionalInfo from "./components/RecipeNutritionalInfo";
@@ -148,19 +148,40 @@ const RecipeModal: React.FC<RecipeModalProps> = ({
         setEditedRecipe((prev) => ({...prev, [name]: value}));
     };
 
-    const handleAddIngredient = (product: ParsedProduct) => {
-        const newIngredient: RecipeIngredient = {
-            id: product.id?.startsWith('temp-') ? undefined : product.id,
-            name: product.name,
-            quantity: product.quantity,
-            unit: product.unit,
-            original: product.original,
-            hasCustomUnit: product.hasCustomUnit
-        };
+    const computeIngredientMacros = (product: ProductDb, quantity: number) => ({
+        calories: (product.kcal / 100) * quantity,
+        protein: (product.protein / 100) * quantity,
+        fat: (product.fat / 100) * quantity,
+        carbs: (product.carbs / 100) * quantity,
+    });
 
+    const handleAddProduct = (product: ProductDb) => {
+        const quantity = 100;
+        const unit = product.unit ?? 'g';
+        const macros = computeIngredientMacros(product, quantity);
+        const newIngredient: RecipeIngredient = {
+            name: product.name,
+            quantity,
+            unit,
+            productId: String(product.id),
+            product,
+            ...macros,
+        };
         setEditedRecipe((prev) => ({
             ...prev,
-            ingredients: [...(prev.ingredients || []), newIngredient]
+            ingredients: [...(prev.ingredients || []), newIngredient],
+        }));
+    };
+
+    const handleAddFreeText = (name: string) => {
+        const newIngredient: RecipeIngredient = {
+            name: name.trim(),
+            quantity: 1,
+            unit: 'szt',
+        };
+        setEditedRecipe((prev) => ({
+            ...prev,
+            ingredients: [...(prev.ingredients || []), newIngredient],
         }));
     };
 
@@ -171,13 +192,24 @@ const RecipeModal: React.FC<RecipeModalProps> = ({
         }));
     };
 
-    const handleUpdateIngredient = (index: number, field: keyof RecipeIngredient, value: any) => {
-        setEditedRecipe((prev) => ({
-            ...prev,
-            ingredients: (prev.ingredients || []).map((ing, i) =>
-                i === index ? {...ing, [field]: value} : ing
-            )
-        }));
+    const handleUpdateIngredient = (index: number, field: keyof RecipeIngredient, value: unknown) => {
+        setEditedRecipe((prev) => {
+            const list = prev.ingredients ?? [];
+            const ing = list[index];
+            if (!ing) return prev;
+            const next = { ...ing, [field]: value };
+            if (field === 'quantity' && ing.product && typeof value === 'number') {
+                const macros = computeIngredientMacros(ing.product, value);
+                next.calories = macros.calories;
+                next.protein = macros.protein;
+                next.fat = macros.fat;
+                next.carbs = macros.carbs;
+            }
+            return {
+                ...prev,
+                ingredients: list.map((item, i) => (i === index ? next : item)),
+            };
+        });
     };
 
     const handleRemoveImage = async (imageUrl: string) => {
@@ -291,7 +323,8 @@ const RecipeModal: React.FC<RecipeModalProps> = ({
                                 <RecipeIngredientsList
                                     ingredients={editedRecipe.ingredients || []}
                                     editMode={editMode || isCreateMode}
-                                    onAdd={handleAddIngredient}
+                                    onAddProduct={handleAddProduct}
+                                    onAddFreeText={handleAddFreeText}
                                     onRemove={handleRemoveIngredient}
                                     onUpdate={handleUpdateIngredient}
                                 />

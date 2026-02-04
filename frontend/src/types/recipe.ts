@@ -11,7 +11,10 @@ export interface Recipe {
     parentRecipeId: string | null;
     authorId?: string;
     isPublic?: boolean;
+    isMine?: boolean;
 }
+
+import type { ProductDb } from './product';
 
 export interface RecipeIngredient {
     id?: string;
@@ -21,6 +24,12 @@ export interface RecipeIngredient {
     original?: string;
     categoryId?: string;
     hasCustomUnit?: boolean;
+    productId?: string;
+    product?: ProductDb;
+    calories?: number;
+    protein?: number;
+    fat?: number;
+    carbs?: number;
 }
 
 export interface NutritionalValues {

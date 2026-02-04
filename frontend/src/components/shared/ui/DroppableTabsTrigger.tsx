@@ -1,18 +1,18 @@
 import React from 'react';
 import {TabsTrigger} from './Tabs';
 import {useDrop} from 'react-dnd';
-import {ParsedProduct} from '../../../types/product';
+import {Product} from '../../../types/product';
 
 type BaseTabsTriggerProps = Omit<React.ComponentPropsWithoutRef<typeof TabsTrigger>, 'onDrop'>;
 
 interface DroppableTabsTriggerProps extends BaseTabsTriggerProps {
-    onDrop?: (product: ParsedProduct) => void;
+    onDrop?: (product: Product) => void;
     categoryColor?: string;
     isActive?: boolean;
 }
 
 type DropItem = {
-    product: ParsedProduct;
+    product: Product;
     fromCategory: boolean;
 };
 

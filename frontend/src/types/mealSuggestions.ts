@@ -74,7 +74,3 @@ export interface TemplateUpdateSummary {
     changes: TemplateChange[];
     hasSignificantChanges: boolean;
 }
-
-export interface MealImageResponse {
-    imageUrl: string;
-}

@@ -24,6 +24,19 @@ export interface Product {
     categoryId?: string;
 }
 
+/** Product from PostgreSQL product database (recipe ingredients). */
+export interface ProductDb {
+    id: number | string;
+    name: string;
+    category: string | null;
+    unit: string | null;
+    kcal: number;
+    protein: number;
+    fat: number;
+    carbs: number;
+    isVerified?: boolean;
+}
+
 export interface ProductUnit {
     value: string;
     label: string;

@@ -38,7 +38,7 @@ public class MealTemplateConverter {
         if (request == null) return null;
 
         return MealTemplate.builder()
-                .id(UUID.randomUUID().toString())
+                .id(null)
                 .name(request.getName())
                 .instructions(request.getInstructions())
                 .nutritionalValues(convertNutritionalValuesFromRequest(request.getNutritionalValues()))

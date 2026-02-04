@@ -7,6 +7,7 @@ import com.noisevisionsoftware.vitema.model.recipe.RecipeIngredient;
 import com.noisevisionsoftware.vitema.model.recipe.jpa.NutritionalValuesEntity;
 import com.noisevisionsoftware.vitema.model.recipe.jpa.RecipeEntity;
 import com.noisevisionsoftware.vitema.model.recipe.jpa.RecipeIngredientEntity;
+import com.noisevisionsoftware.vitema.repository.jpa.ProductJpaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -19,12 +20,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class RecipeJpaConverterTest {
 
     private RecipeJpaConverter converter;
+    private ProductJpaRepository productJpaRepository;
     private static final String SAMPLE_ID = "123e4567-e89b-12d3-a456-426614174000";
     private static final String SAMPLE_NAME = "Test Recipe";
     private static final String SAMPLE_INSTRUCTIONS = "Test Instructions";
@@ -32,7 +38,9 @@ class RecipeJpaConverterTest {
 
     @BeforeEach
     void setUp() {
-        converter = new RecipeJpaConverter();
+        productJpaRepository = mock(ProductJpaRepository.class);
+        when(productJpaRepository.findById(anyLong())).thenReturn(Optional.empty());
+        converter = new RecipeJpaConverter(productJpaRepository);
     }
 
     @Test

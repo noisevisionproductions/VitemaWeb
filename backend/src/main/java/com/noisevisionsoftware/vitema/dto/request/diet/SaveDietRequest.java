@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class SaveDietRequest {
     private ParsedDietData parsedData;
     private String userId;
+    private String authorId;
     private DietFileInfo fileInfo;
 }
 

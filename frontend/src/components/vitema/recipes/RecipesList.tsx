@@ -163,35 +163,30 @@ const RecipesList = forwardRef<RecipesListRef, RecipesListProps>(({
     const applyFilters = () => {
         let results = [...recipes];
 
-        // Ownership Filter
         if (ownershipFilter === 'private') {
             results = results.filter(recipe => !recipe.isPublic);
         } else if (ownershipFilter === 'public') {
-            results = results.filter(recipe => recipe.isPublic === true);
+            results = results.filter(recipe => recipe.isPublic);
         }
 
-        // Image Filters
         if (filterWithImages) {
             results = results.filter(recipe => recipe.photos && recipe.photos.length > 0);
         }
-
         if (filterWithoutImages) {
             results = results.filter(recipe => !recipe.photos || recipe.photos.length === 0);
         }
 
-        // Sorting
         results = [...results].sort((a, b) => {
+            if (a.isMine && !b.isMine) return -1;
+            if (!a.isMine && b.isMine) return 1;
+
             switch (sortBy) {
                 case 'newest':
-                    return new Date(b.createdAt.seconds * 1000).getTime() - new Date(a.createdAt.seconds * 1000).getTime();
-                case 'oldest':
-                    return new Date(a.createdAt.seconds * 1000).getTime() - new Date(b.createdAt.seconds * 1000).getTime();
+                    return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
+                case 'calories':
+                    return (b.nutritionalValues?.calories || 0) - (a.nutritionalValues?.calories || 0);
                 case 'name':
                     return a.name.localeCompare(b.name);
-                case 'calories':
-                    const aCalories = a.nutritionalValues?.calories || 0;
-                    const bCalories = b.nutritionalValues?.calories || 0;
-                    return bCalories - aCalories;
                 default:
                     return 0;
             }
@@ -277,16 +272,18 @@ const RecipesList = forwardRef<RecipesListRef, RecipesListProps>(({
             setIsDeletingRecipe(true);
             await RecipeService.deleteRecipe(recipeToDelete.id);
 
-            const newRecipes = recipes.filter(r => r.id !== recipeToDelete.id);
-            setRecipes(newRecipes);
-
-            const newFilteredRecipes = filteredRecipes.filter(r => r.id !== recipeToDelete.id);
-            setFilteredRecipes(newFilteredRecipes);
+            setRecipes(prev => prev.filter(r => r.id !== recipeToDelete.id));
+            setFilteredRecipes(prev => prev.filter(r => r.id !== recipeToDelete.id));
 
             toast.success(`Przepis "${recipeToDelete.name}" został usunięty`);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Błąd podczas usuwania przepisu:', error);
-            toast.error('Nie udało się usunąć przepisu');
+
+            if (error.response?.status === 403) {
+                toast.error('Nie masz uprawnień do usunięcia tego przepisu (np. jest on publiczny).');
+            } else {
+                toast.error('Nie udało się usunąć przepisu. Spróbuj ponownie później.');
+            }
         } finally {
             setIsDeletingRecipe(false);
             setRecipeToDelete(null);
@@ -322,7 +319,7 @@ const RecipesList = forwardRef<RecipesListRef, RecipesListProps>(({
                                     key={recipe.id}
                                     recipe={recipe}
                                     onClick={onRecipeSelect}
-                                    onDelete={handleDeleteRecipe}
+                                    onDelete={recipe.isMine ? handleDeleteRecipe : undefined}
                                 />
                             ))}
                         </div>

@@ -166,7 +166,6 @@ public class RecipeService {
             recipe.setAuthorId(currentUserId);
         }
 
-        // Trenerzy tworzą prywatne, Admin może tworzyć publiczne
         if (!userService.isCurrentUserAdminOrOwner()) {
             recipe.setPublic(false);
         }

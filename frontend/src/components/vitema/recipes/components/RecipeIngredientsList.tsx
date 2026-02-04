@@ -1,28 +1,30 @@
 import React from 'react';
-import {Package, X} from 'lucide-react';
-import {RecipeIngredient} from "../../../../types";
-import {Input} from "../../../shared/ui/Input";
-import {Label} from "../../../shared/ui/Label";
-import InlineIngredientSearch from "../../diet/creator/components/InlineIngredientSearch";
-import {ParsedProduct} from "../../../../types/product";
+import { Package, X } from 'lucide-react';
+import { RecipeIngredient } from '../../../../types';
+import { Input } from '../../../shared/ui/Input';
+import { Label } from '../../../shared/ui/Label';
+import ProductAutocomplete from '../../../products/ProductAutocomplete';
+import type { ProductDb } from '../../../../types/product';
 
 interface RecipeIngredientsListProps {
     ingredients: RecipeIngredient[];
     editMode: boolean;
-    onAdd: (product: ParsedProduct) => void;
+    onAddProduct: (product: ProductDb) => void;
+    onAddFreeText: (name: string) => void;
     onRemove: (index: number) => void;
-    onUpdate: (index: number, field: keyof RecipeIngredient, value: any) => void;
+    onUpdate: (index: number, field: keyof RecipeIngredient, value: unknown) => void;
 }
 
 const UNITS = ['g', 'ml', 'szt', 'opakowanie', 'łyżka', 'łyżeczka', 'szklanka', 'plaster', 'porcja'];
 
 const RecipeIngredientsList: React.FC<RecipeIngredientsListProps> = ({
-                                                                          ingredients,
-                                                                          editMode,
-                                                                          onAdd,
-                                                                          onRemove,
-                                                                          onUpdate
-                                                                      }) => {
+    ingredients,
+    editMode,
+    onAddProduct,
+    onAddFreeText,
+    onRemove,
+    onUpdate,
+}) => {
     if (editMode) {
         return (
             <div className="bg-white p-6 rounded-lg shadow-sm">
@@ -42,24 +44,35 @@ const RecipeIngredientsList: React.FC<RecipeIngredientsListProps> = ({
                                         <div className="font-medium text-sm text-gray-900 truncate">
                                             {ingredient.name}
                                         </div>
+                                        {ingredient.product && (
+                                            <div className="text-xs text-gray-500 mt-0.5">
+                                                {Math.round(ingredient.calories ?? 0)} kcal
+                                                {ingredient.protein != null && ` · B:${Math.round(ingredient.protein)}g`}
+                                                {ingredient.fat != null && ` T:${Math.round(ingredient.fat)}g`}
+                                                {ingredient.carbs != null && ` W:${Math.round(ingredient.carbs)}g`}
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <Input
                                             type="number"
-                                            min="1"
-                                            step="1"
+                                            min="0"
+                                            step="any"
                                             value={ingredient.quantity}
-                                            onChange={(e) => onUpdate(index, 'quantity', parseInt(e.target.value) || 0)}
+                                            onChange={(e) => onUpdate(index, 'quantity', parseFloat(e.target.value) || 0)}
                                             className="w-20 text-sm"
                                         />
                                         <select
                                             value={ingredient.unit}
                                             onChange={(e) => onUpdate(index, 'unit', e.target.value)}
-                                            className="text-sm border border-gray-300 rounded px-2 py-1.5"
+                                            className="text-sm border border-gray-300 rounded px-2 py-1.5 bg-white"
                                         >
-                                            {UNITS.map(unit => (
+                                            {UNITS.map((unit) => (
                                                 <option key={unit} value={unit}>{unit}</option>
                                             ))}
+                                            {ingredient.unit && !UNITS.includes(ingredient.unit) && (
+                                                <option value={ingredient.unit}>{ingredient.unit}</option>
+                                            )}
                                         </select>
                                     </div>
                                     <button
@@ -77,8 +90,9 @@ const RecipeIngredientsList: React.FC<RecipeIngredientsListProps> = ({
                     {/* Ingredient search */}
                     <div>
                         <Label className="mb-2">Dodaj składnik</Label>
-                        <InlineIngredientSearch
-                            onSelect={onAdd}
+                        <ProductAutocomplete
+                            onSelect={onAddProduct}
+                            onFreeText={onAddFreeText}
                             placeholder="Wpisz składnik (np. kurczak, ryż)..."
                         />
                     </div>
