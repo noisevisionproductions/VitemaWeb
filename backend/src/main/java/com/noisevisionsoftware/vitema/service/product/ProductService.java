@@ -1,9 +1,11 @@
 package com.noisevisionsoftware.vitema.service.product;
 
 import com.noisevisionsoftware.vitema.dto.product.IngredientDTO;
+import com.noisevisionsoftware.vitema.dto.request.product.ProductRequest;
+import com.noisevisionsoftware.vitema.dto.response.product.ProductResponse;
 import com.noisevisionsoftware.vitema.model.product.Product;
 import com.noisevisionsoftware.vitema.model.product.ProductType;
-import com.noisevisionsoftware.vitema.repository.ProductRepository;
+import com.noisevisionsoftware.vitema.model.recipe.NutritionalValues;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,83 +14,151 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Service for managing products.
+ * Refactored to use PostgreSQL (via ProductDatabaseService) instead of Firestore.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ProductService {
 
-    private final ProductRepository productRepository;
+    private final ProductDatabaseService productDatabaseService;
 
+    /**
+     * Returns GLOBAL products + CUSTOM products belonging to the specific trainer.
+     */
     public List<IngredientDTO> searchProducts(String query, String trainerId) {
         if (query == null || query.trim().isEmpty()) {
             return List.of();
         }
 
-        List<Product> products = productRepository.searchProducts(query, trainerId);
+        // Using database service to search by name
+        List<ProductResponse> products = productDatabaseService.searchByName(query, trainerId);
+
         return products.stream()
-                .map(this::productToIngredientDTO)
+                .map(this::mapResponseToIngredientDTO)
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Automatically determines type (GLOBAL/CUSTOM) based on who is asking.
+     */
     public Product createProduct(Product product, String trainerId) {
-        // Validate required fields
         if (product.getName() == null || product.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Product name is required");
         }
 
-        if (product.getDefaultUnit() == null || product.getDefaultUnit().trim().isEmpty()) {
-            throw new IllegalArgumentException("Default unit is required");
-        }
+        ProductType type = ProductType.GLOBAL;
+        String authorId = null;
 
-        // If trainer is creating it, force CUSTOM type
         if (trainerId != null && !trainerId.isEmpty()) {
-            product.setType(ProductType.CUSTOM);
-            product.setAuthorId(trainerId);
+            type = ProductType.CUSTOM;
+            authorId = trainerId;
         }
 
-        // If no type specified, default to GLOBAL (admin only should do this)
-        if (product.getType() == null) {
-            product.setType(ProductType.GLOBAL);
-        }
+        ProductRequest request = getProductRequest(product, type);
 
-        // Generate searchName for efficient searching
-        product.setSearchName(product.getName().toLowerCase().trim());
+        ProductResponse savedResponse = productDatabaseService.create(request, authorId, type);
 
-        return productRepository.save(product);
+        return mapResponseToProduct(savedResponse);
     }
 
+    private static ProductRequest getProductRequest(Product product, ProductType type) {
+        ProductRequest request = new ProductRequest();
+        request.setName(product.getName());
+        request.setCategory(product.getCategoryId());
+        request.setUnit(product.getDefaultUnit() != null ? product.getDefaultUnit() : "g");
+
+        // Default verification logic: Global = Verified, Custom = Unverified
+        request.setVerified(type == ProductType.GLOBAL);
+
+        if (product.getNutritionalValues() != null) {
+            request.setKcal(product.getNutritionalValues().getCalories());
+            request.setProtein(product.getNutritionalValues().getProtein());
+            request.setFat(product.getNutritionalValues().getFat());
+            request.setCarbs(product.getNutritionalValues().getCarbs());
+        }
+        return request;
+    }
+
+    /**
+     * Retrieves a product by ID (converts String ID to Long).
+     */
     public Optional<Product> getProductById(String id) {
-        return productRepository.findById(id);
+        try {
+            return productDatabaseService.findById(Long.parseLong(id))
+                    .map(this::mapResponseToProduct);
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
     }
 
+    /**
+     * ENFORCES ownership security. A trainer cannot delete a Global product
+     * or another trainer's product.
+     */
     public void deleteProduct(String id, String trainerId) {
-        Optional<Product> productOpt = productRepository.findById(id);
-        if (productOpt.isEmpty()) {
-            throw new IllegalArgumentException("Product not found");
-        }
+        try {
+            Long dbId = Long.parseLong(id);
 
-        Product product = productOpt.get();
+            Optional<ProductResponse> existingOpt = productDatabaseService.findById(dbId);
 
-        // Only allow deletion of CUSTOM products by their author
-        if (product.getType() == ProductType.CUSTOM) {
-            if (!product.getAuthorId().equals(trainerId)) {
-                throw new IllegalArgumentException("Cannot delete product created by another trainer");
+            if (existingOpt.isEmpty()) {
+                throw new IllegalArgumentException("Product not found");
             }
-        } else {
-            throw new IllegalArgumentException("Cannot delete GLOBAL products");
-        }
 
-        productRepository.delete(id);
+            ProductResponse existing = existingOpt.get();
+
+            boolean isGlobal = existing.getType() == ProductType.GLOBAL;
+            boolean isOwner = trainerId != null && trainerId.equals(existing.getAuthorId());
+
+            if (isGlobal) {
+                throw new IllegalArgumentException("Cannot delete GLOBAL products");
+            }
+
+            if (!isOwner) {
+                throw new IllegalArgumentException("You can only delete your own custom products");
+            }
+
+            productDatabaseService.delete(dbId);
+
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid product ID: " + id);
+        }
     }
 
-    private IngredientDTO productToIngredientDTO(Product product) {
+    private IngredientDTO mapResponseToIngredientDTO(ProductResponse response) {
         return IngredientDTO.builder()
-                .id(product.getId())
-                .name(product.getName())
-                .defaultUnit(product.getDefaultUnit())
-                .nutritionalValues(product.getNutritionalValues())
-                .categoryId(product.getCategoryId())
-                .type(product.getType().name())
+                .id(String.valueOf(response.getId()))
+                .name(response.getName())
+                .defaultUnit(response.getUnit())
+                .nutritionalValues(NutritionalValues.builder()
+                        .calories(response.getKcal())
+                        .protein(response.getProtein())
+                        .fat(response.getFat())
+                        .carbs(response.getCarbs())
+                        .build())
+                .categoryId(response.getCategory())
+                .type(response.getType() != null ? response.getType().name() : ProductType.GLOBAL.name())
+                .build();
+    }
+
+    private Product mapResponseToProduct(ProductResponse response) {
+        return Product.builder()
+                .id(String.valueOf(response.getId()))
+                .name(response.getName())
+                .searchName(response.getName().toLowerCase())
+                .defaultUnit(response.getUnit())
+                .nutritionalValues(NutritionalValues.builder()
+                        .calories(response.getKcal())
+                        .protein(response.getProtein())
+                        .fat(response.getFat())
+                        .carbs(response.getCarbs())
+                        .build())
+                .categoryId(response.getCategory())
+                .type(response.getType() != null ? response.getType() : ProductType.GLOBAL)
+                .authorId(response.getAuthorId())
                 .build();
     }
 }

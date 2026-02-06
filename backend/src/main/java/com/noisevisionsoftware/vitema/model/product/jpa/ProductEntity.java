@@ -1,5 +1,6 @@
 package com.noisevisionsoftware.vitema.model.product.jpa;
 
+import com.noisevisionsoftware.vitema.model.product.ProductType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,10 +19,17 @@ public class ProductEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "author_id")
+    private String authorId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ProductType type;
+
     @Column(nullable = false, unique = true)
     private String name;
 
-    @Column(length = 255)
+    @Column()
     private String category;
 
     @Column(length = 100)

@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useRef, useState} from "react";
+import React, {useCallback, useState} from "react";
 import {MainNav} from "../../../../types/navigation";
 import {DayData, ManualDietData, MealType, ParsedDietData, ParsedMeal} from "../../../../types";
 import {ParsedProduct} from "../../../../types/product";
@@ -13,9 +13,6 @@ import ConfigurationStep from "./steps/ConfigurationStep";
 import {ManualDietRequest, DietCreatorService} from "../../../../services/diet/creator/DietCreatorService";
 import {User} from "../../../../types/user";
 import DietPreview from "../upload/preview/DietPreview";
-import {useCategorization} from "../../../../hooks/shopping/useCategorization";
-import {DietCategorizationService} from "../../../../services/diet/DietCategorizationService";
-import CategorySection from "./steps/Categorization/CategorySection";
 import DietCreatorGuide from "./components/DietCreatorGuide";
 import {CreateDietTemplateRequest, DietTemplate} from "../../../../types/DietTemplate";
 import CreateTemplateDialog from "../templates/CreateTemplateDialog";
@@ -29,7 +26,7 @@ interface DietCreatorProps {
     onBackToSelection: () => void;
 }
 
-type Step = 'templateSelection' | 'configuration' | 'planning' | 'categorization' | 'preview';
+type Step = 'templateSelection' | 'configuration' | 'planning' | 'preview';
 
 /** Map backend draft ingredient to ParsedProduct for planner. */
 function draftIngredientToParsedProduct(i: DietIngredientDto): ParsedProduct {
@@ -81,8 +78,6 @@ const DietCreator: React.FC<DietCreatorProps> = ({
     const [selectedTemplate, setSelectedTemplate] = useState<DietTemplate | null>(null);
     const {loadTemplateIntoDiet, loading: templateLoading} = useTemplateLoader();
 
-    const shoppingListRef = useRef<string[]>([]);
-
     const updateDietData = useCallback((updates: Partial<ManualDietData>) => {
         setDietData(prev => {
             if (updates.startDate && prev.days.length > 0 && updates.startDate !== prev.startDate) {
@@ -101,36 +96,6 @@ const DietCreator: React.FC<DietCreatorProps> = ({
             return {...prev, ...updates};
         });
     }, []);
-
-    const currentShoppingListItems = useMemo(() => {
-        const items: string[] = [];
-        dietData.days.forEach(day => {
-            day.meals.forEach(meal => {
-                if (meal.ingredients) {
-                    meal.ingredients.forEach(ingredient => {
-                        const ingredientString = `${ingredient.name} ${ingredient.quantity} ${ingredient.unit}`;
-                        items.push(ingredientString);
-                    });
-                }
-            });
-        });
-        const itemsString = JSON.stringify(items);
-        const currentString = JSON.stringify(shoppingListRef.current);
-        if (itemsString !== currentString) {
-            shoppingListRef.current = items;
-        }
-        return items;
-    }, [dietData.days]);
-
-    const categorizationShoppingList = currentStep === 'categorization' ? shoppingListRef.current : [];
-
-    const {
-        categorizedProducts,
-        uncategorizedProducts,
-        handleProductDrop,
-        handleProductRemove,
-        handleProductEdit
-    } = useCategorization(categorizationShoppingList);
 
     const updateMeal = useCallback((dayIndex: number, mealIndex: number, meal: ParsedMeal) => {
         setDietData(prev => {
@@ -184,24 +149,18 @@ const DietCreator: React.FC<DietCreatorProps> = ({
     }, []);
 
     const convertToPreviewData = useCallback((): ParsedDietData => {
-        const simplifiedCategorizedProducts: Record<string, string[]> = {};
-        Object.entries(categorizedProducts).forEach(([categoryId, products]) => {
-            simplifiedCategorizedProducts[categoryId] = products.map(product =>
-                product.original || `${product.name} ${product.quantity} ${product.unit}`
-            );
-        });
-
+        // Shopping list is now generated automatically on the backend based on product IDs
         return {
             days: dietData.days,
-            categorizedProducts: simplifiedCategorizedProducts,
-            shoppingList: shoppingListRef.current,
+            categorizedProducts: {},
+            shoppingList: [],
             mealTimes: dietData.mealTimes,
             mealsPerDay: dietData.mealsPerDay,
             startDate: Timestamp.fromDate(new Date(dietData.startDate)),
             duration: dietData.duration,
             mealTypes: dietData.mealTypes
         };
-    }, [dietData, categorizedProducts]);
+    }, [dietData]);
 
     const handleNext = useCallback(async () => {
         if (currentStep === 'configuration') {
@@ -236,25 +195,12 @@ const DietCreator: React.FC<DietCreatorProps> = ({
                 return;
             }
 
-            if (currentShoppingListItems.length === 0) {
-                toast.warning('Brak składników do kategoryzacji. Przechodzimy do podglądu.');
-                const previewData: ParsedDietData = {
-                    days: dietData.days,
-                    categorizedProducts: {},
-                    shoppingList: [],
-                    mealTimes: dietData.mealTimes,
-                    mealsPerDay: dietData.mealsPerDay,
-                    startDate: Timestamp.fromDate(new Date(dietData.startDate)),
-                    duration: dietData.duration,
-                    mealTypes: dietData.mealTypes
-                };
-                setParsedPreviewData(previewData);
-                setCurrentStep('preview');
-                return;
-            }
-            setCurrentStep('categorization');
+            // Shopping list is generated automatically on the backend - proceed directly to preview
+            const previewData = convertToPreviewData();
+            setParsedPreviewData(previewData);
+            setCurrentStep('preview');
         }
-    }, [currentStep, dietData, selectedUser, selectedTemplate, currentShoppingListItems]);
+    }, [currentStep, dietData, selectedUser, selectedTemplate, convertToPreviewData]);
 
     const handlePrevious = useCallback(() => {
         if (currentStep === 'templateSelection') {
@@ -281,26 +227,6 @@ const DietCreator: React.FC<DietCreatorProps> = ({
     const handleSaveFromConfirmation = () => {
         setShowBackConfirmation(false);
         handleSaveAsTemplate();
-    };
-
-    const handleCategorizationComplete = async () => {
-        if (uncategorizedProducts.length > 0) {
-            toast.error('Musisz skategoryzować wszystkie produkty');
-            return;
-        }
-        try {
-            setIsProcessing(true);
-            await DietCategorizationService.updateCategories(categorizedProducts);
-            const previewData = convertToPreviewData();
-            setParsedPreviewData(previewData);
-            setCurrentStep('preview');
-            toast.success('Kategoryzacja została zapisana');
-        } catch (error) {
-            console.error('Błąd podczas zapisywania kategoryzacji:', error);
-            toast.error('Wystąpił błąd podczas zapisywania kategoryzacji');
-        } finally {
-            setIsProcessing(false);
-        }
     };
 
     const handleSaveAsTemplate = useCallback(() => {
@@ -467,11 +393,7 @@ const DietCreator: React.FC<DietCreatorProps> = ({
     }, [dietData, isProcessing, onTabChange]);
 
     const handlePreviewCancel = useCallback(() => {
-        if (shoppingListRef.current.length > 0) {
-            setCurrentStep('categorization');
-        } else {
-            setCurrentStep('planning');
-        }
+        setCurrentStep('planning');
         setParsedPreviewData(null);
     }, []);
 
@@ -485,8 +407,6 @@ const DietCreator: React.FC<DietCreatorProps> = ({
                 return selectedTemplate
                     ? `Planowanie posiłków - ${selectedTemplate.name}`
                     : 'Planowanie posiłków';
-            case "categorization":
-                return 'Kategoryzacja składników';
             case "preview":
                 return 'Podgląd diety przed zapisem';
             default:
@@ -504,8 +424,6 @@ const DietCreator: React.FC<DietCreatorProps> = ({
                 return selectedTemplate
                     ? 'Zmodyfikuj posiłki z szablonu według potrzeb'
                     : 'Zaplanuj posiłki dla każdego dnia';
-            case 'categorization':
-                return 'Przypisz składniki do odpowiednich kategorii';
             case 'preview':
                 return 'Sprawdź dietę przed zapisem';
             default:
@@ -536,15 +454,14 @@ const DietCreator: React.FC<DietCreatorProps> = ({
             {/* Guide */}
             <DietCreatorGuide className="mb-6"/>
 
-            {/* Progress bar */}
+            {/* Progress bar - 4 steps: configuration (25%) -> templateSelection (50%) -> planning (75%) -> preview (100%) */}
             <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
                     className="bg-primary h-2 rounded-full transition-all duration-300"
                     style={{
-                        width: currentStep === 'configuration' ? '20%' :
-                            currentStep === 'templateSelection' ? '40%' :
-                                currentStep === 'planning' ? '60%' :
-                                    currentStep === 'categorization' ? '80%' : '100%'
+                        width: currentStep === 'configuration' ? '25%' :
+                            currentStep === 'templateSelection' ? '50%' :
+                                currentStep === 'planning' ? '75%' : '100%'
                     }}
                 />
             </div>
@@ -588,25 +505,10 @@ const DietCreator: React.FC<DietCreatorProps> = ({
                         />
                     </div>
                 )}
-
-                {currentStep === 'categorization' && (
-                    <CategorySection
-                        uncategorizedProducts={uncategorizedProducts}
-                        categorizedProducts={categorizedProducts}
-                        onProductDrop={handleProductDrop}
-                        onProductRemove={handleProductRemove}
-                        onProductEdit={handleProductEdit}
-                        onComplete={handleCategorizationComplete}
-                        onCancel={handlePreviewCancel}
-                        selectedUserEmail={selectedUser?.email || ''}
-                        showBackButton={true}
-                        onBack={handlePrevious}
-                    />
-                )}
             </div>
 
             {/* Navigation buttons */}
-            {currentStep !== 'categorization' && currentStep !== 'preview' && (
+            {currentStep !== 'preview' && (
                 <div className="fixed bottom-6 right-6 flex gap-3 z-10">
                     <FloatingActionButtonGroup position="bottom-right">
                         {currentStep !== 'configuration' && (

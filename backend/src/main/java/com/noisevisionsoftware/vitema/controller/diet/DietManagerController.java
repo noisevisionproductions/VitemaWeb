@@ -6,7 +6,8 @@ import com.noisevisionsoftware.vitema.dto.request.diet.SaveDietRequest;
 import com.noisevisionsoftware.vitema.dto.request.diet.UpdateDietRequest;
 import com.noisevisionsoftware.vitema.dto.response.diet.SaveDietResponse;
 import com.noisevisionsoftware.vitema.dto.search.UnifiedSearchDto;
-import com.noisevisionsoftware.vitema.service.diet.DietManagerService;
+import com.noisevisionsoftware.vitema.service.diet.DietCommandService;
+import com.noisevisionsoftware.vitema.service.diet.DietQueryService;
 import com.noisevisionsoftware.vitema.service.firebase.FileStorageService;
 import com.noisevisionsoftware.vitema.service.search.UnifiedSearchService;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,8 @@ import java.util.Objects;
 @Slf4j
 public class DietManagerController {
 
-    private final DietManagerService dietManagerService;
+    private final DietQueryService dietQueryService;
+    private final DietCommandService dietCommandService;
     private final FileStorageService storageService;
     private final UnifiedSearchService unifiedSearchService;
 
@@ -71,7 +73,7 @@ public class DietManagerController {
     @PostMapping("/save")
     public ResponseEntity<SaveDietResponse> saveDiet(@RequestBody SaveDietRequest request) {
         try {
-            String dietId = dietManagerService.saveDietWithShoppingList(
+            String dietId = dietCommandService.saveDietWithShoppingList(
                     request.getParsedData(),
                     request.getUserId(),
                     request.getAuthorId(),
@@ -104,7 +106,7 @@ public class DietManagerController {
                         .body(Map.of("message", "Lista dni nie może być pusta"));
             }
 
-            dietManagerService.updateDietStructure(dietId, request.getDays());
+            dietCommandService.updateDietStructure(dietId, request.getDays());
 
             return ResponseEntity.ok(Map.of(
                     "message", "Dieta została pomyślnie zaktualizowana"
@@ -122,11 +124,11 @@ public class DietManagerController {
     public ResponseEntity<List<DietHistorySummaryDto>> getDietHistory(
             @RequestParam String trainerId
     ) {
-        return ResponseEntity.ok(dietManagerService.getTrainerDietHistory(trainerId));
+        return ResponseEntity.ok(dietQueryService.getTrainerDietHistory(trainerId));
     }
 
     @GetMapping("/draft/{dietId}")
     public ResponseEntity<DietDraftDto> getDietDraft(@PathVariable String dietId) {
-        return ResponseEntity.ok(dietManagerService.getDietAsDraft(dietId));
+        return ResponseEntity.ok(dietQueryService.getDietAsDraft(dietId));
     }
 }

@@ -2,6 +2,7 @@ package com.noisevisionsoftware.vitema.service.product;
 
 import com.noisevisionsoftware.vitema.dto.request.product.ProductRequest;
 import com.noisevisionsoftware.vitema.dto.response.product.ProductResponse;
+import com.noisevisionsoftware.vitema.model.product.ProductType;
 import com.noisevisionsoftware.vitema.model.product.jpa.ProductEntity;
 import com.noisevisionsoftware.vitema.repository.jpa.ProductJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,10 +13,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-/**
- * CRUD for the PostgreSQL product database (ingredients). Safe delete:
- * product_id in recipe_ingredients is set to null via FK ON DELETE SET NULL.
- */
 @Service
 @RequiredArgsConstructor
 public class ProductDatabaseService {
@@ -28,25 +25,59 @@ public class ProductDatabaseService {
                 .map(this::toResponse);
     }
 
+    /**
+     * Search by Name (with Trainer Context).
+     * Returns Global products + Custom products for that specific trainer.
+     */
     @Transactional(readOnly = true)
-    public List<ProductResponse> searchByName(String name) {
-        return searchByNameAndCategory(name, null);
+    public List<ProductResponse> searchByName(String name, String trainerId) {
+        if (name == null || name.isBlank()) {
+            return List.of();
+        }
+        String trimmedName = name.trim();
+
+        // If no trainerId, return only GLOBAL products
+        if (trainerId == null || trainerId.isBlank()) {
+            return productJpaRepository.findByNameContainingIgnoreCaseAndType(trimmedName, ProductType.GLOBAL)
+                    .stream()
+                    .map(this::toResponse)
+                    .collect(Collectors.toList());
+        }
+
+        // If trainerId exists, return GLOBAL + their CUSTOM products
+        return productJpaRepository.searchProductsForTrainer(trimmedName, trainerId)
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
+    /**
+     * Backward compatibility: Search by Name (Global only).
+     */
+    @Transactional(readOnly = true)
+    public List<ProductResponse> searchByName(String name) {
+        return searchByName(name, null);
+    }
+
+    /**
+     * Search by Name AND Category (Global only).
+     * Added safety filter to ensure we don't leak private custom products here.
+     */
     @Transactional(readOnly = true)
     public List<ProductResponse> searchByNameAndCategory(String name, String category) {
         if (name == null || name.isBlank()) {
             return List.of();
         }
-        String trimmedName = name.trim();
-        List<ProductEntity> list = (category != null && !category.isBlank())
-                ? productJpaRepository.findByNameContainingIgnoreCaseAndCategory(trimmedName, category.trim())
-                : productJpaRepository.findByNameContainingIgnoreCase(trimmedName);
-        return list.stream().map(this::toResponse).collect(Collectors.toList());
+
+        return productJpaRepository.findByNameContainingIgnoreCaseAndCategory(name.trim(), category.trim())
+                .stream()
+                .filter(entity -> entity.getType() == ProductType.GLOBAL)
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     @Transactional
-    public ProductResponse create(ProductRequest request) {
+    public ProductResponse create(ProductRequest request, String authorId, ProductType type) {
         if (request.getName() == null || request.getName().isBlank()) {
             throw new IllegalArgumentException("Product name is required");
         }
@@ -59,14 +90,14 @@ public class ProductDatabaseService {
                 .fat(request.getFat() != null ? request.getFat() : 0.0)
                 .carbs(request.getCarbs() != null ? request.getCarbs() : 0.0)
                 .isVerified(request.isVerified())
+                .authorId(authorId)
+                .type(type)
                 .build();
+
         entity = productJpaRepository.save(entity);
         return toResponse(entity);
     }
 
-    /**
-     * Safe delete: FK on recipe_ingredients uses ON DELETE SET NULL, so recipes are not deleted.
-     */
     @Transactional
     public void delete(Long id) {
         if (!productJpaRepository.existsById(id)) {
@@ -86,6 +117,8 @@ public class ProductDatabaseService {
                 .fat(e.getFat())
                 .carbs(e.getCarbs())
                 .isVerified(e.isVerified())
+                .authorId(e.getAuthorId())
+                .type(e.getType())
                 .build();
     }
 }

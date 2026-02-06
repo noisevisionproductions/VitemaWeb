@@ -21,7 +21,9 @@ public class ProductController {
     private final ProductService productService;
     private final ProductDatabaseService productDatabaseService;
 
-    /** Search PostgreSQL product database (for recipe ingredients). */
+    /**
+     * Search PostgreSQL product database (for recipe ingredients).
+     */
     @GetMapping("/db/search")
     public ResponseEntity<List<ProductResponse>> searchDb(
             @RequestParam String query,

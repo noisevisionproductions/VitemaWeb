@@ -1,4 +1,4 @@
-package com.noisevisionsoftware.vitema.service;
+package com.noisevisionsoftware.vitema.service.shoppingList;
 
 import com.google.cloud.Timestamp;
 import com.noisevisionsoftware.vitema.exception.NotFoundException;

@@ -4,6 +4,7 @@ import com.noisevisionsoftware.vitema.exception.NotFoundException;
 import com.noisevisionsoftware.vitema.model.shopping.CategorizedShoppingListItem;
 import com.noisevisionsoftware.vitema.model.shopping.ShoppingList;
 import com.noisevisionsoftware.vitema.repository.ShoppingListRepository;
+import com.noisevisionsoftware.vitema.service.shoppingList.ShoppingListService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

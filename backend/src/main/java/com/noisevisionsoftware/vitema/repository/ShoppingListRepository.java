@@ -35,7 +35,6 @@ public class ShoppingListRepository {
         }
     }
 
-
     public Optional<ShoppingList> findById(String id) {
         try {
             DocumentReference docRef = firestore.collection(COLLECTION_NAME).document(id);

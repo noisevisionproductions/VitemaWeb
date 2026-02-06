@@ -9,11 +9,11 @@ import com.noisevisionsoftware.vitema.dto.response.diet.manual.MealSavePreviewRe
 import com.noisevisionsoftware.vitema.dto.response.diet.manual.MealSuggestionResponse;
 import com.noisevisionsoftware.vitema.dto.response.diet.manual.MealTemplateResponse;
 import com.noisevisionsoftware.vitema.model.diet.DietFileInfo;
-import com.noisevisionsoftware.vitema.model.meal.MealType;
 import com.noisevisionsoftware.vitema.model.meal.MealTemplate;
+import com.noisevisionsoftware.vitema.model.meal.MealType;
 import com.noisevisionsoftware.vitema.model.recipe.Recipe;
 import com.noisevisionsoftware.vitema.service.RecipeService;
-import com.noisevisionsoftware.vitema.service.diet.DietManagerService;
+import com.noisevisionsoftware.vitema.service.diet.DietCommandService;
 import com.noisevisionsoftware.vitema.service.product.ProductService;
 import com.noisevisionsoftware.vitema.utils.MealTemplateConverter;
 import com.noisevisionsoftware.vitema.utils.excelParser.model.ParsedDietData;
@@ -38,7 +38,7 @@ import java.util.Map;
 @Slf4j
 public class ManualDietService {
 
-    private final DietManagerService dietManagerService;
+    private final DietCommandService dietCommandService;
     private final RecipeService recipeService;
     private final MealTemplateService mealTemplateService;
 
@@ -62,7 +62,7 @@ public class ManualDietService {
 
             ParsedDietData parsedData = dietDataConverter.convertToParsedDietData(request);
 
-            String dietId = dietManagerService.saveDietWithShoppingList(
+            String dietId = dietCommandService.saveDietWithShoppingList(
                     parsedData,
                     request.getUserId(),
                     trainerId,

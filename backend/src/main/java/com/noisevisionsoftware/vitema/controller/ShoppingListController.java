@@ -6,7 +6,7 @@ import com.noisevisionsoftware.vitema.dto.request.shopping.UpdateShoppingListReq
 import com.noisevisionsoftware.vitema.dto.response.shopping.ShoppingListResponse;
 import com.noisevisionsoftware.vitema.mapper.shopping.ShoppingListMapper;
 import com.noisevisionsoftware.vitema.model.shopping.ShoppingList;
-import com.noisevisionsoftware.vitema.service.ShoppingListService;
+import com.noisevisionsoftware.vitema.service.shoppingList.ShoppingListService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

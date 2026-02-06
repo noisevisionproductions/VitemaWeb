@@ -13,11 +13,11 @@ import lombok.NoArgsConstructor;
 public class Product {
     private String id;
     private String name;
-    private String searchName;  // lowercase/normalized for search
-    private String defaultUnit;  // e.g., "g", "ml", "szt"
-    private NutritionalValues nutritionalValues;  // per 100g/100ml
+    private String searchName;
+    private String defaultUnit;
+    private NutritionalValues nutritionalValues;
     private ProductType type;
-    private String authorId;  // null for GLOBAL products
+    private String authorId;
     private String categoryId;
     private Long createdAt;
 }
