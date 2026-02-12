@@ -111,31 +111,6 @@ export const formatPostgresTimestamp = (postgresTimestamp: any): string => {
 };
 
 /**
- * NOWA FUNKCJA: Inteligentne parsowanie dla danych z zewnętrznych systemów (np. Android/iOS),
- * które mogą mieszać sekundy z milisekundami.
- * Używaj tego do: Pomiary, Logi aktywności, Daty utworzenia rekordów.
- * NIE UŻYWAJ do: Dat urodzenia (chyba że masz pewność).
- */
-export const parseFlexibleDate = (timestamp: TimestampLike | null | undefined): Date | null => {
-    if (!timestamp) return null;
-
-    let date = timestampToDate(timestamp);
-    if (!date) return null;
-
-    const year = date.getFullYear();
-
-    let originalNumber: number | null = null;
-    if (typeof timestamp === 'number') originalNumber = timestamp;
-    if (typeof timestamp === 'string' && !isNaN(Number(timestamp))) originalNumber = Number(timestamp);
-
-    if (year === 1970 && originalNumber && originalNumber > 1000000000) {
-        return new Date(originalNumber * 1000);
-    }
-
-    return date;
-};
-
-/**
  * Konwertuje różne formaty timestamp na Firestore Timestamp
  */
 export const toFirestoreTimestamp = (timestamp: TimestampLike | null | undefined): Timestamp | null => {

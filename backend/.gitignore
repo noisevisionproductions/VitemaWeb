@@ -36,6 +36,7 @@ out/
 ### VS Code ###
 .vscode/
 
+firebase-service-account-dev.json
 firebase-service-account.json
 # Ignoruj zawartość katalogu data
 /data/*

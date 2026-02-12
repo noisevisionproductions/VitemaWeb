@@ -33,14 +33,13 @@ const ProductCategorizationLayout: React.FC<ProductCategorizationLayoutProps> = 
         categories.length > 0 ? categories[0].id : ''
     );
     const [isAutoCategorizing, setIsAutoCategorizing] = useState<boolean>(false);
-    const { refreshSuggestions } = useSuggestedCategoriesContext();
+    const {refreshSuggestions} = useSuggestedCategoriesContext();
 
     const handleProductCategorize = (product: ParsedProduct, categoryId: string) => {
         onProductDrop(categoryId, {
             ...product,
             categoryId
         });
-
         setActiveCategory(categoryId);
     };
 

@@ -101,7 +101,6 @@ const DietPreview: React.FC<DietPreviewProps> = ({
         );
     }
 
-    // Krok kategoryzacji (tylko dla Excel upload)
     return (
         <CategorySection
             uncategorizedProducts={uncategorizedProducts}

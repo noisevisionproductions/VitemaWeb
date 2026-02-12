@@ -14,6 +14,7 @@ local.properties
 key.properties
 
 # Firebase-specific files
+firebase-service-account-dev.json
 **/google-services.json
 .firebase/
 

@@ -149,11 +149,40 @@ const DietCreator: React.FC<DietCreatorProps> = ({
     }, []);
 
     const convertToPreviewData = useCallback((): ParsedDietData => {
-        // Shopping list is now generated automatically on the backend based on product IDs
+        const aggregatedIngredients: Record<string, { name: string; quantity: number; unit: string }> = {};
+
+        dietData.days.forEach(day => {
+            day.meals.forEach(meal => {
+                if (meal.ingredients) {
+                    meal.ingredients.forEach(ing => {
+                        const key = `${ing.name.trim().toLowerCase()}_${ing.unit.trim().toLowerCase()}`;
+
+                        if (aggregatedIngredients[key]) {
+                            aggregatedIngredients[key].quantity += (ing.quantity || 0);
+                        } else {
+                            aggregatedIngredients[key] = {
+                                name: ing.name,
+                                quantity: ing.quantity || 0,
+                                unit: ing.unit
+                            };
+                        }
+                    });
+                }
+            });
+        });
+
+        const shoppingListStrings: string[] = Object.values(aggregatedIngredients)
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map(p => `${p.name} - ${parseFloat(p.quantity.toFixed(2))} ${p.unit}`);
+
+        const previewCategorizedProducts: Record<string, string[]> = {
+            "Produkty (podgląd)": shoppingListStrings
+        };
+
         return {
             days: dietData.days,
-            categorizedProducts: {},
-            shoppingList: [],
+            categorizedProducts: previewCategorizedProducts,
+            shoppingList: shoppingListStrings,
             mealTimes: dietData.mealTimes,
             mealsPerDay: dietData.mealsPerDay,
             startDate: Timestamp.fromDate(new Date(dietData.startDate)),

@@ -1,18 +1,16 @@
 import React, {useMemo, useState} from "react";
 import {ParsedDietData} from "../../../../../types";
 import {ParsedProduct} from "../../../../../types/product";
-import {getCategoryLabel} from "../../../../../utils/productUtils";
-import {useProductCategories} from "../../../../../hooks/shopping/useProductCategories";
 import {
     Loader2, User, CalendarDays, ChevronDown, ChevronUp, ShoppingBag, Utensils, FileText,
-    PieChart, Flame,
-    Heart
+    PieChart, Flame, Heart
 } from "lucide-react";
 import {formatTimestamp} from "../../../../../utils/dateFormatters";
 import DietMealPreview from "./DietMealPreview";
 import {getPolishDayForm, getPolishMealForm, getPolishProductForm} from "../../../../../utils/declensionsOfNouns";
 import {v4 as uuidv4} from "uuid";
 import {FloatingActionButton, FloatingActionButtonGroup} from "../../../../shared/common/FloatingActionButton";
+import ShoppingListView from "../../shopping/ShoppingListView";
 
 interface PreviewSectionProps {
     parsedData: ParsedDietData;
@@ -35,7 +33,6 @@ const PreviewSection: React.FC<PreviewSectionProps> = ({
                                                            fileName,
                                                            disabled = false
                                                        }) => {
-    const {categories} = useProductCategories();
     const [showShoppingList, setShowShoppingList] = useState(true);
     const [expandedDays, setExpandedDays] = useState<number[]>([0]);
 
@@ -54,8 +51,8 @@ const PreviewSection: React.FC<PreviewSectionProps> = ({
         }
         updatedDays[dayIndex].meals[mealIndex].photos?.push(imageUrl);
 
-        if (!updatedDays[dayIndex].meals[mealIndex].recipeId) {
-            updatedDays[dayIndex].meals[mealIndex].recipeId = `temp-recipe-${uuidv4()}`;
+        if (!updatedDays[dayIndex].meals[mealIndex].originalRecipeId) {
+            updatedDays[dayIndex].meals[mealIndex].originalRecipeId = `temp-recipe-${uuidv4()}`;
         }
     };
 
@@ -67,21 +64,36 @@ const PreviewSection: React.FC<PreviewSectionProps> = ({
         }
     };
 
-    const totalProducts = Object.values(categorizedProducts)
-        .reduce((sum, products) => sum + products.length, 0);
+    const shoppingListItems = useMemo(() => {
+        if (Object.keys(categorizedProducts).length > 0) {
+            return categorizedProducts;
+        }
+
+        if (parsedData.categorizedProducts && Object.keys(parsedData.categorizedProducts).length > 0) {
+            const converted: Record<string, any[]> = {};
+
+            Object.entries(parsedData.categorizedProducts).forEach(([category, items]) => {
+                converted[category] = items.map(itemStr => ({
+                    name: itemStr,
+                    quantity: 0,
+                    unit: '',
+                    original: itemStr
+                }));
+            });
+            return converted;
+        }
+
+        return {};
+    }, [categorizedProducts, parsedData.categorizedProducts]);
+
+    const totalProducts = Object.values(categorizedProducts).length > 0
+        ? Object.values(categorizedProducts).reduce((sum, products) => sum + products.length, 0)
+        : (parsedData.shoppingList?.length || 0);
 
     const nutritionSummary = useMemo(() => {
         if (!parsedData?.days?.length) return null;
-
-        const totals = {
-            calories: 0,
-            protein: 0,
-            carbs: 0,
-            fat: 0,
-        };
-
+        const totals = {calories: 0, protein: 0, carbs: 0, fat: 0};
         let mealCount = 0;
-
         parsedData.days.forEach(day => {
             day.meals.forEach(meal => {
                 if (meal.nutritionalValues) {
@@ -93,9 +105,7 @@ const PreviewSection: React.FC<PreviewSectionProps> = ({
                 }
             });
         });
-
         const daysCount = parsedData.days.length || 1;
-
         return {
             perDay: {
                 calories: Math.round(totals.calories / daysCount),
@@ -107,9 +117,9 @@ const PreviewSection: React.FC<PreviewSectionProps> = ({
         };
     }, [parsedData]);
 
+
     return (
         <div className="space-y-6 pb-16 relative">
-            {/* Nagłówek z informacjami o użytkowniku */}
             <div
                 className="bg-white p-6 rounded-lg shadow-sm flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                 <div>
@@ -133,84 +143,66 @@ const PreviewSection: React.FC<PreviewSectionProps> = ({
                     <div className="flex items-center gap-2 bg-blue-50 p-2 rounded-md">
                         <CalendarDays className="h-5 w-5 text-blue-600"/>
                         <span>
-                    <strong>{parsedData.days.length}</strong> {getPolishDayForm(parsedData.days.length)} diety
-                </span>
+                            <strong>{parsedData.days.length}</strong> {getPolishDayForm(parsedData.days.length)} diety
+                        </span>
                     </div>
                     <div className="flex items-center gap-2 bg-green-50 p-2 rounded-md">
                         <Utensils className="h-5 w-5 text-green-600"/>
                         <span>
-                    <strong>{parsedData.mealsPerDay}</strong> {getPolishMealForm(parsedData.mealsPerDay)} dziennie
-                </span>
+                            <strong>{parsedData.mealsPerDay}</strong> {getPolishMealForm(parsedData.mealsPerDay)} dziennie
+                        </span>
                     </div>
                     <div className="flex items-center gap-2 bg-purple-50 p-2 rounded-md md:col-span-2">
                         <ShoppingBag className="h-5 w-5 text-purple-600"/>
                         <span>
-                    <strong>{totalProducts}</strong> {getPolishProductForm(totalProducts)} na liście zakupów
-                </span>
+                            <strong>{totalProducts}</strong> {getPolishProductForm(totalProducts)} na liście zakupów
+                        </span>
                     </div>
                 </div>
             </div>
 
-            {/* Podsumowanie dziennych wartości odżywczych */}
             {nutritionSummary?.hasMealNutrition && (
                 <div className="bg-white p-6 rounded-lg shadow-sm">
                     <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
                         <PieChart className="h-5 w-5 text-amber-600"/>
                         Podsumowanie wartości odżywczych (dziennie)
                     </h3>
-
                     <div className="overflow-x-auto">
                         <table className="w-full border-collapse">
                             <thead>
                             <tr className="bg-gray-50">
                                 <th className="text-left py-2 px-3 font-medium border-b">
-                                    <div className="flex items-center gap-2">
-                                        <Flame className="h-4 w-4 text-green-700"/>
-                                        Kalorie
+                                    <div className="flex items-center gap-2"><Flame className="h-4 w-4 text-green-700"/>Kalorie
                                     </div>
                                 </th>
                                 <th className="text-left py-2 px-3 font-medium border-b">
-                                    <div className="flex items-center gap-2">
-                                        <Heart className="h-4 w-4 text-blue-700"/>
-                                        Białko
+                                    <div className="flex items-center gap-2"><Heart className="h-4 w-4 text-blue-700"/>Białko
                                     </div>
                                 </th>
                                 <th className="text-left py-2 px-3 font-medium border-b">
-                                    <div className="flex items-center gap-2">
-                                        <Heart className="h-4 w-4 text-red-700"/>
-                                        Tłuszcze
+                                    <div className="flex items-center gap-2"><Heart className="h-4 w-4 text-red-700"/>Tłuszcze
                                     </div>
                                 </th>
                                 <th className="text-left py-2 px-3 font-medium border-b">
-                                    <div className="flex items-center gap-2">
-                                        <Heart className="h-4 w-4 text-yellow-700"/>
-                                        Węglowodany
+                                    <div className="flex items-center gap-2"><Heart
+                                        className="h-4 w-4 text-yellow-700"/>Węglowodany
                                     </div>
                                 </th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr>
-                                <td className="py-2 px-3 border-b">
-                                    <span
-                                        className="font-medium text-green-700">{nutritionSummary.perDay.calories}</span> kcal
+                                <td className="py-2 px-3 border-b"><span
+                                    className="font-medium text-green-700">{nutritionSummary.perDay.calories}</span> kcal
                                 </td>
-                                <td className="py-2 px-3 border-b">
-                                    <span
-                                        className="font-medium text-blue-700">{nutritionSummary.perDay.protein}</span> g
+                                <td className="py-2 px-3 border-b"><span
+                                    className="font-medium text-blue-700">{nutritionSummary.perDay.protein}</span> g
                                 </td>
-                                <td className="py-2 px-3 border-b">
-                                    <span
-                                        className="font-medium text-red-700">{nutritionSummary.perDay.fat}</span> g
+                                <td className="py-2 px-3 border-b"><span
+                                    className="font-medium text-red-700">{nutritionSummary.perDay.fat}</span> g
                                 </td>
-                                <td className="py-2 px-3 border-b">
-                                    <span
-                                        className="font-medium text-yellow-700">{nutritionSummary.perDay.carbs}</span> g
-                                </td>
-                            </tr>
-                            <tr className="bg-gray-50 text-sm text-gray-600">
-                                <td className="py-2 px-3" colSpan={5}>
-                                    * Średnie wartości na dzień wyliczone na podstawie całego planu dietetycznego
+                                <td className="py-2 px-3 border-b"><span
+                                    className="font-medium text-yellow-700">{nutritionSummary.perDay.carbs}</span> g
                                 </td>
                             </tr>
                             </tbody>
@@ -219,13 +211,11 @@ const PreviewSection: React.FC<PreviewSectionProps> = ({
                 </div>
             )}
 
-            {/* Przegląd dni i posiłków */}
             <div className="space-y-4">
                 <h3 className="text-xl font-semibold flex items-center gap-2 mb-4">
                     <CalendarDays className="h-5 w-5 text-blue-600"/>
                     Harmonogram diety
                 </h3>
-
                 {parsedData.days.map((day, dayIndex) => (
                     <div key={dayIndex} className="bg-white rounded-lg shadow-sm overflow-hidden">
                         <div
@@ -233,17 +223,14 @@ const PreviewSection: React.FC<PreviewSectionProps> = ({
                             onClick={() => toggleDayExpand(dayIndex)}
                         >
                             <h3 className="text-lg font-semibold flex items-center gap-2">
-                <span
-                    className="flex justify-center items-center h-6 w-6 rounded-full bg-blue-600 text-white text-sm font-bold">
-                  {dayIndex + 1}
-                </span>
+                                <span
+                                    className="flex justify-center items-center h-6 w-6 rounded-full bg-blue-600 text-white text-sm font-bold">
+                                  {dayIndex + 1}
+                                </span>
                                 {formatTimestamp(day.date)}
                             </h3>
-                            {expandedDays.includes(dayIndex) ? (
-                                <ChevronUp className="h-5 w-5 text-gray-500"/>
-                            ) : (
-                                <ChevronDown className="h-5 w-5 text-gray-500"/>
-                            )}
+                            {expandedDays.includes(dayIndex) ? <ChevronUp className="h-5 w-5 text-gray-500"/> :
+                                <ChevronDown className="h-5 w-5 text-gray-500"/>}
                         </div>
 
                         {expandedDays.includes(dayIndex) && (
@@ -254,9 +241,7 @@ const PreviewSection: React.FC<PreviewSectionProps> = ({
                                             key={mealIndex}
                                             meal={meal}
                                             mealIndex={mealIndex}
-                                            onImageAdd={(mealIndex, imageUrl) =>
-                                                handleImageAdd(dayIndex, mealIndex, imageUrl)
-                                            }
+                                            onImageAdd={(mealIndex, imageUrl) => handleImageAdd(dayIndex, mealIndex, imageUrl)}
                                         />
                                     ))}
                                 </div>
@@ -266,7 +251,6 @@ const PreviewSection: React.FC<PreviewSectionProps> = ({
                 ))}
             </div>
 
-            {/* Lista zakupów z kategoriami */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                 <div
                     className="p-4 border-b flex justify-between items-center cursor-pointer hover:bg-gray-50"
@@ -285,75 +269,10 @@ const PreviewSection: React.FC<PreviewSectionProps> = ({
 
                 {showShoppingList && (
                     <div className="p-4">
-                        {Object.entries(categorizedProducts).length === 0 &&
-                        (!parsedData.categorizedProducts || Object.entries(parsedData.categorizedProducts).length === 0) ? (
-                            <div className="text-center py-8 text-gray-500">
-                                Brak skategoryzowanych produktów
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {/* Najpierw produkty z categorizedProducts (obiekt ParsedProduct[]) */}
-                                {Object.entries(categorizedProducts).map(([categoryId, products]) => {
-                                    const category = categories.find(c => c.id === categoryId);
-                                    const categoryName = category?.name || getCategoryLabel(categoryId);
-                                    const categoryColor = category?.color || '#9e9e9e';
-
-                                    return (
-                                        <div key={categoryId} className="rounded-lg border overflow-hidden">
-                                            <div
-                                                className="font-medium px-4 py-3"
-                                                style={{backgroundColor: `${categoryColor}20`}}
-                                            >
-                                                {categoryName} ({products.length})
-                                            </div>
-                                            <div className="p-4">
-                                                <ul className="space-y-2">
-                                                    {products.map((product, index) => (
-                                                        <li key={index} className="flex items-start gap-2">
-                                                            <span className="text-purple-600 mt-1">•</span>
-                                                            <div>
-                                                                <span className="font-medium">{product.name}</span>
-                                                                <span className="text-gray-600 ml-2">
-                                                        {product.quantity} {product.unit}
-                                                    </span>
-                                                            </div>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-
-                                {/* Potem produkty z parsedData.categorizedProducts (string[]) */}
-                                {parsedData.categorizedProducts && Object.entries(parsedData.categorizedProducts).map(([categoryId, productStrings]) => {
-                                    const category = categories.find(c => c.id === categoryId);
-                                    const categoryName = category?.name || getCategoryLabel(categoryId);
-                                    const categoryColor = category?.color || '#9e9e9e';
-
-                                    return (
-                                        <div key={`parsed-${categoryId}`} className="rounded-lg border overflow-hidden">
-                                            <div
-                                                className="font-medium px-4 py-3"
-                                                style={{backgroundColor: `${categoryColor}20`}}
-                                            >
-                                                {categoryName} ({productStrings.length})
-                                            </div>
-                                            <div className="p-4">
-                                                <ul className="space-y-2">
-                                                    {productStrings.map((productString, index) => (
-                                                        <li key={index} className="flex items-start gap-2">
-                                                            <span className="text-purple-600 mt-1">•</span>
-                                                            <span className="text-sm">{productString}</span>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        )}
+                        <ShoppingListView
+                            items={shoppingListItems}
+                            emptyMessage="Brak skategoryzowanych produktów"
+                        />
                     </div>
                 )}
             </div>
